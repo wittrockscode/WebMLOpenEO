@@ -37,3 +37,10 @@ has to be able to:
 - train a model on the training data provided
 - predict results using a trained model
 - forward results + model to the node server
+
+## Names & Orga
+
+Machine
+Learning
+Map
+Toolkit
