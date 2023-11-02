@@ -1,1 +1,0 @@
-# GeoSoft2 Docs
