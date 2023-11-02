@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   run-linters:
-    name: Run linters
+    name: Lint & Format frontend
     runs-on: ubuntu-latest
     defaults:
       run:
