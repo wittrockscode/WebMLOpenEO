@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, review_requested]
     paths:
-    - './app/frontend/**'
+    - 'app/frontend/**'
 
   schedule:
     - cron: '30 5 * * *'
