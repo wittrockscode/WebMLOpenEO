@@ -17,7 +17,7 @@ ist eine Specification, mit einer Implementierung in R (Package "openeo")
 - in einem UDP definiert man, wie die Daten von einem Backend verarbeitet werden sollen, die tatsächliche bearbeitung findet aber erst statt, wenn der Prozess auf dem Backend ausgeführt wird
 # Kollektionen
 - stellt collections zur Verfügung über `list_collections()` 
-	- [x] Was machen diese Collections?
+	-  Was machen diese Collections?
 		- Die Kollektions geben die Daten an, die auf dem Backend zur Verfügung stehen. Das Backend kann nur auf den von ihm bereitgestellten Collections Berechnungen durchführen
 
 
@@ -26,5 +26,4 @@ ist eine Specification, mit einer Implementierung in R (Package "openeo")
 	- vermutlich können wir hier einfach `openeocubes` entsprechend erweitern
 - Sollten wir etwas selbst implementieren müssen, müssen wir vermutlich auch mit der "UDF-API" kommunizieren
 	- [ ] Was ist das?
-- Unsere Funktionalität wird als neuer Prozess auf dem "openeocubes"-Backend implementiert. Dort müssen wir noch zusätzlich das ML Model implmentieren, damit es ausgeführt werden kann.
-	- 
+- Unsere Funktionalität wird als neuer Prozess auf dem "openeocubes"-Backend implementiert. Dort müssen wir noch zusätzlich das ML Model implmentieren, damit es ausgeführt werden kann
