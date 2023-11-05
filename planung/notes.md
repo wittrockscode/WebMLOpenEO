@@ -60,7 +60,7 @@ Toolkit
 
 ### Processes
 
-- TBD
+
 - der Nutzer kann in der Web App in einer OpenLayers Karte mithilfe eines Zeichenwerkzeuges einen kartenausschnitt einzeichnen oder eine GeoJSON Datei, welche den gewünschten Bereich als beliebiges Polygon definiert, hochladen (implementiert bonus feat 3)
 - Rejected -> vllt später wenn aufwand bekannt
 - TBD -> recherchieren ob schwierig
@@ -93,3 +93,26 @@ Toolkit
     - R server mit openEOcubes
 - das Projekt kann mithilfe von docker compose gestartet werden
 - der container wird auf einer AWS S3 Instanz gehostet
+
+## Non functional Reqirements (Fließtext)
+
+### Training and Demostration
+- Alle Daten werden für den Demo Prozess vorgegeben, die Berechnung findet genauso statt, wie wenn der User eine Eingabe tätigen würde. Über einen Hilfe Button wird der User mittels Pop Ups durch den Prozess geführt. Das Formular, welches gesperrt wird, wird mit Werten gefühlt, sodass nur der Submit Button gedrückt werden muss, um die Berechnung durchzuführen.
+TBD Testen und Valiedieren Entscheidung von Knoth und Edzer
+
+### Maintainability
+Nutzen von OSI-Lizenz und muss openSource sein.
+Die Komponenten die genutzt werden bestehen nur aus einer Programmiersprache. Für das Packaging benutzen wir "R Packages" und "npm" für JavaScript.
+Für das Testen benutzen wir "Jest", "vitest" und "testthat". 
+Für die Dokumentation nutzen wir "swagger", welche Online zur Verfügung gestellt wird. 
+
+
+### User friendliness
+Es wird eine barrierefreie Farbpalette genutzt. Die gängigsten Designprinzipien werden eingehalten. Das System wird in Browsern wie Chrome und Safari voll funktional fähig sein und von mindestens 90% der User nutzbar sein.
+
+
+### Performance
+Eine Änderung auf der Website erfolgt innerhalb einer Sekunde. Alle Inhalte werden asynchron geladen. Interaktive Bedienung erfolgt innerhalb 0.1 Sekunden.
+
+### Deployment
+Docker wird genutzt.
