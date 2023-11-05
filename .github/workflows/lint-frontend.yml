@@ -2,7 +2,7 @@ name: Lint Frontend
 
 on:
   pull_request:
-    types: [opened, reopened, review_requested]
+    types: [reopened, review_requested]
     paths:
     - 'app/frontend/**'
   push:
