@@ -5,6 +5,9 @@ on:
     types: [opened, reopened, review_requested]
     paths:
     - 'app/frontend/**'
+  push:
+    paths:
+    - 'app/frontend/**'
 
   schedule:
     - cron: '30 5 * * *'
