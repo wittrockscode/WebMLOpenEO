@@ -7,7 +7,7 @@ header#header
 </template>
 
 <script lang='ts'>
-import { defineComponent, onMounted, nextTick } from 'vue';
+import { defineComponent } from 'vue';
 import HeaderLinkIcon from '@/components/base/HeaderLinkIcon.vue';
 
 export default defineComponent({
@@ -15,9 +15,6 @@ export default defineComponent({
     HeaderLinkIcon
   },
   setup() {
-    onMounted(async () => {
-      await nextTick();
-    });
 
     return {  };
   },
