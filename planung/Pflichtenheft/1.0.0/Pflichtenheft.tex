@@ -1,0 +1,230 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amssymb} % needed for math
+\usepackage{amsmath} % needed for math
+\usepackage[utf8]{inputenc} % this is needed for german umlauts
+\usepackage[ngerman]{babel} % this is needed for german umlauts
+\usepackage[T1]{fontenc}    % this is needed for correct output of umlauts in pdf
+\usepackage[margin=2.5cm]{geometry} %layout
+\usepackage{booktabs}
+
+% this is needed for forms and links within the text
+\usepackage[hidelinks]{hyperref}  
+
+% glossar, see http://en.wikibooks.org/wiki/LaTeX/Glossary
+% has to be loaded AFTER hyperref so that entries are clickable
+\usepackage[nonumberlist]{glossaries} 
+
+% The following is needed in order to make the code compatible
+% with both latex/dvips and pdflatex.
+\ifx\pdftexversion\undefined
+\usepackage[dvips]{graphicx}https://www.overleaf.com/project/653ecd36a364a3e0e12e8cbd
+\else
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsRule{*}{mps}{*}{}
+\fi
+
+% Erzeugt ein Glossar in "Glossar.tex". Dieses muss mit \include{} noch eingebunden werden.
+\makeglossaries 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Variablen                                 						 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\authors}{Leonard Wittrock, Martin Kriger, Tim Ciroth, Maximilian Reiner, Michael Brüggemann}
+\newcommand{\auftraggeber}{Institut für Geoinformatik, Universität Münster}
+\newcommand{\auftragnehmer}{Eine Firma}
+\newcommand{\projektName}{Web based Machine Learning for OpenEOcubes - WebMLOpenEO}
+\newcommand{\tags}{\authors, Pflichtenheft, ML, Remote Sensing}
+\newcommand{\glossarName}{Glossar}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Informations for the title page                                 						 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\projektName~(Pflichtenheft)}
+\author{Leonard Wittrock, Martin Kriger, Tim Ciroth, Maximilian Reiner,\\ Michael Brüggemann}
+\date{\today}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PDF Meta information                                 				 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hypersetup{
+  pdfauthor   = {\authors},
+  pdfkeywords = {\tags},
+  pdftitle    = {\projektName~(Pflichtenheft)}
+} 
+
+    
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Create a shorter version for tables. DO NOT CHANGE               	 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% nimmt 3 Parameter entgegen, die an den Stellen #1, #2, #3 ausgegeben werden. Die "&" werden gebraucht, da die rows in einem "tabular" enviroment verwendet werden
+\newcommand{\addrow}[3]{#1 &#2 &#3 \\ [0.2cm]}
+
+
+\newcommand{\addheading}[3]{#1 &#2 &#3\\ \hline }
+\newcommand{\tabularhead}{\begin{tabular}{l p{5cm} p{8cm}}
+\hline
+}
+
+\newcommand\addmulrow[2]{ \begin{minipage}[t][][t]{2.5cm}#1\end{minipage}% 
+   &\begin{minipage}[t][][t]{8cm}
+    \begin{enumerate} #2   \end{enumerate}
+    \end{minipage}\\ }
+
+\newenvironment{usecase}{\tabularhead}
+{\hline\end{tabular}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Wie nutze ich einen Usecase??          	                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. Envirment mit \begin{usecase} öffnern
+% 2. mit \addheadheading{}{}{} drei Tabellenüberschriften vergeben
+% wenn die Spalte "Bezug" (zweite Spalte) zu voll ist, kann es sein, dass der vertikale Abstand zwischen 2 Zeilen nicht ordentlich dargestellt wird
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THE DOCUMENT BEGINS             	                              	 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+ \pagenumbering{roman}
+ \input{Deckblatt}         % Deckblatt.tex laden und einfügen
+ \setcounter{page}{2}
+ \tableofcontents          % Inhaltsverzeichnis ausgeben
+ \clearpage
+ \pagenumbering{arabic}
+ 
+\section{Unser Produkt} \label{unser produkt}
+Um die Aufgabe einen webbasierten Service zur machine-learning gestützten Klassifikation von Sentinel-2 Satellitenbildern zu entwickeln zu erfüllen, stellen wir einen umfassenden Webservice zur Verfügung.
+\par
+Dieser Webservice besteht aus einem Frontend-Server, einem Node.js-Backend und einem OpenEO-konformen R Backend.
+Der Frontend Server stellt der Nutzer:in eine gerenderte HTML Seite zur Verfügung, auf der die Klassifikationsaufgabe konfiguriert werden kann. Der Frontendserver stellt ebenfalls eine HTML mit der Dokumentation zu unserem Webservice zur Verfügung. Auf der Website unseres Webservices stehen der Nutzer:in ein Formular zur Interaktion, sowie eine Webkarte zur Verfügung. Mit diesen Elementen ist die Interaktion mit unserem Service möglich. Das Erscheinungsbild und die Ausgaben der Anwendung werden dabei von einer barriefreien Farbpalette unterstützt, was eine möglichst breite Zugänglichkeit ermöglicht. Durch das Verwenden von Vue.js ist außerdem eine umfangreiche Browserunterstützung gewährleistet (90\%). 
+\par
+Im Node.js-Backend werden die Anfragen des Users gebündelt. Dort wird eine API bereitgestellt, die die Services unserer Anwendung beschreibt (API-self-documentation), sowie die Anfragen der Nutzer:innen verarbeitet, bzw. in neue Anfragen an andere Server umwandelt (Routing).
+\par
+Die Anfragen zu einer Klassifikation werden dann an ein OpenEO-konformes Backend weitergeleitet, auf welchem die tatsächlichen Berechnungen stattfinden. Dieses nutzt die bereits bestehenden Strukturen von 'openEOcubes' und erweitert diese um geeignete Prozesse, um die machine-learning gestützte Klassifikation durchzuführen. So werden bereits bestehende Prozesse zur Verbarbeitung von Datacubes durch 'openEOcubes' genutzt und auch neue Prozesse im Bereich machine-learning ergänzt.
+\par
+Weiterhin bietet unsere Anwendung die Möglichkeit einen Demoprozess zu starten. Dies ist ein geführter Prozess, indem die Nutzer:in eine mögliche Eingabe in unseren Webservice vorgestellt bekommt und diese Anfrage an den Server gesandt wird. Dort wird ein bestehender Datensatz angefragt, der dann für die Klassifikation genutzt wird. Während des Prozesses werden die Formularelemente für die Nutzer:in gesperrt, um sicherzustellen, dass der Demoprozess genau wie von uns vorbereitet durchlaufen wird. Der Prozess wird dabei von informativen Popups begleitet, die der Nutzer:in weitere Informationen zu dem Webservice bieten.
+\par
+Der Webservice selbst wird auf DockerHub als Docker-Image bereitgestellt, welches direkt auf einer Amazon AWS/EC2 Instanz gehostet wird. So ist sichergestellt, dass der Service unabhängig vom lokalen System ausgeführt wird und der Webservice dadurch ebenfalls über die für die Klassifikationen nötige Rechenleistung verfügt.
+Dieses Docker Image besteht dabei aus 3 Services. Dies sind die oben beschriebenen Komponenten des Services (Frontend, Node.js-Backend, R Backend). Da jede Komponente nur eine einzelne Programmiersprache nutzt, kann auf komplexe Build-Prozesse mit Makefiles verzichtet werden. Unser Entwicklungsprozess besteht hier aus in den Testsuites 'Jest', 'vitest' und 'testthat' definierten Unit- und Integrations-Tests, sowie einem nach dem 4-Augenprinzip überwachten Pullrequest-Prozess in unserem Github-Repository.
+\par
+% ggf. müssen wir hier genau definieren, welche Lizenz wir nutzen
+Der gesamte Webservice wird unter einer OSI Lizenz veröffentlicht und steht als OpenSource-Software zur Verfügung. Der Kunde erhält über unser GitHub Repository während des Entwicklungsprozesses Zugriff auf den Quellcode, sowie alle dort verwalteten Projektmanagementdokumente (siehe Abschnitt \ref{zugang}).
+
+
+\section{Funktionale Anforderungen}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Was muss das Programm können?                   					 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Data Ingest}
+
+\begin{usecase}
+
+    %Data Ingest Funktionale Anforderungen
+  \addheading{Nummer}{Bezug}{Beschreibung} 
+  \addrow{/FA05/}{}{Unsere Web-App wird als eine One-Page-Struktur implementiert, welche auf der linken Seite eine interaktive Kartenfunktion bereitstellt und auf der rechten Seite ein Formular besitzt, um die gewünschten Daten einzugeben und einzuladen.} 
+  \addrow{/FA10/}{support loading training data via direct file upload to the server, support at least file formats GeoJSON and GeoPackage}{Im Formular wird ein Button bereitgestellt, der den File-Explorer öffnet, um Dateien für die Trainingsdaten hochzuladen. GeoJSON und GeoPackage werden unterstützt.} 
+  \addrow{/FA15/}{the server automatically discovers and processes (accesses, or downloads) the
+satellite imagery from other sources as required for model training and prediction based on the locations and extents of the area of interest and training
+data} {Der Backend-Server basiert auf einem openEO-Backend namens 'openEOcubes', auf dem die Collection der Sentinel-2 Erdbeobachtungsdaten vorliegen.}
+  \addrow{/FA20/}{the server automatically discovers and processes (accesses, or downloads) the
+satellite imagery from other sources as required for model training and prediction based on the locations and extents of the area of interest and training
+data, /F05/}{Durch die gleichzeitige und gemeinsame Speicherung auf einer AWS-Instanz (us-west-2 region Oregon) wird der direkte Zugriff auf die Collection der Erdbeobachtungsdaten des Sentinel-2 Satelliten möglich.}
+  \addrow{/FA25/}{example satellite data for demonstration purposes is being kept available on the
+server}{Unsere Anwendung bietet die Möglichkeit über einen Button einen Demoprozess zu starten. Dies ist ein geführter Prozess, indem die Nutzer:in eine mögliche Eingabe in unseren Webservice vorgestellt bekommt und diese Anfrage dann an den Server gesandt wird.}
+
+\end{usecase}
+
+\subsection{Processes}
+
+\begin{usecase}
+  %Processes Funktionale Anforderungen
+  \addheading{Nummer}{Bezug}{Beschreibung} 
+  \addrow{/FA30/}{implement at least one standard machine learning algorithm for LULC clas-
+  satellite image data}{Wir implementieren den 'Random Forest' Algorithmus. Random Forest zeichnet sich durch eine Hohe Performanz in LULC Klassifikationsproblemen aus und ist daher gut für diese Anwendung geeginet}
+  \addrow{/FA35/}{allow the user to specify the target area by means of polygon data (e.g.by file upload, or on-screen digitizing).}{Der Nutzer wird die Möglichkeit haben in einer Karte, welche auf openLayers basiert, mithilfe eines Zeichenwerkzeuges, einen Kartenausschnitt einzuzeichnen.}
+  \addrow{/FA40/}{allow the user to specify the target area by means of polygon
+data (e.g. by file upload, or on-screen digitizing)
+}{Optional kann eine GeoJSON-Datei, welche den gewünschten Bereich als beliebiges Polygon definiert, über einen Button, welcher den File-Explorer öffnet, hochgeladen werden.}
+  \addrow{/FA45/}{allow the user to specify the target area (rectangular) and date
+}{Neben der Möglichkeit einen Kartenausschnitt zu bestimmen, ist es möglich im Formular über eine Datumsauswahl, den Zeitpunkt für die gewünschten Satellitendaten, festzulegen.}
+  \addrow{/FA55/}{allow the user to specify a lower resolution to compute predic-
+tions on than the native resolution of the satellite imagery used}{Wir stellen ein Input Feld zur Verfügung, in der die Resolution des Satellitenbildes eingestellt werden kann. Im Backend wird dies durch 'openEOcubes' in Verbindung mit 'gdalcubes' realisiert.}
+  \addrow{/FA60/}{in addition to the classified map, create and return the map with class probabilities of all classes of that for which the probability is maximum.}{Nach der Prozessierung wird dem Nutzer, über die Interaktive Karte, eine Möglichkeit gegeben die verschiedenen Kartentypen (predicted map, map with class probabilities) als Layerwechsel anzeigen zu lassen.}
+  \addrow{/FA65/}{improve openEOcubes and submit one or more pull requests to its GitHub repo}{Die Erweiterung wird ein neu definierter openEO-Prozess sein, der das Berechnen einer LULC-Klassifikation mit dem Algorithmus 'Random Forest' ermöglicht und dabei auf dem Backend laufen wird. Zusätzlich dazu werden die Teilprozesse einer ML-Klassifikation als openEO-konforme Prozesse implementiert.}
+
+\end{usecase}
+
+\subsection{Visualisation}
+
+
+
+\begin{usecase}
+  %Visualisation Funktionale Anforderungen
+  \addheading{Nummer}{Bezug}{Beschreibung} 
+  \addrow{/FA70/}{visualize the training areas/locations (if applicable) and area of interest on an interactive map (leaflet, openlayers or similar)}{Die Web-App verfügt über eine Kartenansicht, die je nach ausgewähltem Schritt entweder die 'Area of Interest' oder die Training-Areas anzeigt.}
+  \addrow{/FA75/}{visualize the resulting prediction (classification) on an interactive web map}{Nach Abschluss des Prozesses zeigt die Karte das Ergebnis in Form eines ein- und ausblendbaren Klassifizierungs-Layers an. Dieser Layer verwendet eine barrierefreie Farblegende, die auf Grundlage der vom Backend gelieferten Daten berechnet wird. Die Farblegende ermöglicht den Benutzern eine klare und zugängliche Darstellung der Klassifizierungsinformationen auf der Karte, wodurch sie die Ergebnisse leicht verstehen können.}
+  \addrow{/FA80/}{visualize the resulting quality of prediction (e.g. probibility of
+the most likely class) on an interactive web map}{Am Ende des Prozesses hat der Nutzer die Möglichkeit, eine Karte mit den Klassenwahrscheinlichkeiten in der Web-App anzuzeigen.}
+
+\end{usecase}
+
+\subsection{Data Download}
+
+\begin{usecase}
+  %Data Download Funktionale Anforderungen
+  \addheading{Nummer}{Bezug}{Beschreibung} 
+  \addrow{/FA85/}{enable the download of the prediction map in a standard raster data format}{  Unsere Web-App bietet einen Download-Button an, der es den Benutzern ermöglicht, die Rasterdaten im .TIFF-Format herunterzuladen.}
+  \addrow{/FA90/}{enable download of the trained model (if applicable)}{Es wird eine Möglichkeit geben, das trainierte Model in einem für das Model geeigneten Datenformat herunterzuladen.}
+
+\end{usecase}
+
+\subsection{Deployment}
+
+\begin{usecase}
+
+  %Deployment Funktionale Anforderungen  
+  \addheading{Nummer}{Bezug}{Beschreibung} 
+  \addrow{/FA95/}{Docker/docker-compose configurations are used for packaging and deployment}{Das Projekt besteht aus drei Docker-Services: ein HTTP-Server mit Vue.js, ein Node.js-Server und ein R-Server mit openEOcubes. Diese Services sind für die Bereitstellung der Benutzeroberfläche und  serverseitige Logik verantwortlich.}
+  \addrow{/FA100/}{the developed system can be deployed to any host system without additional
+software requirements other than recent versions of Docker/docker-compose}{Das Projekt kann mit Docker Compose gestartet werden, was die einfache Verwaltung und Bereitstellung der Anwendung ermöglicht.}
+
+\end{usecase}
+
+\section{Nichtfunktionale Anforderungen}
+Die meisten nichtfunktionalen Anforderungen werden bereits in dem Abschnitt 'Unser Produkt' dargestellt (siehe Abschnitt \ref{unser produkt}). Folglich wird hier weiterführend auf die Performance eingegangen.
+\subsection{Performance}
+Eine Änderung auf der Website erfolgt innerhalb einer Sekunde. Alle Inhalte werden asynchron geladen. Die interaktive Bedienung erfolgt innerhalb 0.1 Sekunden.
+
+%User Stories
+\section{User Stories}
+\begin{itemize}
+\item Als Nutzer:in möchte ich anhand einer interaktiven Benutzeroberfläche auf einer Karte den Kartenausschnitt wählen können, sodass ich den für mich interessanten Bereich untersuchen kann.
+\item Als Nutzer:in muss ich in der Lage sein das Datum zu bestimmen, Trainingsdaten über ein File hochladen zu können und einen Machine Learning Algorithmus mit Hyperparametern auswählen zu können, damit ich mein eigenes individuelles Modell trainieren kann.
+\item Als Stadt Münster möchten wir, dass das Hochladen von Trainingsdaten auf jeden Fall die Formate GeoJSON und GeoPackage umfasst, damit wir die meisten unserer Daten direkt nutzen können. 
+\item Als Nutzer:in möchte ich eine Möglichkeit haben neue Trainingsdaten zu bestimmen, um den Algorithmus wichtige Informationen zu geben, sodass eine möglichst umfangreiche Vorhersage durch den 'Random Forest' Algorithmus stattfinden kann.
+\item Als Laie und unaffine Person im Umgang mit Erdbeobachtungsdaten möchte ich eine Hilfestellung besitzen, die mir zeigt, wie ich vorgehen muss, um ein Modell trainieren zu können.
+\item Als wissenschaftliche:r Mitarbeiter:in einer Universität möchte ich eine Möglichkeit haben, die resultierenden Vorhersage  mittels einer interaktiven Webkarte zu begutachten und als Rasterdaten zu downloaden und das trainierte Modell herunterzuladen, sodass ich diese weiterführend in meine Arbeit einbinden kann.
+\item Als Arbeitsgruppe an der Universität Osnabrück im Bereich Remote Sensing wollen wir eine Möglichkeit besitzen, das Toolkit mittels Docker auf verschiedensten Endgeräten laufen zu lassen, damit auch im Außendienst, spontane Analysen getätigt werden können.
+\item Als farbenblinder Mensch möchte ich barrierefrei und ohne Einschränkungen die Anwendung nutzen können, damit bei der Zusammenarbeit mit meinen Mitmenschen, die gleichen Voraussetzungen für alle bestehen und keine Fehlinterpretationen untereinander entstehen.
+
+\end{itemize}
+
+
+
+\section{Zugang} \label{zugang}
+Der Quellcode sowie die Projektmanagement-Dokumente sind auf unserem GitHub-Repository unter folgendem Link zu finden: 
+\begin{itemize}
+     \item \href{https://github.com/wittrockscode/geosoft2-projekt/tree/main}{GitHub}
+\end{itemize}
+   
+
+\section{Zeitplan} \label{zeitplan}
+Unsere voraussichtliche Zeiteinteilung befindet sich als Gantt-Chart im Anhang.
+
+
+\clearpage
+%\include{Glossar} 
+\end{document}
