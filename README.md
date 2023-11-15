@@ -1,1 +1,1 @@
-# geosoft2-projekt
+# WebMLOpenEO
