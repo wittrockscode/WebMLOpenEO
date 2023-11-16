@@ -2,7 +2,13 @@
 
 const EXPRESS = require('express');
 const ROUTER = EXPRESS.Router();
+const path = require('path');
+const OpenApiValidator = require('express-openapi-validator');
 const openApiSpec = require('./../openapi.json');
+const apiSpecPath = path.join(__dirname, './../openapi.json');
+
+// Checks if request fits to specification
+ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath }));
 
 // API calls generally do not want caching because the returned data may change
 ROUTER.use(function(req, res, next)
