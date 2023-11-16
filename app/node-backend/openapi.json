@@ -1,0 +1,23 @@
+{
+  "openapi": "3.0.3",
+    "info": {
+    "title": "WebMLOpenEO-API",
+    "version": "1.0.0" 
+  },
+  "paths": {
+    "/api": {
+      "get": {
+        "summary": "Get the OpenAPI-Document as Documentation of the API",
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
+      
