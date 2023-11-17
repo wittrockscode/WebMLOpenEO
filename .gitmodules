@@ -1,0 +1,3 @@
+[submodule "r_backend/openeocubes"]
+	path = r_backend/openeocubes
+	url = https://github.com/MichaelBrueggemann/openeocubes.git
