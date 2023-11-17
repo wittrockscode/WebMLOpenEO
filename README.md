@@ -12,7 +12,7 @@ In this project we incorporated the git-Repo "openeocubes" as a "git submodule".
 
 ### Pulling
 - When you pull changes from this repo, use `git submodule update --init --recursive` after using `git pull`. This makes sure, that also changes in the submodule are pulled
-    - when you dont want to type this everytime, you can change "git push" with `git config submodule.recurse`. This makes git use `git submodule update --init --recursive` after using `git pull`.
+    - when you dont want to type this everytime, you can change "git push" with `git config submodule.recurse true`. This makes git use `git submodule update --init --recursive` after using `git pull`.
 
 When working in the submodule "openeocubes" the git workflow acts as normal and no extra commands have to be used.
 
