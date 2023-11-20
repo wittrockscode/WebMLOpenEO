@@ -13,10 +13,33 @@ block content
       
       // example JSON-Payload
       let jsonData = {
-      key1: 'value1',
-      key2: 'value2'
-      
-      };
+        "model": "RandomForest",
+        "TOI": {
+          "start-date": "2023-08-01",
+          "end-date": "2023-08-10"
+        },
+        "AOI": {
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [0, 0],
+              [0, 10],
+              [10, 10],
+              [10, 0],
+              [0, 0]
+            ]
+          }
+        },
+        "Training-Data": {
+          "tbD": "xxx"
+        }, 
+        "Hyperparameter": {
+          "tbD": "xxx"
+        }, 
+        "Resolution": {
+          "tbD": "xxx"
+        }
+      }
       
       let result = await fetch (apiUrl, {
         method: 'POST',

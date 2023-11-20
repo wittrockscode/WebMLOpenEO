@@ -55,7 +55,66 @@
   "components": {
     "schemas": {
       "ClassifyRequest": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": [
+              "RandomForest"
+            ]
+          },
+          "TOI": {
+            "type": "object",
+            "properties": {
+              "start-date": {
+                "type": "string",
+                "format": "date"
+              },
+              "end-date": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": ["start-date", "end-date"]
+          },
+          "AOI": {
+            "type": "object",
+            "properties": {
+              "geometry": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Polygon"
+                    ]
+                  },
+                  "coordinates": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "required": ["type", "coordinates"]
+              }
+            },
+            "required": ["geometry"]
+          },
+          "Training-Data": {
+            "type": "object"
+          },
+          "Hyperparameter": {
+            "type": "object"
+          },
+          "Resolution": {
+            "type": "object"
+          }
+        },
+        "required": ["model", "TOI", "AOI", "Training-Data", "Hyperparameter", "Resolution"]
       },
       "ClassifyResponse": {
         "type": "object"
