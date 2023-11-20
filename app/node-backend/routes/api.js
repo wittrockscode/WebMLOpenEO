@@ -23,4 +23,17 @@ ROUTER.get('/', function(req, res) {
   res.send(openApiSpec);
 });
 
+// Train Model and classify map
+ROUTER.post('/classify', function(req, res) {
+  //request an R-backend weiterleiten und ggf. darauf anpassen
+  let dummyResult = {
+    "Model": "Modeldata",
+    "Model-Result": {
+      //classes, propabilities, ...
+    }
+  }
+  res.setHeader('Content-Type', 'application/json');
+  res.send(dummyResult);
+});
+
 module.exports = ROUTER;

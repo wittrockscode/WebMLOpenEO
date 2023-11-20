@@ -21,6 +21,45 @@
           }
         }
       }
+    },
+    "/api/classify": {
+      "post": {
+        "summary": "Train model and classify map",
+        "description": "Takes parameter in JSON-file, trains model on R-Backend and response with a JSON-File which contains the model itself and the classification results",
+        "requestBody": {
+          "description": "JSON-file for training and classification",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful classification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassifyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ClassifyRequest": {
+        "type": "object"
+      },
+      "ClassifyResponse": {
+        "type": "object"
+      }
     }
   }
 }
