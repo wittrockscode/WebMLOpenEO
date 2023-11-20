@@ -8,7 +8,7 @@ const openApiSpec = require('./../openapi.json');
 const apiSpecPath = path.join(__dirname, './../openapi.json');
 
 // Checks if request fits to specification
-ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath }));
+ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath, validateResponses: true, }));
 
 // API calls generally do not want caching because the returned data may change
 ROUTER.use(function(req, res, next)

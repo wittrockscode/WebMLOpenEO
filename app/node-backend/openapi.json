@@ -12,7 +12,11 @@
           "200": {
             "description": "Successful request",
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
             }
           }
         }
