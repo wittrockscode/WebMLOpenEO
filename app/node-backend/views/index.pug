@@ -1,5 +1,27 @@
 extends layout
 
 block content
+  <!-- just for testing the API -->
   h1= title
   p Welcome to #{title}
+  button#apiRequestButton Send API Request
+    script.
+      document.getElementById('apiRequestButton').addEventListener('click', async function() {
+      
+      // API-Endpoint-URL
+      let apiUrl = '/api/classify';
+      
+      // example JSON-Payload
+      let jsonData = {
+      key1: 'value1',
+      key2: 'value2'
+      
+      };
+      
+      let result = await fetch (apiUrl, {
+        method: 'POST',
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify(jsonData),
+      })
+      console.log(await result.json());
+      });
