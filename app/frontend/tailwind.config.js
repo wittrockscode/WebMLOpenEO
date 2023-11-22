@@ -1,4 +1,4 @@
-import defaultTheme from "tailwindcss/defaultTheme"
+import defaultTheme from "tailwindcss/defaultTheme";
 /** @type {import('tailwindcss').Config} */
 // eslint-disable-next-line no-undef
 module.exports = {
@@ -21,4 +21,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
