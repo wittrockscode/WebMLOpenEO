@@ -33,5 +33,6 @@
     "strictPropertyInitialization": false,
     "target": "es5",
     "allowJs": true,
-  }
+    "skipLibCheck": false,
+  },
 }
