@@ -9,7 +9,7 @@ Teleport(to="body")
             slot(name="header")
               .header-content.flex.justify-between.text-4xl
                 h3.modal-title.font-semibold(v-text="title")
-                button.btn-close(
+                button.btn-close.transition-2(
                   type="button"
                   :aria-label="'Close'"
                   @click="cancel"
@@ -29,12 +29,12 @@ Teleport(to="body")
             )
               hr.my-4.text-ml-dark
               .footer-content.flex.justify-between.text-2xl
-                button.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow(
+                button.btn-secondary(
                   type="button"
                   @click="cancel"
                   v-text="cancelText"
                 )
-                button.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow(
+                button.btn-primary(
                   type="button"
                   @click="submit"
                   v-text="submitText"
