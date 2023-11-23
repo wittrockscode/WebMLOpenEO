@@ -1,24 +1,24 @@
-import './assets/index.css'
+import "./assets/index.css";
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
 
 // OpenLayers
-import OpenLayersMap from "vue3-openlayers"
-import "vue3-openlayers/styles.css"
+import OpenLayersMap from "vue3-openlayers";
+import "vue3-openlayers/styles.css";
 
 // Icons
-import mdiVue from 'mdi-vue/v3'
-import * as mdijs from '@mdi/js'
+import mdiVue from "mdi-vue/v3";
+import * as mdijs from "@mdi/js";
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(router)
-app.use(OpenLayersMap)
+app.use(router);
+app.use(OpenLayersMap);
 
 app.use(mdiVue, {
-  icons: mdijs
-})
+  icons: mdijs,
+});
 
-app.mount('#app')
+app.mount("#app");
