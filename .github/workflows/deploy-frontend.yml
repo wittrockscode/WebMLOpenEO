@@ -15,5 +15,5 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "webml-openeo"
           heroku_email: "l.wittrock@ymail.com"
-          appdir: "./app/frontend"
+          appdir: "app/frontend"
           usedocker: true
