@@ -1,0 +1,11 @@
+{
+  "name": "WebMLOpenEO",
+  "repository": "https://github.com/wittrockscode/WebMLOpenEO",
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "scripts": {},
+  "stack": "container"
+}
