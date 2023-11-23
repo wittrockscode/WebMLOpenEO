@@ -1,4 +1,5 @@
-import defaultTheme from "tailwindcss/defaultTheme"
+import colors from "tailwindcss/colors";
+import defaultTheme from "tailwindcss/defaultTheme";
 /** @type {import('tailwindcss').Config} */
 // eslint-disable-next-line no-undef
 module.exports = {
@@ -10,6 +11,7 @@ module.exports = {
       },
     },
     colors: {
+      ...colors,
       transparent: 'transparent',
       current: 'currentColor',
       'ml-light': '#FFFCF2',
@@ -21,4 +23,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
