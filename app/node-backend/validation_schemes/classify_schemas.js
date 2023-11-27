@@ -2,6 +2,8 @@
 
 const JOI = require("joi");
 
+const CLASSIFY_SCHEMA = JOI.object();
+
 /**
  * Validates the input using "joi"s ".validate()"-method and provides custom return values for server side responses
  * @param {any} input - any input that should be validated.
@@ -26,4 +28,4 @@ function validate_input(input, schema)
   }
 }
 
-module.exports = {validate_input};
+module.exports = {CLASSIFY_SCHEMA, validate_input};

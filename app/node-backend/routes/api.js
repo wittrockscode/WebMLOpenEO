@@ -10,7 +10,7 @@ const openApiSpec = require('./../openapi.json');
 const apiSpecPath = path.join(__dirname, './../openapi.json');
 
 // JOI is used for precised validation
-const {validate_input} = require("./../validation_schemes/classify_schema");
+const {CLASSIFY_SCHEMA, validate_input} = require("../validation_schemes/classify_schemas");
 
 // Checks if request fits to OpenAPI-specification
 ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath, validateResponses: true, }));
@@ -35,15 +35,15 @@ ROUTER.post('/classify', function(req, res)
   try 
   {
     // request mit JOI validieren:
-    // let validation_result = validate_input(req.body, SCHEMA);
-    // console.log("valid result", validation_result.errorDetails);
+    let validation_result = validate_input(req.body, CLASSIFY_SCHEMA);
+    console.log("valid result", validation_result.errorDetails);
 
-    // if (validation_result.hasError)
-    // {
-    //   res.status(422).json({errors: validation_result.errorDetails});
-    // }
-    // else
-    // {
+    if (validation_result.hasError)
+    {
+      res.status(422).json({errors: validation_result.errorDetails});
+    }
+    else
+    {
       //request an R-backend weiterleiten und ggf. darauf anpassen
       let dummyResult = {
         "Model": "Modeldata",
@@ -53,7 +53,7 @@ ROUTER.post('/classify', function(req, res)
       }
       res.setHeader('Content-Type', 'application/json');
       res.send(dummyResult);
-    // }
+    }
   } 
   catch (error) 
   {
