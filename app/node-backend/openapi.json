@@ -47,6 +47,9 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Invalid requestBody"
           }
         }
       }
