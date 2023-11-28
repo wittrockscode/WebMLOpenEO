@@ -1,0 +1,128 @@
+{
+  "openapi": "3.0.3",
+    "info": {
+    "title": "WebMLOpenEO-API",
+    "version": "1.0.0" 
+  },
+  "paths": {
+    "/api": {
+      "get": {
+        "summary": "Get the OpenAPI-Document as Documentation of the API",
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/classify": {
+      "post": {
+        "summary": "Train model and classify map",
+        "description": "Takes parameter in JSON-file, trains model on R-Backend and response with a JSON-File which contains the model itself and the classification results",
+        "requestBody": {
+          "description": "JSON-file for training and classification",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful classification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassifyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid requestBody"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ClassifyRequest": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": [
+              "RandomForest"
+            ]
+          },
+          "TOI": {
+            "type": "object",
+            "properties": {
+              "start-date": {
+                "type": "string",
+                "format": "date"
+              },
+              "end-date": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": ["start-date", "end-date"]
+          },
+          "AOI": {
+            "type": "object",
+            "properties": {
+              "geometry": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Polygon"
+                    ]
+                  },
+                  "coordinates": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "required": ["type", "coordinates"]
+              }
+            },
+            "required": ["geometry"]
+          },
+          "Training-Data": {
+            "type": "object"
+          },
+          "Hyperparameter": {
+            "type": "object"
+          },
+          "Resolution": {
+            "type": "object"
+          }
+        },
+        "required": ["model", "TOI", "AOI", "Training-Data", "Hyperparameter", "Resolution"]
+      },
+      "ClassifyResponse": {
+        "type": "object"
+      }
+    }
+  }
+}
+      
