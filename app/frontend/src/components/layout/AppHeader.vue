@@ -1,22 +1,25 @@
-<template lang='pug'>
+<template lang="pug">
 header#header
-  .content-group.flex.justify-center.text-ml-dark.bg-ml-light.py-2.gap-x-10.items-center
-    HeaderLinkIcon(icon="home" path="/")
-    h1#app-name.headline.text-6xl.font-bold SENTINEL-ML
-    HeaderLinkIcon(icon="help-circle" path="/")
+  .header-content.bg-ml-black.text-ml-text.flex
+    .header-image
+      RouterLink(to="/")
+        img.p-4.max-w-xs.w-52(:src="LogoTransparent")
+    .header-links.flex.flex-row.justify-start.gap-20.ml-16.items-center.text-lg
+      HeaderLink(value="Home" route="/")
+      HeaderLink(value="About" route="/about")
 </template>
 
-<script lang='ts'>
-import { defineComponent } from 'vue';
-import HeaderLinkIcon from '@/components/base/HeaderLinkIcon.vue';
+<script lang="ts">
+import { defineComponent } from "vue";
+import LogoTransparent from "@/assets/logo-transparent.png";
+import HeaderLink from "../base/HeaderLink.vue";
 
 export default defineComponent({
   components: {
-    HeaderLinkIcon
+    HeaderLink,
   },
   setup() {
-
-    return {  };
+    return { LogoTransparent };
   },
 });
 </script>

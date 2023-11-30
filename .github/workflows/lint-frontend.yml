@@ -36,6 +36,9 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
+      - name: Check Type-Safety
+        run: npm run type-check
+
       - name: Run ESLint
         run: npm run lint
 
