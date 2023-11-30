@@ -1,3 +1,4 @@
 [submodule "app/r_backend/openeocubes"]
 	path = app/r_backend/openeocubes
 	url = https://github.com/MichaelBrueggemann/openeocubes.git
+    update = merge
