@@ -12,6 +12,8 @@ const apiSpecPath = path.join(__dirname, './../openapi.json');
 // JOI is used for precised validation
 const {CLASSIFY_SCHEMA, validate_input} = require("../validation_schemes/classify_schemas");
 
+// ----------------- Middleware --------------------
+
 // Checks if request fits to OpenAPI-specification
 ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath, validateResponses: true, }));
 
@@ -21,6 +23,8 @@ ROUTER.use(function(req, res, next)
   res.set('Cache-Control', 'no-store');
   next();
 });
+
+// ----------------- Endpoints -----------------------
 
 // GET OpenAPI-Documentation about this API 
 ROUTER.get('/', function(req, res) 
@@ -44,9 +48,9 @@ ROUTER.post('/classify', function(req, res)
     }
     else
     {
-      //request an R-backend weiterleiten und ggf. darauf anpassen
+      //request-body an R-backend weiterleiten und ggf. darauf anpassen
       let dummyResult = {
-        "Model": "Modeldata",
+        "Model": "id",
         "Model-Result": {
           //classes, propabilities, ...
         }
