@@ -53,6 +53,23 @@
           }
         }
       }
+    },
+    "/api/getdemodata": {
+      "get": {
+        "summary": "Get an example Json-Request for classify-Endpoint",
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassifyRequest"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
