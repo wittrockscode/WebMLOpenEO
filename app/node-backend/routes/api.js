@@ -3,6 +3,8 @@
 const EXPRESS = require('express');
 const ROUTER = EXPRESS.Router();
 
+const  demodata = require('./../demodata.json');
+
 // OpenAPI is used for Dokumentation and first limited validation
 const path = require('path');
 const OpenApiValidator = require('express-openapi-validator');
@@ -31,6 +33,13 @@ ROUTER.get('/', function(req, res)
 {
   res.setHeader('Content-Type', 'application/json');
   res.send(openApiSpec);
+});
+
+// GET an example Json-Request for classify-Endpoint 
+ROUTER.get('/getdemodata', function(req, res) 
+{
+  res.setHeader('Content-Type', 'application/json');
+  res.send(demodata);
 });
 
 // Train Model and classify map
