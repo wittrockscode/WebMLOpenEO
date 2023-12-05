@@ -20,7 +20,7 @@ let modelFolder = "./models";
 let modelPathDict = {};
 let id_count = 0;
 // FOR TESTING:
-let testmodel = './model.Rda';
+let testmodel = './model.rds';
 
 // ----------------- Middleware --------------------
 
@@ -108,15 +108,15 @@ ROUTER.get('/getmodel', function(req, res)
  * @param {*} rda_file - model to be saved
  * @returns {int} - id of model
  */
-function saveModelFile(rda_file) 
+function saveModelFile(rds_file) 
 {
   // Give model id and name
   let id = ++id_count;
-  let modelName = "model_" + id.toString() + ".Rda"; 
+  let modelName = "model_" + id.toString() + ".rds"; 
   const modelPath = path.join(modelFolder, modelName);
 
   // Save model in modelPath
-  fs.copyFile(rda_file, modelPath, function (err) 
+  fs.copyFile(rds_file, modelPath, function (err) 
   {
     if (err) {
       console.error('Error in model save', err);

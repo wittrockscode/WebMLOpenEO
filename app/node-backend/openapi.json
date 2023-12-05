@@ -73,7 +73,7 @@
     },
     "/api/getmodel": {
       "get": {
-        "summary": "Get the calculated model to an id",
+        "summary": "Get the calculated model to an id as .rds-file",
         "parameters": [
           {
             "name": "id",
@@ -90,7 +90,7 @@
           "200": {
             "description": "Successful request",
             "content": {
-              "application/Rda": {
+              "application/rds": {
                 
               }
             }
