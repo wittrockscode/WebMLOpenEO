@@ -70,6 +70,36 @@
           }
         }
       }
+    },
+    "/api/getmodel": {
+      "get": {
+        "summary": "Get the calculated model to an id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of model to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/Rda": {
+                
+              }
+            }
+          },
+          "404": {
+            "description": "Id not found"
+          }
+        }
+      }
     }
   },
   "components": {
