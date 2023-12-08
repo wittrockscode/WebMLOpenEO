@@ -116,16 +116,16 @@
           "TOI": {
             "type": "object",
             "properties": {
-              "start-date": {
+              "start_date": {
                 "type": "string",
                 "format": "date"
               },
-              "end-date": {
+              "end_date": {
                 "type": "string",
                 "format": "date"
               }
             },
-            "required": ["start-date", "end-date"]
+            "required": ["start_date", "end_date"]
           },
           "AOI": {
             "type": "object",
@@ -154,7 +154,7 @@
             },
             "required": ["geometry"]
           },
-          "Training-Data": {
+          "Training_Data": {
             "type": "object"
           },
           "Hyperparameter": {
@@ -164,7 +164,7 @@
             "type": "object"
           }
         },
-        "required": ["model", "TOI", "AOI", "Training-Data", "Hyperparameter", "Resolution"]
+        "required": ["model", "TOI", "AOI", "Training_Data", "Hyperparameter", "Resolution"]
       },
       "ClassifyResponse": {
         "type": "object"
