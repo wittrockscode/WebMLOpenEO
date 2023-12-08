@@ -10,7 +10,14 @@ const MODEL_SCHEMA = JOI.string().custom(function(value)
     }
   }).required();
 
-const TOI_SCHEMA = JOI.object().required();
+const TOI_SCHEMA = JOI.object(
+  {
+    start_date: JOI.date().iso().min('2015-06-23').required(),
+    // start_date shouldnt be before sentinel 2 was launched
+    end_date: JOI.date().iso().max('now').min(JOI.ref('start_date')).required()
+    // end_date shouldnt be before start_date or in future
+  }
+).required();
 
 const AOI_SCHEMA = JOI.object().required();
 
