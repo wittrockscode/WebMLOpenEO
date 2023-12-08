@@ -1,8 +1,8 @@
 {
     "model": "RandomForest",
     "TOI": {
-      "start-date": "2023-08-01",
-      "end-date": "2023-08-10"
+      "start_date": "2023-08-01",
+      "end_date": "2023-08-10"
     },
     "AOI": {
       "geometry": {
@@ -16,7 +16,7 @@
         ]
       }
     },
-    "Training-Data": {
+    "Training_Data": {
       "tbD": "xxx"
     }, 
     "Hyperparameter": {
