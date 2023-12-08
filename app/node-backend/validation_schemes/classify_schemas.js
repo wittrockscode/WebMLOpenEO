@@ -2,7 +2,34 @@
 
 const JOI = require("joi");
 
-const CLASSIFY_SCHEMA = JOI.object();
+const MODEL_SCHEMA = JOI.string().custom(function(value)
+  {
+    if (value !== "RandomForest")
+    {
+      throw new Error("'model' must be 'RandomForest'");
+    }
+  }).required();
+
+const TOI_SCHEMA = JOI.object().required();
+
+const AOI_SCHEMA = JOI.object().required();
+
+const TRAINING_DATA_SCHEMA = JOI.object().required();
+
+const HYPERPARAMETER_SCHEMA = JOI.object().required();
+
+const RESOLUTION_SCHEMA = JOI.object().required();
+
+const CLASSIFY_SCHEMA = JOI.object(
+  {
+    model: MODEL_SCHEMA.required(),
+    TOI: TOI_SCHEMA.required(),
+    AOI: AOI_SCHEMA.required(),
+    Training_Data: TRAINING_DATA_SCHEMA.required(),
+    Hyperparameter: HYPERPARAMETER_SCHEMA.required(),
+    Resolution: RESOLUTION_SCHEMA.required()
+  }
+).required().options({abortEarly: false}); // makes sure, each error is returned
 
 /**
  * Validates the input using "joi"s ".validate()"-method and provides custom return values for server side responses
