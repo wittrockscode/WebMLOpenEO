@@ -158,7 +158,70 @@
             "required": ["geometry"]
           },
           "Training_Data": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["FeatureCollection"]
+              },
+              "bbox": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["Feature"]
+                    },
+                    "properties": {
+                      "type": "object",
+                      "properties": {
+                        "class": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["class"]
+                    },
+                    "geometry": {
+                      "type": "object",
+                      "properties": {
+                        "coordinates": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": ["Polygon"]
+                        }
+                      },
+                      "required": ["coordinates", "type"]
+                    }
+                  },
+                  "required": ["type", "properties", "geometry"]
+                }
+              }
+            },
+          "required": ["type", "bbox", "features"]
           },
           "Hyperparameter": {
             "type": "object"
