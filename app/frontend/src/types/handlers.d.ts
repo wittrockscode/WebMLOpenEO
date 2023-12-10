@@ -1,4 +1,4 @@
-type ModalHandler = {
+export type ModalHandler = {
   modal_id: import("vue").Ref<import("@/enums").ModalIds | null>;
   cancelFn: () => void;
   submitFn: () => void;

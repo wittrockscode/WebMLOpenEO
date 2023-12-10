@@ -142,3 +142,101 @@
   transform: rotate(90deg);
   color: theme("colors.ml-red");
 }
+
+:root {
+  /*General*/
+  --dp-font-family: "Montserrat", sans-serif !important;
+  --dp-border-radius: 0.25rem !important; /*Configurable border-radius*/
+
+  /*Sizing*/
+  --dp-action-buttons-padding: 0.75rem 0.5rem !important; /*Adjust padding for the action buttons in action row*/
+  
+  /*Font sizes*/
+  --dp-font-size: 1.2rem !important; /* 30px */
+  --dp-preview-font-size: 1.1rem !important; /*Font size of the date preview in the action row*/
+}
+
+.dp__theme_dark {
+  --dp-background-color: theme("colors.ml-black") !important;
+  --dp-text-color: theme("colors.ml-text") !important;
+  --dp-hover-color: theme("colors.ml-text") !important;
+  --dp-hover-text-color: theme("colors.ml-black") !important;
+  --dp-hover-icon-color: theme("colors.ml-black") !important;
+  --dp-primary-color: theme("colors.ml-blue") !important;
+  --dp-primary-text-color: theme("colors.ml-black") !important;
+  --dp-menu-border-color: theme("colors.ml-text") !important;
+}
+
+.dp__outer_menu_wrap {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dp__input {
+  border-color: theme("colors.ml-text") !important;
+  text-align: center;
+}
+
+.dp__input:hover {
+  border-color: theme("colors.ml-blue") !important;
+}
+
+.file-upload-label-full {
+  background-color: theme("colors.ml-dark");
+  color: theme("colors.ml-text");
+  border-radius: 0.25rem;
+  text-align: center;
+  width: 100%;
+  display: block;
+  padding: 0.25rem;
+}
+
+.file-upload-label-full:hover {
+  background-color: theme("colors.ml-blue");
+  cursor: pointer;
+  color: theme("colors.ml-black");
+}
+
+.file-upload-label, .demo-button {
+  border-color: theme("colors.ml-text");
+  border-radius: 0.25rem;
+  text-align: center;
+  width: 100%;
+  display: block;
+  border-width: 1px;
+  padding: 0.25rem;
+}
+
+.file-upload-label:hover, .demo-button:hover {
+  border-color: theme("colors.ml-blue");
+  cursor: pointer;
+  color: theme("colors.ml-blue");
+}
+
+.calculate-button {
+  background-color: theme("colors.ml-text");
+  color: theme("colors.ml-black");
+  border-radius: 0.25rem;
+  text-align: center;
+  width: 100%;
+  display: block;
+  padding: 0.25rem;
+}
+
+.calculate-button:hover {
+  background-color: theme("colors.ml-blue");
+  color: theme("colors.ml-black");
+}
+
+.row-2 {
+  display: flex;
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+.row-item {
+  flex-basis: 50%;
+}
+
+.row-2-b {
+  margin-bottom: 0;
+}
