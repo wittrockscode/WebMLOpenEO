@@ -1,10 +1,9 @@
 <template lang="pug">
-p.card-text.mx-5.font-semibold(v-text="value" :class="justify_position")
+p.card-text.font-semibold(v-text="value")
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
-import type { PropType } from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   props: {
@@ -12,23 +11,9 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    position: {
-      type: String as PropType<"left" | "right" | "center">,
-      default: "center",
-    },
   },
-  setup(props) {
-    const justify_position = computed(() => {
-      switch (props.position) {
-        case "left":
-          return "justify-self-start";
-        case "right":
-          return "justify-self-end";
-        default:
-          return "justify-self-center";
-      }
-    });
-    return { justify_position };
+  setup() {
+    return { };
   },
 });
 </script>
