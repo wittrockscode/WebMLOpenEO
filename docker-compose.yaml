@@ -6,21 +6,26 @@ services:
     container_name: Frontend
     ports:
       - "80:80"
+    restart: always
+    environment:
+      - PORT=80
+      - NODE_BACKEND_URI=http://node_backend:3000
 
-  node-backend:
-  build: ./app/node-backend
-  container_name: Node-Backend
-  ports:
-    - "3000:3000"
+  node_backend:
+    build: ./app/node-backend
+    container_name: Node-Backend
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      - OPENEOCUBES_URI=http://openeocubes:8000
 
   openeocubes:
     build: ./app/r_backend/openeocubes
-    environment:
-      - TZ=Etc/UTC
-      - DEBIAN_FRONTEND=noninteractive
     container_name: openeocubes
     ports:
       - "8000:8000"
     restart: always
-  
- 
+    environment:
+      - TZ=Etc/UTC
+      - DEBIAN_FRONTEND=noninteractive
