@@ -1,0 +1,26 @@
+version: "0.0.0"
+
+services:
+  frontend:
+    build: ./app/frontend
+    container_name: Frontend
+    ports:
+      - "80:80"
+
+  node-backend:
+  build: ./app/node-backend
+  container_name: Node-Backend
+  ports:
+    - "3000:3000"
+
+  openeocubes:
+    build: ./app/r_backend/openeocubes
+    environment:
+      - TZ=Etc/UTC
+      - DEBIAN_FRONTEND=noninteractive
+    container_name: openeocubes
+    ports:
+      - "8000:8000"
+    restart: always
+  
+ 
