@@ -86,6 +86,7 @@ export default defineComponent({
       errors.value.aoi = false;
       deleteAoiFile();
       aoi.value = await payloadToPolygon(payload);
+      (document.getElementById("aoi-upload") as HTMLInputElement).value = "";
       if (payload instanceof File) aoi_file.value = payload;
       if (!aoi.value)  errors.value.aoi = true;
     };
@@ -104,6 +105,7 @@ export default defineComponent({
     const uploadedTD = async (file: File) => {
       errors.value.td = false;
       td.value = await fileToFeatureCollection(file);
+      (document.getElementById("td-upload") as HTMLInputElement).value = "";
       if (!td.value) errors.value.td = true;
     };
 
