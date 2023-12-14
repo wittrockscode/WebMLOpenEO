@@ -172,12 +172,13 @@
 }
 
 .dp__input {
-  border-color: theme("colors.ml-text") !important;
+  border: none !important;
   text-align: center;
 }
 
 .dp__input:hover {
-  border-color: theme("colors.ml-blue") !important;
+  border: none;
+  color: theme("colors.ml-blue") !important;
 }
 
 .file-upload-label-full {
@@ -235,8 +236,25 @@
 
 .row-item {
   flex-basis: 50%;
+  max-width: 50%;
 }
 
 .row-2-b {
   margin-bottom: 0;
+}
+
+.form-completed {
+  border-color: theme("colors.ml-blue") !important;
+  border-width: 3px;
+  border-radius: 0.25rem;
+}
+
+.form-item {
+  border-color: theme("colors.ml-dark");
+  border-width: 3px;
+  border-radius: 0.25rem;
+}
+
+.form-item:hover {
+  border-color: theme("colors.ml-blue") !important;
 }

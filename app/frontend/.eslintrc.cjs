@@ -11,6 +11,7 @@ module.exports = {
   ],
   rules: {
     "semi": 2,
+    "no-trailing-spaces": 2,
     "vue/multi-word-component-names": "off",
     "vue/no-unused-vars": "error",
     "vue/no-console": [
