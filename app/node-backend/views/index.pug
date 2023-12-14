@@ -13,34 +13,18 @@ block content
         let apiUrl = '/api/classify';
         
         // example JSON-Payload
-        let rightJsonData = {
-          "model": "RandomForest",
-          "TOI": {
-            "start-date": "2023-08-01",
-            "end-date": "2023-08-10"
-          },
-          "AOI": {
+        let rightJsonData ={
             "geometry": {
               "type": "Polygon",
-              "coordinates": [
+              "coordinates": [[
                 [0, 0],
                 [0, 10],
                 [10, 10],
                 [10, 0],
                 [0, 0]
-              ]
+              ]]
             }
-          },
-          "Training-Data": {
-            "tbD": "xxx"
-          }, 
-          "Hyperparameter": {
-            "tbD": "xxx"
-          }, 
-          "Resolution": {
-            "tbD": "xxx"
           }
-        }
         
         let result = await fetch (apiUrl, {
           method: 'POST',
