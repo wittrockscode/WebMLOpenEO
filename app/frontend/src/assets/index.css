@@ -249,6 +249,12 @@
   border-radius: 0.25rem;
 }
 
+.form-error {
+  border-color: theme("colors.ml-red") !important;
+  border-width: 3px;
+  border-radius: 0.25rem;
+}
+
 .form-item {
   border-color: theme("colors.ml-dark");
   border-width: 3px;

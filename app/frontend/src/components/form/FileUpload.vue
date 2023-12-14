@@ -52,6 +52,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    error: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["click", "uploaded", "deleted"],
   setup(props, { emit }) {
@@ -80,7 +84,7 @@ export default defineComponent({
       props.asSubmitFor.submitFn();
     };
 
-    const classes_to_add = computed(() => props.completed ? `${props.inputClass} form-completed` : props.inputClass);
+    const classes_to_add = computed(() => `${props.inputClass} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''}`);
 
     return { onFileChanged, deleteFile, file, classes_to_add };
   },
