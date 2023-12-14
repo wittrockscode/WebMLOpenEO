@@ -58,8 +58,8 @@ import DatePicker from "@/components/form/DatePicker.vue";
 import FileUpload from "@/components/form/FileUpload.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
 import type { SubmitPayload } from "@/types/handlers";
-import { payloadToPolygon, fileToFeatureCollection } from "../helper/geojson";
-import type { Polygon, FeatureCollection } from "@/types/geojson";
+import { fileToFeatureCollection, payloadToPolygonFeature } from "../helper/geojson";
+import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
 
 export default defineComponent({
   components: {
@@ -72,7 +72,7 @@ export default defineComponent({
   },
   setup() {
     const doi: Ref<Date | null> = ref(null);
-    const aoi: Ref<Polygon | null> = ref(null);
+    const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
 
     const errors = ref({
@@ -85,7 +85,7 @@ export default defineComponent({
     const aoi_submit = async (payload: SubmitPayload) => {
       errors.value.aoi = false;
       deleteAoiFile();
-      aoi.value = await payloadToPolygon(payload);
+      aoi.value = await payloadToPolygonFeature(payload);
       (document.getElementById("aoi-upload") as HTMLInputElement).value = "";
       if (payload instanceof File) aoi_file.value = payload;
       if (!aoi.value)  errors.value.aoi = true;

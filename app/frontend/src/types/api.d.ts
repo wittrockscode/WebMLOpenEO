@@ -1,6 +1,6 @@
-import type { Polygon, FeatureCollection } from "@/types/geojson";
+import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
 
-export declare namespace Request {
+export namespace Req {
   namespace Classify {
     type Payload = {
       doi: Date;
@@ -9,5 +9,9 @@ export declare namespace Request {
       hyperparameter: null;
       resolution: null;
     }
+  }
+
+  export namespace PreRelease {
+    type Payload = Feature<Polygon>;
   }
 }
