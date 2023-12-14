@@ -44,7 +44,7 @@ AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INT
       .row-2.row-2-b
         .px-5.row-item
           button.demo-button.transition-2(id="demo-button" v-text="'Demo'")
-        button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'")
+        button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'" @click="start_request")
 </template>
 
 <script lang="ts">
@@ -60,6 +60,7 @@ import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal
 import type { SubmitPayload } from "@/types/handlers";
 import { fileToFeatureCollection, payloadToPolygonFeature } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
+import { useApi } from "@/composables/use-api";
 
 export default defineComponent({
   components: {
@@ -71,6 +72,8 @@ export default defineComponent({
     AreaOfInterestModal,
   },
   setup() {
+    const api = useApi();
+
     const doi: Ref<Date | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
@@ -114,6 +117,14 @@ export default defineComponent({
       errors.value.td = false;
     };
 
+    const start_request = async () => {
+      if (aoi.value) {
+        const res = await api.pre_release_request(aoi.value);
+
+        console.log(res);
+      }
+    };
+
     return {
       aoi_modal_handler,
       ModalIds,
@@ -126,6 +137,7 @@ export default defineComponent({
       aoi,
       td,
       errors,
+      start_request,
     };
   },
 });

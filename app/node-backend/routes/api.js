@@ -3,18 +3,6 @@
 const EXPRESS = require('express');
 const ROUTER = EXPRESS.Router();
 
-const { Client } = require('@openeo/js-client');
-
-const client = new Client({
-    endpoint: 'http://localhost:8000', // so richtig?
-    // wenn benötigt, woher die daten?
-    auth: {
-        username: 'IhrBenutzername',
-        password: 'IhrPasswort'
-    }
-});
-
-
 // API calls generally do not want caching because the returned data may change
 ROUTER.use(function(req, res, next)
 {
@@ -29,7 +17,7 @@ ROUTER.post('/preRelease', function(req, res)
   {
     //y = Lng, x = Lat
     let yMax,yMin, xMax, xMin;
-    for(let i=0;i<req.body.geometry.coordinates[0].length();i++)
+    for(let i=0;i<req.body.geometry.coordinates[0].length;i++)
     {
       if (req.body.geometry.coordinates[0][i][0] < yMin)
       {
@@ -49,7 +37,8 @@ ROUTER.post('/preRelease', function(req, res)
       }
     }
 
-    
+    // Placeholder
+    res.status(200).json(req.body)
   } 
   catch (error) 
   {

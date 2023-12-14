@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const useApi = () => {
 
-  const NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI;
+  const NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI ?? "http://localhost:3000/api";
 
   const test = async (payload: Req.Classify.Payload) => {
     const response = await axios.post(`${NODE_URL}/test`, payload);
