@@ -28,11 +28,17 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    error: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["click"],
   setup(props) {
 
-    const classString = computed(() => `hover:bg-ml-blue hover:text-ml-black ${props.fullW ? 'w-full' : ''} ${props.completed ? 'form-completed' : ''}`);
+    const classString = computed(() =>
+      `hover:bg-ml-blue hover:text-ml-black ${props.fullW ? 'w-full' : ''} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''}`
+    );
 
     return { classString };
   },

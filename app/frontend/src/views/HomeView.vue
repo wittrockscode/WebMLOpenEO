@@ -12,7 +12,14 @@ AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INT
       .row-2
         CardText.row-item.text-right.px-5(value="Area of Interest")
         .row-item
-          CardButton(id="aoi-button" value="Choose" @click="aoi_modal_handler.open()" full-w :completed="aoi !== null")
+          CardButton(
+            id="aoi-button"
+            full-w
+            :value="aoi !== null ? 'Modify' : 'Choose'"
+            :completed="aoi !== null"
+            :error="errors.aoi"
+            @click="aoi_modal_handler.open()"
+          )
           .uploaded-file.mt-1.flex.justify-center(v-if="aoi_file")
             small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file.name")
             button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteAoiFile")
@@ -25,6 +32,7 @@ AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INT
           show-uploaded-file
           :types="['json', 'geojson']"
           :completed="td !== null"
+          :error="errors.td"
           @uploaded="uploadedTD"
           @deleted="reset_td")
       .row-2
@@ -67,18 +75,26 @@ export default defineComponent({
     const aoi: Ref<Polygon | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
 
+    const errors = ref({
+      aoi: false,
+      td: false,
+    });
+
     const aoi_file = ref<File | null>();
 
     const aoi_submit = async (payload: SubmitPayload) => {
+      errors.value.aoi = false;
       deleteAoiFile();
-      if (payload instanceof File) aoi_file.value = payload;
       aoi.value = await payloadToPolygon(payload);
+      if (payload instanceof File) aoi_file.value = payload;
+      if (!aoi.value)  errors.value.aoi = true;
     };
     const aoi_modal_handler = useModal(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
 
     const deleteAoiFile = () => {
       aoi.value = null;
       aoi_file.value = null;
+      errors.value.aoi = false;
     };
 
     const selectDoi = (date: Date) => {
@@ -86,12 +102,29 @@ export default defineComponent({
     };
 
     const uploadedTD = async (file: File) => {
+      errors.value.td = false;
       td.value = await fileToFeatureCollection(file);
+      if (!td.value) errors.value.td = true;
     };
 
-    const reset_td = () => td.value = null;
+    const reset_td = () =>{
+      td.value = null;
+      errors.value.td = false;
+    };
 
-    return { aoi_modal_handler, ModalIds, aoi_file, deleteAoiFile, selectDoi, uploadedTD, reset_td, doi, aoi, td };
+    return {
+      aoi_modal_handler,
+      ModalIds,
+      aoi_file,
+      deleteAoiFile,
+      selectDoi,
+      uploadedTD,
+      reset_td,
+      doi,
+      aoi,
+      td,
+      errors,
+    };
   },
 });
 </script>
