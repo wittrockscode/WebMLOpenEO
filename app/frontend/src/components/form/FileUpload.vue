@@ -1,9 +1,9 @@
 <template lang="pug">
 .file-upload
-  label.transition-2(
+  label.transition-2.form-item(
     :for="id"
     v-text="value"
-    :class="inputClass"
+    :class="classes_to_add"
   )
   input.hidden(
     :id="id"
@@ -12,14 +12,15 @@
     capture
     @change="onFileChanged($event)"
   )
-  .uploaded-file.mt-1.flex.justify-center(v-if="file")
-    small(v-text="file.name")
+  .uploaded-file.mt-1.flex.justify-center(v-if="showUploadedFile && file")
+    small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="file.name")
     button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteFile")
       mdicon(name="window-close")
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, type PropType } from "vue";
+import type { ModalHandler } from "@/types/handlers";
+import { defineComponent, ref, type PropType, computed } from "vue";
 
 export default defineComponent({
   props: {
@@ -39,16 +40,31 @@ export default defineComponent({
       type: String,
       default: "file-upload-label",
     },
+    showUploadedFile: {
+      type: Boolean,
+      default: false,
+    },
+    asSubmitFor: {
+      type: Object as PropType<ModalHandler>,
+      default: null,
+    },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ["click"],
-  setup(props) {
+  emits: ["click", "uploaded", "deleted"],
+  setup(props, { emit }) {
     const file = ref<File | null>();
 
     const onFileChanged = ($event: Event) => {
       const target = $event.target as HTMLInputElement;
       if (target && target.files) {
-        if(props.types.includes(target.files[0]?.name.split(".").slice(-1)[0] ?? ""))
+        if (props.types.includes(target.files[0]?.name.split(".").slice(-1)[0] ?? "")) {
           file.value = target.files[0];
+          if (props.asSubmitFor && target.files[0]) fileUploaded(target.files[0]);
+          else emit("uploaded", target.files[0]);
+        }
         else
           console.log("Wrong Type: ", target.files[0]?.name);
       }
@@ -56,9 +72,17 @@ export default defineComponent({
 
     const deleteFile = () => {
       file.value = null;
+      emit("deleted");
     };
 
-    return { onFileChanged, deleteFile, file };
+    const fileUploaded = (file: File) => {
+      props.asSubmitFor.setPayload(file);
+      props.asSubmitFor.submitFn();
+    };
+
+    const classes_to_add = computed(() => props.completed ? `${props.inputClass} form-completed` : props.inputClass);
+
+    return { onFileChanged, deleteFile, file, classes_to_add };
   },
 });
 </script>

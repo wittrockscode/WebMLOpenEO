@@ -1,5 +1,5 @@
 <template lang="pug">
-VueDatePicker(
+VueDatePicker.form-item(
   :id="id"
   v-model="date"
   :enable-time-picker="false"
@@ -7,6 +7,7 @@ VueDatePicker(
   :format="format"
   dark
   @update:model-value="handleDateSelect"
+  :class="completed ? 'form-completed' : ''"
 )
 </template>
 
@@ -23,10 +24,14 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["selected"],
   setup(props, { emit }) {
-    const date = ref(new Date());
+    const date = ref(null);
 
     const format = (date: Date) => {
       const day = date.getDate();
