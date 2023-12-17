@@ -21,8 +21,8 @@ const TOI_SCHEMA = JOI.object(
 ).required();
 
 const POINT_SCHEMA = JOI.array().items(
-  JOI.number().min(-90).max(90).required(),
-  JOI.number().min(-180).max(180).required()
+  JOI.number().min(-20048966.1).max(20048966.1).required(),
+  JOI.number().min(-20037508.34).max(20037508.34).required()
 ).length(2).required();
 
 const POLYGON_SCHEMA = JOI.array().max(1).items(
