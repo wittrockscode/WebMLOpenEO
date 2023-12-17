@@ -1,6 +1,6 @@
 <template lang="pug">
 AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INTEREST_MODAL" :isPolygonSelected="aoi !== null && aoi_file === null")
-#home
+#home(v-if="!loading_result")
   CardDark.mt-32
     .card-content.text-3xl.py-3.items-center.flex.flex-col
       .row-2
@@ -45,6 +45,18 @@ AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INT
         .px-5.row-item
           button.demo-button.transition-2(id="demo-button" v-text="'Demo'")
         button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'" @click="start_request")
+template(v-else)
+  .loading.flex.flex-col
+    .lds-roller
+      div
+      div
+      div
+      div
+      div
+      div
+      div
+      div
+    .text-ml-text.mt-5 Loading ...
 </template>
 
 <script lang="ts">
@@ -56,11 +68,14 @@ import CardButton from "@/components/base/CardButton.vue";
 import CardText from "@/components/base/CardText.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
 import FileUpload from "@/components/form/FileUpload.vue";
+import OlMapTifBlob from "@/components/map/OlMapTifBlob.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
 import type { SubmitPayload } from "@/types/handlers";
 import { fileToFeatureCollection, payloadToPolygonFeature } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
 import { useApi } from "@/composables/use-api";
+import { useBlobResult } from "@/composables/use-blob-result";
+import router from "@/router";
 
 export default defineComponent({
   components: {
@@ -70,9 +85,12 @@ export default defineComponent({
     DatePicker,
     FileUpload,
     AreaOfInterestModal,
+    OlMapTifBlob,
   },
   setup() {
     const api = useApi();
+
+    const blobResult = useBlobResult();
 
     const doi: Ref<Date | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
@@ -84,6 +102,8 @@ export default defineComponent({
     });
 
     const aoi_file = ref<File | null>();
+
+    const loading_result: Ref<boolean> = ref(false);
 
     const aoi_submit = async (payload: SubmitPayload) => {
       errors.value.aoi = false;
@@ -119,9 +139,12 @@ export default defineComponent({
 
     const start_request = async () => {
       if (aoi.value) {
+        loading_result.value = true;
         const res = await api.pre_release_request(aoi.value);
+        const blob = new Blob([res.data], { type: 'image/tiff' });
 
-        console.log(res);
+        blobResult.setResult(blob);
+        router.push("/result");
       }
     };
 
@@ -138,9 +161,12 @@ export default defineComponent({
       td,
       errors,
       start_request,
+      loading_result,
     };
   },
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+@import '@/assets/spinner.css';
+</style>

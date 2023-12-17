@@ -12,9 +12,9 @@ export const useApi = () => {
   };
 
   const pre_release_request = async (payload: Req.PreRelease.Payload) => {
-    const response = await axios.post(`${NODE_URL}/preRelease`, payload);
+    const response = await axios.post(`${NODE_URL}/preRelease`, payload, { responseType: "blob" });
 
-    return response.data;
+    return response;
   };
 
   return { test, pre_release_request };

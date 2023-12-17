@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const { OpenEO } = require('@openeo/js-client');
+const Connection = require("@openeo/js-client/src/connection");
 
 // API calls generally do not want caching because the returned data may change
 ROUTER.use(function(req, res, next)
@@ -48,7 +49,7 @@ ROUTER.post('/preRelease', async function(req, res)
     try 
     {
       // build connection
-      let client = await OpenEO.connect("http://localhost:8000");
+      let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
 
       // basic login with default params
       await client.authenticateBasic("user", "password");
@@ -93,24 +94,19 @@ ROUTER.post('/preRelease', async function(req, res)
       // Process and download data synchronously
       const startTime = new Date();
 
-      await client.downloadResult( result, "./Tiffs/test.tif")
+      const blob_res = await client.computeResult(result);
 
       const endTime = new Date();
       const timeTaken = endTime - startTime;
       console.log('Duration of process:', timeTaken);
 
-      const filePath = path.join(__dirname, "../Tiffs/test.tif");
+      res.writeHead(200, {
+        'Content-Type': blob_res.type,
+      });
 
-      const fileStream = fs.createReadStream(filePath);
-
-      res.setHeader('Content-Type', 'image/tiff');
-      res.setHeader('Content-Disposition', 'inline; filename=file.tif');
-      res.setHeader('Content-Length', fs.statSync(filePath).size);
-
-      fileStream.pipe(res);
-
+      blob_res.data.pipe(res);
     } catch (error) {
-        //console.error('Error:', error);
+        console.error('Error:', error);
     }
 
   } 
