@@ -27,6 +27,9 @@ let testmodel = './model.rds';
 // Checks if request fits to OpenAPI-specification
 ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath, validateResponses: true, }));
 
+// Serve Swagger UI
+ROUTER.use('/swagger-ui', EXPRESS.static('node_modules/swagger-ui'));
+
 // API calls generally do not want caching because the returned data may change
 ROUTER.use(function(req, res, next)
 {
