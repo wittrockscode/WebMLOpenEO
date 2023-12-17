@@ -17,21 +17,43 @@ block content
             "geometry": {
               "type": "Polygon",
               "coordinates": [[
-                [0, 0],
-                [0, 10],
-                [10, 10],
-                [10, 0],
-                [0, 0]
+                [-8232573.694427, 4959234.395142],
+                [-8232573.694427, 4984917.236646],
+                [-8201081.638773, 4984917.236646],
+                [-8201081.638773, 4959234.395142],
+                [-8232573.694427, 4959234.395142]
               ]]
             }
           }
         
-        let result = await fetch (apiUrl, {
-          method: 'POST',
-          headers: {"content-type": "application/json"},
-          body: JSON.stringify(rightJsonData),
-        })
-        console.log(await result.json());
+        try 
+        {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(rightJsonData),
+          });
+
+          if (!response.ok) 
+          {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'file.tif';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+        } 
+        catch (error) 
+        {
+          console.error('Fehler beim Herunterladen der Datei:', error);
+        }
+        //console.log(await result.json());
       });
       document.getElementById('falseRequestButton').addEventListener('click', async function() {
       
