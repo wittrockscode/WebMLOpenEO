@@ -20,35 +20,34 @@ ROUTER.post('/preRelease', async function(req, res)
 {
   try 
   {
-    //y = Lng, x = Lat
-    let yMax, yMin, xMax, xMin;
-    yMax = req.body.geometry.coordinates[0][0][0];
-    yMin = yMax;
-    xMax = req.body.geometry.coordinates[0][0][1];
-    xMin = xMax;
+    let east, west, north, south;
+    east = req.body.geometry.coordinates[0][0][0];
+    west = east;
+    north = req.body.geometry.coordinates[0][0][1];
+    south = north;
     for(let i=0;i<req.body.geometry.coordinates[0].length;i++)
     {
-      if (req.body.geometry.coordinates[0][i][0] < yMin)
+      if (req.body.geometry.coordinates[0][i][0] < west)
       {
-        yMin = req.body.geometry.coordinates[0][i][0];
+        west = req.body.geometry.coordinates[0][i][0];
       }
-      if (req.body.geometry.coordinates[0][i][0] > yMax)
+      if (req.body.geometry.coordinates[0][i][0] > east)
       {
-        yMax = req.body.geometry.coordinates[0][i][0];
+        east = req.body.geometry.coordinates[0][i][0];
       }
-      if (req.body.geometry.coordinates[0][i][1] < xMin)
+      if (req.body.geometry.coordinates[0][i][1] < south)
       {
-        xMin = req.body.geometry.coordinates[0][i][1];
+        south = req.body.geometry.coordinates[0][i][1];
       }
-      if (req.body.geometry.coordinates[0][i][1] > xMax)
+      if (req.body.geometry.coordinates[0][i][1] > north)
       {
-        xMax = req.body.geometry.coordinates[0][i][1];
+        north = req.body.geometry.coordinates[0][i][1];
       }
     }
 
     try 
     {
-      // Verbindung herstellen
+      // build connection
       let client = await OpenEO.connect("http://localhost:8000");
 
       // basic login with default params
@@ -75,10 +74,8 @@ ROUTER.post('/preRelease', async function(req, res)
       // load the initial data collection and limit the amount of data loaded
       const datacubeInit = builder.load_collection(
         'sentinel-s2-l2a-cogs',
-        //{ west: xMin, south: yMin, east: xMax, north: yMax }, // Bspl: 
-        { west: 563080.6, south: 4483092.4, east: 609472, north: 4530135 },
-        //3857, // Bspl: 
-        32618,
+        { west: west, south: south, east: east, north: north }, // Bspl: { west: 563080.6, south: 4483092.4, east: 609472, north: 4530135 },
+        3857, // Bspl: 32618,
         ['2021-06-01', '2021-06-30'],
         ["B02","B03","B04"]
       );
