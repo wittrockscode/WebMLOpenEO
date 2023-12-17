@@ -227,7 +227,7 @@
             "type": "object"
           },
           "Resolution": {
-            "type": "object"
+            "type": "number"
           }
         },
         "required": ["model", "TOI", "AOI", "Training_Data", "Hyperparameter", "Resolution"]
