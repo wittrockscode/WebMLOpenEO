@@ -30,5 +30,4 @@ services:
       - TZ=Etc/UTC
       - DEBIAN_FRONTEND=noninteractive
 
-version: "0.0.0"
 
