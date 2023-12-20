@@ -4,10 +4,10 @@ block content
   <!-- just for testing the API -->
   h1= title
   p Welcome to #{title}
-  button#rightRequestButton Send right API Request
-  button#falseRequestButton Send false API Request
+  button#tiffRequestButton Send Tiff API Request
+  button#rdsRequestButton Send RDS API Request
     script.
-      document.getElementById('rightRequestButton').addEventListener('click', async function() {
+      document.getElementById('tiffRequestButton').addEventListener('click', async function() {
       
         // API-Endpoint-URL
         let apiUrl = '/api/preRelease';
@@ -55,20 +55,51 @@ block content
         }
         //console.log(await result.json());
       });
-      document.getElementById('falseRequestButton').addEventListener('click', async function() {
+      document.getElementById('rdsRequestButton').addEventListener('click', async function() {
       
         // API-Endpoint-URL
-        let apiUrl = '/api/classify';
+        let apiUrl = '/api/preRelease2';
         
         // example JSON-Payload
-        let falseJsonData = {
-          "model": "i"
-        }
+        let rightJsonData ={
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [[
+                [-8232573.694427, 4959234.395142],
+                [-8232573.694427, 4984917.236646],
+                [-8201081.638773, 4984917.236646],
+                [-8201081.638773, 4959234.395142],
+                [-8232573.694427, 4959234.395142]
+              ]]
+            }
+          }
         
-        let result = await fetch (apiUrl, {
-          method: 'POST',
-          headers: {"content-type": "application/json"},
-          body: JSON.stringify(falseJsonData),
-        })
-        console.log(await result.json());
+        try 
+        {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(rightJsonData),
+          });
+
+          if (!response.ok) 
+          {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'file.rds';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+        } 
+        catch (error) 
+        {
+          console.error('Fehler beim Herunterladen der Datei:', error);
+        }
+        //console.log(await result.json());
       });
