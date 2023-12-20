@@ -101,7 +101,7 @@ const TRAINING_DATA_SCHEMA = JOI.object(
 
 const HYPERPARAMETER_SCHEMA = JOI.object().required();
 
-const RESOLUTION_SCHEMA = JOI.number().min(30).required();
+const RESOLUTION_SCHEMA = JOI.number().valid(10, 30, 60).required();
 
 const CLASSIFY_SCHEMA = JOI.object(
   {
