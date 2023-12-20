@@ -1,62 +1,63 @@
 <template lang="pug">
 AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INTEREST_MODAL" :isPolygonSelected="aoi !== null && aoi_file === null")
-#home(v-if="!loading_result")
-  CardDark.mt-32
-    .card-content.text-3xl.py-3.items-center.flex.flex-col
-      .row-2
-        CardText.row-item.text-right.px-5(value="Algorithm")
-        CardText.row-item.text-ml-blue.text-center(value="RandomForest")
-      .row-2
-        CardText.row-item.text-right.px-5(value="Date of Interest")
-        DatePicker.row-item(id="doi-select" value="Select" @selected="selectDoi" :completed="doi !== null")
-      .row-2
-        CardText.row-item.text-right.px-5(value="Area of Interest")
-        .row-item
-          CardButton(
-            id="aoi-button"
-            full-w
-            :value="aoi !== null ? 'Modify' : 'Choose'"
-            :completed="aoi !== null"
-            :error="errors.aoi"
-            @click="aoi_modal_handler.open()"
-          )
-          .uploaded-file.mt-1.flex.justify-center(v-if="aoi_file")
-            small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file.name")
-            button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteAoiFile")
-              mdicon(name="window-close")
-      .row-2
-        CardText.row-item.text-right.px-5(value="Training Data")
-        FileUpload.row-item(
-          id="td-upload"
-          value="Upload"
-          show-uploaded-file
-          :types="['json', 'geojson']"
-          :completed="td !== null"
-          :error="errors.td"
-          @uploaded="uploadedTD"
-          @deleted="reset_td")
-      .row-2
-        CardText.row-item.text-right.px-5(value="Hyperparameter")
-        CardButton.row-item(id="hp-button" value="Tune")
-      .row-2
-        CardText.row-item.text-right.px-5(value="Resolution")
-        CardButton.row-item(id="rs-button" value="Select")
-      .row-2.row-2-b
-        .px-5.row-item
-          button.demo-button.transition-2(id="demo-button" v-text="'Demo'")
-        button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'" @click="start_request")
-template(v-else)
-  .loading.flex.flex-col
-    .lds-roller
-      div
-      div
-      div
-      div
-      div
-      div
-      div
-      div
-    .text-ml-text.mt-5 Loading ...
+.wrapper
+  #home(v-if="!loading_result")
+    CardDark
+      .card-content.text-3xl.py-3.items-center.flex.flex-col
+        .row-2
+          CardText.row-item.text-right.px-5(value="Algorithm")
+          CardText.row-item.text-ml-blue.text-center(value="RandomForest")
+        .row-2
+          CardText.row-item.text-right.px-5(value="Date of Interest")
+          DatePicker.row-item(id="doi-select" value="Select" @selected="selectDoi" :completed="doi !== null")
+        .row-2
+          CardText.row-item.text-right.px-5(value="Area of Interest")
+          .row-item
+            CardButton(
+              id="aoi-button"
+              full-w
+              :value="aoi !== null ? 'Modify' : 'Choose'"
+              :completed="aoi !== null"
+              :error="errors.aoi"
+              @click="aoi_modal_handler.open()"
+            )
+            .uploaded-file.mt-1.flex.justify-center(v-if="aoi_file")
+              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file.name")
+              button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteAoiFile")
+                mdicon(name="window-close")
+        .row-2
+          CardText.row-item.text-right.px-5(value="Training Data")
+          FileUpload.row-item(
+            id="td-upload"
+            value="Upload"
+            show-uploaded-file
+            :types="['json', 'geojson']"
+            :completed="td !== null"
+            :error="errors.td"
+            @uploaded="uploadedTD"
+            @deleted="reset_td")
+        .row-2
+          CardText.row-item.text-right.px-5(value="Hyperparameter")
+          CardButton.row-item(id="hp-button" value="Tune")
+        .row-2
+          CardText.row-item.text-right.px-5(value="Resolution")
+          CardButton.row-item(id="rs-button" value="Select")
+        .row-2.row-2-b
+          .px-5.row-item
+            button.demo-button.transition-2(id="demo-button" v-text="'Demo'")
+          button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'" @click="start_request")
+  template(v-else)
+    .loading.flex.flex-col
+      .lds-roller
+        div
+        div
+        div
+        div
+        div
+        div
+        div
+        div
+      .text-ml-text.mt-5 Loading ...
 </template>
 
 <script lang="ts">
@@ -169,4 +170,12 @@ export default defineComponent({
 
 <style scoped>
 @import '@/assets/spinner.css';
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>
