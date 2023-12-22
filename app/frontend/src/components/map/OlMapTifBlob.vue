@@ -38,8 +38,6 @@ export default defineComponent({
 
     onMounted(() => {
       if (blobResult.result === null) router.push("/");
-
-      console.log(blobResult.result.value);
     });
 
     const max = 3000;

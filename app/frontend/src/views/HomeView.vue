@@ -74,8 +74,6 @@ import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal
 import type { SubmitPayload } from "@/types/handlers";
 import { fileToFeatureCollection, payloadToPolygonFeature } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
-import { useApi } from "@/composables/use-api";
-import { useBlobResult } from "@/composables/use-blob-result";
 import router from "@/router";
 
 export default defineComponent({
@@ -89,10 +87,6 @@ export default defineComponent({
     OlMapTifBlob,
   },
   setup() {
-    const api = useApi();
-
-    const blobResult = useBlobResult();
-
     const doi: Ref<Date | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
@@ -141,10 +135,7 @@ export default defineComponent({
     const start_request = async () => {
       if (aoi.value) {
         loading_result.value = true;
-        const res = await api.pre_release_request(aoi.value);
-        const blob = new Blob([res.data], { type: 'image/tiff' });
-
-        blobResult.setResult(blob);
+        // TODO
         router.push("/result");
       }
     };
