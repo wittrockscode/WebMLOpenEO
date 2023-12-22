@@ -27,13 +27,19 @@ ol-map(
         ol-style
           ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
           ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+  ol-vector-layer
+    ol-source-vector(:features="FEATURES" :projection="projection" ref="featureSourceRef")
+      ol-style
+        ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+        ol-style-fill(color="rgba(255, 231, 155, 0.4)")
 </template>
 
 <script lang="ts">
-import { computed, ref, type PropType } from "vue";
+import { computed, ref, type PropType, nextTick } from "vue";
 import { defineComponent } from "vue";
 import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
+import { Map as OLMap } from 'ol';
 import type { MapHandler } from "@/types/handlers";
 
 export default defineComponent({
@@ -51,6 +57,8 @@ export default defineComponent({
     const rotation = ref(0);
 
     const drawSourceRef = ref<any>(null);
+    const featureSourceRef = ref<any>(null);
+    const mapRef = ref<any>(null);
 
     props.handler.onDeleteDrawFeatures(() => {
       removeDrawFeatures();
@@ -81,15 +89,31 @@ export default defineComponent({
       isMouseDown.value = false;
     };
 
+    const fitToFeatures = () => {
+      if(mapRef.value?.map !== (null || undefined) && featureSourceRef.value.source?.getExtent() !== (null || undefined)){
+        const featureSource: VectorSource = featureSourceRef.value.source;
+        const map: OLMap = mapRef.value!.map!;
+        map.getView().fit(featureSource.getExtent(), { size: map.getSize(), padding: [50, 50, 50, 50] });
+      }
+    };
+
+    props.handler.onFeaturesAdded(async () => {
+      await nextTick();
+      fitToFeatures();
+    });
+
     return {
       center,
       projection,
       zoom,
       rotation,
       MODE: props.handler.MAP_MODE,
+      FEATURES: props.handler.FEATURES,
       MapModes,
       mapCursor,
       drawSourceRef,
+      featureSourceRef,
+      mapRef,
       mousedown,
       mouseup,
     };

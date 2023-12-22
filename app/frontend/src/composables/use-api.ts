@@ -1,6 +1,3 @@
-import type { Req } from "@/types/api";
-import axios from "axios";
-
 export const useApi = () => {
 
   let NODE_URL = "";
@@ -11,5 +8,5 @@ export const useApi = () => {
     NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER ?? "http://localhost:3000/api";
   }
 
-  return { };
+  return { NODE_URL };
 };

@@ -1,5 +1,5 @@
 <template lang="pug">
-Modal(:handler="handler" title="Area of Interest" :id="id" hide-footer)
+Modal(:handler="handler" title="Area of Interest" :id="id")
   #aoi-map
     OlMap(@drawend="map_drawend" :handler="mapHandler")
   .control-group.flex.justify-between.w-full.mt-4
@@ -10,7 +10,7 @@ Modal(:handler="handler" title="Area of Interest" :id="id" hide-footer)
       value="Upload GeoJSON"
       :types="['json', 'geojson']"
       input-class="file-upload-label-full"
-      :as-submit-for="handler"
+      @uploaded="(file) => fileUploaded(file)"
     )
 </template>
 
@@ -27,6 +27,7 @@ import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
 import type { Feature } from "@/types/geojson";
+import { geoJsonFileToFeatures } from "@/helper/geojson";
 
 export default defineComponent({
   components: {
@@ -52,15 +53,8 @@ export default defineComponent({
   setup(props) {
     const mapHandler = useMap();
 
-    props.handler.onOpen(() => {
-      mapHandler.reset();
-    });
-
-    props.handler.onSubmit((payload, identifier) => {
-      if(identifier !== 1) mapHandler.deleteDrawFeatures();
-    });
-
     const select_on_map = () => {
+      mapHandler.reset();
       mapHandler.deleteDrawFeatures();
       mapHandler.changeMode(MapModes.DRAW_POLYGON);
     };
@@ -69,13 +63,20 @@ export default defineComponent({
       const format = new OLGeoJSON();
       const geoJsonString = format.writeFeature(feature);
       const geoJson = JSON.parse(geoJsonString) as Feature;
+      mapHandler.changeMode(MapModes.DISPLAY_OSM);
       props.handler.setPayload(geoJson);
-      props.handler.submitFn(1);
-      mapHandler.reset();
     };
 
+    const fileUploaded = async (file: File) => {
+      mapHandler.reset();
+      const features = await geoJsonFileToFeatures(file) as unknown;
+      if(features !== null) {
+        props.handler.setPayload(file);
+        mapHandler.addFeatures(features as OLFeature[]);
+      }
+    };
 
-    return { select_on_map, map_drawend, mapHandler };
+    return { select_on_map, map_drawend, mapHandler, fileUploaded };
   },
 });
 </script>

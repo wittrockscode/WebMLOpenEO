@@ -1,6 +1,8 @@
 import type { SubmitPayload } from "../types/handlers";
 import type { FeatureCollection, Polygon, Feature } from "../types/geojson";
 
+import { GeoJSON as OLGeoJSON} from 'ol/format';
+import { Feature as OLFeature } from "ol";
 
 export const payloadToPolygon = async (payload: SubmitPayload): Promise<Polygon | null> => {
   if (!payload) return null;
@@ -17,11 +19,17 @@ export const payloadToPolygon = async (payload: SubmitPayload): Promise<Polygon 
       reader.readAsText(payload);
     });
   }
-  if (payload.type === "Feature") {
-    if (payload.geometry.type === "Polygon") return payload.geometry;
-  } else if (payload.type === "FeatureCollection") {
-    if (payload.features.length !== 1) return null;
-    if (payload.features[0]!.geometry.type === "Polygon") return payload.features[0]!.geometry;
+  if (payload instanceof Array) {
+    if (payload.length === 0) return null;
+
+    if (payload[0]!.geometry.type === "Polygon") return payload[0]!.geometry;
+  } else {
+    if (payload.type === "Feature") {
+      if (payload.geometry.type === "Polygon") return payload.geometry;
+    } else if (payload.type === "FeatureCollection") {
+      if (payload.features.length !== 1) return null;
+      if (payload.features[0]!.geometry.type === "Polygon") return payload.features[0]!.geometry;
+    }
   }
 
   return null;
@@ -67,12 +75,40 @@ export const payloadToPolygonFeature = async (payload: SubmitPayload): Promise<F
       reader.readAsText(payload);
     });
   }
-  if (payload.type === "Feature") {
-    if (payload.geometry.type === "Polygon") return payload as Feature<Polygon>;
-  } else if (payload.type === "FeatureCollection") {
-    if (payload.features.length !== 1) return null;
-    if (payload.features[0]!.geometry.type === "Polygon") return payload.features[0]! as Feature<Polygon>;
+  if (payload instanceof Array) {
+    if (payload.length !== 1) return null;
+
+    return payload[0]! as Feature<Polygon>;
+  } else {
+    if (payload.type === "Feature") {
+      if (payload.geometry.type === "Polygon") return payload as Feature<Polygon>;
+    } else if (payload.type === "FeatureCollection") {
+      if (payload.features.length !== 1) return null;
+      if (payload.features[0]!.geometry.type === "Polygon") return payload.features[0]! as Feature<Polygon>;
+    }
   }
 
   return null;
+};
+
+export const geoJsonFileToFeatures = async (file: File): Promise<Feature[] | null> => {
+
+  return await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        if (e.target?.result && typeof e.target?.result === "string") {
+          const features = new OLGeoJSON().readFeatures(JSON.parse(e.target?.result)) as unknown;
+          resolve(features as Feature[]);
+        }
+      } finally {
+        resolve(null);
+      }
+    };
+    reader.readAsText(file);
+  });
+};
+
+export const convertToEPSG3857 = (feature: OLFeature) => {
+  return new OLFeature(feature.getGeometry()?.clone().transform("EPSG:4326", "EPSG:3857"));
 };

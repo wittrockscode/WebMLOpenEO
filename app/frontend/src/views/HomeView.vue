@@ -87,7 +87,7 @@ export default defineComponent({
     OlMapTifBlob,
   },
   setup() {
-    const doi: Ref<Date | null> = ref(null);
+    const doi: Ref<Date[] | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
 
@@ -116,8 +116,8 @@ export default defineComponent({
       errors.value.aoi = false;
     };
 
-    const selectDoi = (date: Date) => {
-      doi.value = date;
+    const selectDoi = (dates: Date[]) => {
+      doi.value = dates;
     };
 
     const uploadedTD = async (file: File) => {

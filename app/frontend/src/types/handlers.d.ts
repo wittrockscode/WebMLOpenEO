@@ -1,4 +1,5 @@
 import type { Feature, FeatureCollection } from "./geojson";
+import { Feature as OLFeature } from "ol";
 
 export type ModalHandler = {
   modal_id: import("vue").Ref<import("@/enums").ModalIds | null>;
@@ -13,7 +14,7 @@ export type ModalHandler = {
   onOpen: (callback: () => void) => void;
 };
 
-export type SubmitPayload = null | Feature | FeatureCollection | File;
+export type SubmitPayload = null | Feature | FeatureCollection | File | Feature[];
 
 export type MapHandler = {
   changeMode: (mode: import("@/enums").MapModes) => void;
@@ -21,5 +22,8 @@ export type MapHandler = {
   onReset: (callback: () => void) => void;
   deleteDrawFeatures: () => void;
   onDeleteDrawFeatures: (callback: () => void) => void;
+  addFeatures: (features: OLFeature[]) => void;
+  onFeaturesAdded: (callback: () => void) => void;
   MAP_MODE: import("vue").Ref<import("@/enums").MapModes>;
+  FEATURES: import("vue").Ref<OLFeature[]>;
 }
