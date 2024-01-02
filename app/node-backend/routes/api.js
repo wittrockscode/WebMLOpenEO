@@ -115,6 +115,13 @@ ROUTER.get('/getmodel', function(req, res)
 
 // ------------------- help-functions ----------------------------
 
+/**
+ * This function builds an OpenEO-Processgraph and executes it. Thereby a ML-model gets trained with Trainingdata and then stored in the node-backend.
+ * 
+ * @param {*} client - openEO-Client
+ * @param {*} request_params - JSON-Object, which contains all needed Information (see Validation)
+ * @returns {number} - id of trained model
+ */
 async function trainModel(client, request_params)
 {
   // build a user-defined process
