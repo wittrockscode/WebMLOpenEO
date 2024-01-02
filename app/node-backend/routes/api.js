@@ -14,13 +14,15 @@ const apiSpecPath = path.join(__dirname, './../openapi.json');
 // JOI is used for precised validation
 const {CLASSIFY_SCHEMA, validate_input} = require("../validation_schemes/classify_schemas");
 
+// We use the OpenEO-JS-Client to communicate with the R-Backend
+const { OpenEO } = require('@openeo/js-client');
+const Connection = require("@openeo/js-client/src/connection");
+
 // Init dictionary to save modelpaths
 const fs = require('fs');
 let modelFolder = "./models";
 let modelPathDict = {};
 let id_count = 0;
-// FOR TESTING:
-let testmodel = './model.rds';
 
 // ----------------- Middleware --------------------
 
@@ -51,7 +53,7 @@ ROUTER.get('/getdemodata', function(req, res)
 });
 
 // Train Model and classify map
-ROUTER.post('/classify', function(req, res) 
+ROUTER.post('/classify', async function(req, res) 
 {
   try 
   {
@@ -65,8 +67,11 @@ ROUTER.post('/classify', function(req, res)
     }
     else
     {
-      // request-body an R-backend weiterleiten und ggf. darauf anpassen
-      let id = saveModelFile(testmodel);
+      let id = await trainModel(req.body);
+
+      // classifyRequest on R-backend with traind model
+
+      // FOR TESTING:
       let dummyResult = {
         "Model": id,
         "Model-Result": {
@@ -102,13 +107,83 @@ ROUTER.get('/getmodel', function(req, res)
 
 // ------------------- help-functions ----------------------------
 
+async function trainModel(request_params)
+{
+  // build connection
+  let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
+
+  // basic login with default params
+  await client.authenticateBasic("user", "password");
+
+  // build a user-defined process
+  let builder = await client.buildProcess();
+
+  let BoundingCoords = findBoundingCoords(request_params.Training_Data.bbox[0]);
+
+  // load the initial data collection and limit the amount of data loaded
+  const datacubeInit = builder.load_collection(
+    'sentinel-s2-l2a-cogs',
+    BoundingCoords, 
+    3857, 
+    ['2021-06-01', '2021-06-30'], // TODO: ANPASSEN?
+    ["B02","B03","B04"] // TODO: ANPASSEN
+  );
+
+  // TODO: TRAINMODEL
+
+  // Save result as RDS-file
+  const result = builder.save_result(datacubeInit, "RDS");
+
+  // Process and download data synchronously
+  const startTime = new Date();
+  const blob_res = await client.computeResult(result);
+  console.log (await blob_res.data)
+  const endTime = new Date();
+  const timeTaken = endTime - startTime;
+  console.log('Duration of process:', timeTaken);
+  let id = await saveModelFile(await blob_res.data);
+  return id;
+}
+
+/**
+ * this function finds Bounding Coordinates for the four directions (west, south, east, north) out of an array of lng,lat coords
+ * 
+ * @param {*} coordinates - array of lng,lat coordinates
+ * @returns {[number, number, number, number]} - Bounding Coords in sequenz: west, south, east, north
+ */
+function findBoundingCoords(coordinates)
+{
+  let west = Infinity;
+  let east = -Infinity;
+  let south = Infinity;
+  let north = -Infinity;
+  
+  for (const coordinate of coordinates) {
+    const [longitude, latitude] = coordinate;
+  
+    if (longitude < west) {
+      west = longitude;
+    }
+    if (longitude > east) {
+      east = longitude;
+    }
+    if (latitude < south) {
+      south = latitude;
+    }
+    if (latitude > north) {
+      north = latitude;
+    }
+  }
+  return { west: west, south: south, east: east, north: north };
+}
+
 /**
  * Save Modelfile in ModelPath and give it an id and name to find it
  * 
  * @param {*} rds_file - model to be saved
  * @returns {int} - id of model
  */
-function saveModelFile(rds_file) 
+async function saveModelFile(rds_file) 
 {
   // Give model id and name
   let id = ++id_count;
@@ -116,14 +191,16 @@ function saveModelFile(rds_file)
   const modelPath = path.join(modelFolder, modelName);
 
   // Save model in modelPath
-  fs.copyFile(rds_file, modelPath, function (err) 
-  {
-    if (err) {
-      console.error('Error in model save', err);
-    } else {
-      console.log('Successful model save.');
-    }
+  const writeStream = fs.createWriteStream(modelPath);
+  rds_file.pipe(writeStream);
+
+  // Wait for the writeStream to finish writing the data
+  await new Promise((resolve, reject) => {
+    writeStream.on('finish', resolve);
+    writeStream.on('error', reject);
   });
+
+  console.log('Result saved successfully on the server:', modelPath);
 
   // Save model-id and -path in dict
   modelPathDict[id] = modelPath;
