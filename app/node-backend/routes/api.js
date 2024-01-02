@@ -67,9 +67,17 @@ ROUTER.post('/classify', async function(req, res)
     }
     else
     {
-      let id = await trainModel(req.body);
+      // build connection
+      let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
 
-      // classifyRequest on R-backend with traind model
+      // basic login with default params
+      await client.authenticateBasic("user", "password");
+
+      let id = await trainModel(client, req.body);
+
+      // TODO: classifyRequest on R-backend with traind model
+
+      // let result = await classifyMap(client, modelPathDict[id]);
 
       // FOR TESTING:
       let dummyResult = {
@@ -107,14 +115,8 @@ ROUTER.get('/getmodel', function(req, res)
 
 // ------------------- help-functions ----------------------------
 
-async function trainModel(request_params)
+async function trainModel(client, request_params)
 {
-  // build connection
-  let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
-
-  // basic login with default params
-  await client.authenticateBasic("user", "password");
-
   // build a user-defined process
   let builder = await client.buildProcess();
 
@@ -143,6 +145,14 @@ async function trainModel(request_params)
   console.log('Duration of process:', timeTaken);
   let id = await saveModelFile(await blob_res.data);
   return id;
+}
+
+async function classifyMap(client, modelpath)
+{
+  // build a user-defined process
+  let builder = await client.buildProcess();
+
+  //TODO: Add process
 }
 
 /**
