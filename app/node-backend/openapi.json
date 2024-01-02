@@ -53,6 +53,53 @@
           }
         }
       }
+    },
+    "/api/getdemodata": {
+      "get": {
+        "summary": "Get an example Json-Request for classify-Endpoint",
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassifyRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/getmodel": {
+      "get": {
+        "summary": "Get the calculated model to an id as .rds-file",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of model to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/rds": {
+                
+              }
+            }
+          },
+          "404": {
+            "description": "Id not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -69,16 +116,16 @@
           "TOI": {
             "type": "object",
             "properties": {
-              "start-date": {
+              "start_date": {
                 "type": "string",
                 "format": "date"
               },
-              "end-date": {
+              "end_date": {
                 "type": "string",
                 "format": "date"
               }
             },
-            "required": ["start-date", "end-date"]
+            "required": ["start_date", "end_date"]
           },
           "AOI": {
             "type": "object",
@@ -97,7 +144,10 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "number"
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
                       }
                     }
                   }
@@ -107,17 +157,80 @@
             },
             "required": ["geometry"]
           },
-          "Training-Data": {
-            "type": "object"
+          "Training_Data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["FeatureCollection"]
+              },
+              "bbox": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["Feature"]
+                    },
+                    "properties": {
+                      "type": "object",
+                      "properties": {
+                        "class": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["class"]
+                    },
+                    "geometry": {
+                      "type": "object",
+                      "properties": {
+                        "coordinates": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": ["Polygon"]
+                        }
+                      },
+                      "required": ["coordinates", "type"]
+                    }
+                  },
+                  "required": ["type", "properties", "geometry"]
+                }
+              }
+            },
+          "required": ["type", "bbox", "features"]
           },
           "Hyperparameter": {
             "type": "object"
           },
           "Resolution": {
-            "type": "object"
+            "type": "number"
           }
         },
-        "required": ["model", "TOI", "AOI", "Training-Data", "Hyperparameter", "Resolution"]
+        "required": ["model", "TOI", "AOI", "Training_Data", "Hyperparameter", "Resolution"]
       },
       "ClassifyResponse": {
         "type": "object"
