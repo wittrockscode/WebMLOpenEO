@@ -105,7 +105,7 @@ ROUTER.get('/getmodel', function(req, res)
 /**
  * Save Modelfile in ModelPath and give it an id and name to find it
  * 
- * @param {*} rda_file - model to be saved
+ * @param {*} rds_file - model to be saved
  * @returns {int} - id of model
  */
 function saveModelFile(rds_file) 
