@@ -149,7 +149,7 @@ async function trainModel(request_params)
  * this function finds Bounding Coordinates for the four directions (west, south, east, north) out of an array of lng,lat coords
  * 
  * @param {*} coordinates - array of lng,lat coordinates
- * @returns {[number, number, number, number]} - Bounding Coords in sequenz: west, south, east, north
+ * @returns {{ west: number, south: number, east: number, north: number }} - Bounding Coords in sequenz: west, south, east, north
  */
 function findBoundingCoords(coordinates)
 {
