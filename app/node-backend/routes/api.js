@@ -121,8 +121,13 @@ ROUTER.get('/getmodel', function(req, res)
   {
     // Search modelPath in Dictionary
     let modelPath = modelPathDict[searchId];
-    res.setHeader('Content-Type', 'application/Rda');
-    res.send(modelPath); // TODO: Send data not Path
+    const absolutePath = path.resolve(modelPath);
+
+    const fileName = path.basename(modelPath);
+
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    res.setHeader('Content-Type', 'application/rds');
+    res.sendFile(absolutePath);
   }
   catch (err)
   {

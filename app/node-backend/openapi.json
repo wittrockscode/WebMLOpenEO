@@ -113,7 +113,14 @@
             }
           },
           "404": {
-            "description": "Id not found"
+            "description": "Id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
