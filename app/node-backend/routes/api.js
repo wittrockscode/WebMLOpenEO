@@ -76,7 +76,7 @@ ROUTER.post('/classify', async function(req, res)
   {
     // request mit JOI validieren:
     let validation_result = validate_input(req.body, CLASSIFY_SCHEMA);
-    console.log("valid result", validation_result.errorDetails);
+    //console.log(typeof validation_result.errorDetails === 'undefined' ? "valid result" : validation_result.errorDetails);
 
     if (validation_result.hasError)
     {
@@ -168,7 +168,6 @@ async function trainModel(client, request_params)
   // Process and download data synchronously
   const startTime = new Date();
   const blob_res = await client.computeResult(result);
-  console.log (await blob_res.data)
   const endTime = new Date();
   const timeTaken = endTime - startTime;
   console.log('Duration of process:', timeTaken);
