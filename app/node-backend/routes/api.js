@@ -27,7 +27,7 @@ let id_count = 0;
 // ----------------- Middleware --------------------
 
 // Checks if request fits to OpenAPI-specification
-ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath, validateResponses: true, }));
+//ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath, validateResponses: true, }));
 
 // API calls generally do not want caching because the returned data may change
 ROUTER.use(function(req, res, next)
@@ -43,6 +43,23 @@ ROUTER.get('/', function(req, res)
 {
   res.setHeader('Content-Type', 'application/json');
   res.send(openApiSpec);
+});
+
+// GET openEOcubes-Documentation
+ROUTER.get('/openeocubes', async function(req, res) 
+{
+  try
+  {
+    let doku = await fetch (process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
+    let dokuJSON = await doku.json();
+    res.setHeader('Content-Type', 'application/json');
+    res.send(dokuJSON);
+  }
+  catch (error) 
+  {
+    console.error('Fehler beim Abrufen der OpenEOcubes-Doku:', error)
+    res.status(500).json({ message: 'Interner Serverfehler' })
+  }
 });
 
 // GET an example Json-Request for classify-Endpoint 
