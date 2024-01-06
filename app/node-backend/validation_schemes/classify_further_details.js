@@ -1,5 +1,11 @@
 "use strict"
 
+/**
+ * This function validates complicate constraints to the Classify-Request-Body
+ * 
+ * @param {*} input - Classify-Request-Body
+ * @returns {hasFurtherError, errorMessage} - Boolean if theres an error, if so also a message with Errordetails
+ */
 function validate_further(input)
 {
     let hasFurtherError = false;
@@ -15,10 +21,16 @@ function validate_further(input)
     return {hasFurtherError, errorMessage};
 }
 
-function validate_trainingBBox(data)
+/**
+ * This function tests if the BoundingBox of the Training_Data really contains all features
+ * 
+ * @param {*} Training_Data - Training_Data that should be validated
+ * @returns {boolean} - true if the BBox is too small
+ */
+function validate_trainingBBox(Training_Data)
 {
-    let BBox_bounding = findBoundingCoords(data.bbox[0])
-    for (const feature of data.features)
+    let BBox_bounding = findBoundingCoords(Training_Data.bbox[0])
+    for (const feature of Training_Data.features)
     {
         let bounding = findBoundingCoords(feature.geometry.coordinates[0]);
         if(bounding.west < BBox_bounding.west || bounding.south < BBox_bounding.south || bounding.east > BBox_bounding.east || bounding.north > BBox_bounding.north)
