@@ -138,9 +138,10 @@ function validate_input(input, schema)
     let {hasFurtherError, errorMessage} = validate_further(input);
     if (hasFurtherError)
     {
+      let errorDetails = errorMessage;
       let hasError = true;
-      console.log(errorMessage);
-      return {hasError, errorMessage};
+      console.log(errorDetails);
+      return {hasError, errorDetails};
     }
     else
     {
