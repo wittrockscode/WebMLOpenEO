@@ -11,8 +11,8 @@ const OpenApiValidator = require('express-openapi-validator');
 const openApiSpec = require('./../openapi.json');
 const apiSpecPath = path.join(__dirname, './../openapi.json');
 
-// JOI is used for precised validation
-const {CLASSIFY_SCHEMA, validate_input} = require("../validation_schemes/classify_schemas");
+// JOI is used for precised validation  ----- findBoundingCoords is a helpfunction for Validation which is also used in this file
+const {CLASSIFY_SCHEMA, validate_input, findBoundingCoords} = require("../validation_schemes/classify_schemas");
 
 // We use the OpenEO-JS-Client to communicate with the R-Backend
 const { OpenEO } = require('@openeo/js-client');
@@ -181,38 +181,6 @@ async function classifyMap(client, modelpath)
   let builder = await client.buildProcess();
 
   //TODO: Add process
-}
-
-/**
- * this function finds Bounding Coordinates for the four directions (west, south, east, north) out of an array of lng,lat coords
- * 
- * @param {*} coordinates - array of lng,lat coordinates
- * @returns {{ west: number, south: number, east: number, north: number }} - Bounding Coords in sequenz: west, south, east, north
- */
-function findBoundingCoords(coordinates)
-{
-  let west = Infinity;
-  let east = -Infinity;
-  let south = Infinity;
-  let north = -Infinity;
-  
-  for (const coordinate of coordinates) {
-    const [longitude, latitude] = coordinate;
-  
-    if (longitude < west) {
-      west = longitude;
-    }
-    if (longitude > east) {
-      east = longitude;
-    }
-    if (latitude < south) {
-      south = latitude;
-    }
-    if (latitude > north) {
-      north = latitude;
-    }
-  }
-  return { west: west, south: south, east: east, north: north };
 }
 
 /**

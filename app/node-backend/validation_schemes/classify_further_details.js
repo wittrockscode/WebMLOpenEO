@@ -62,4 +62,4 @@ function findBoundingCoords(coordinates)
   return { west: west, south: south, east: east, north: north };
 }
 
-module.exports = {validate_further};
+module.exports = {validate_further, findBoundingCoords};
