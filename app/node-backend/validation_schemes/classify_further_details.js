@@ -25,6 +25,13 @@ function validate_further(input)
         return {hasFurtherError, errorMessage};
     }
 
+    hasFurtherError = validate_area(input.AOI.geometry.coordinates[0]);
+    if (hasFurtherError)
+    {
+        errorMessage = "The BBox of AOI is too large or has an invalid aspect ratio"
+        return {hasFurtherError, errorMessage};
+    }
+
     return {hasFurtherError, errorMessage};
 }
 
