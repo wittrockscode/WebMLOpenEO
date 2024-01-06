@@ -2,6 +2,8 @@
 
 const JOI = require("joi");
 
+const {validate_further} = require("./classify_further_details");
+
 const MODEL_SCHEMA = JOI.string().custom(function(value)
   {
     if (value !== "RandomForest")
@@ -133,8 +135,18 @@ function validate_input(input, schema)
   }
   else 
   {
-    let hasError = false;
-    return {hasError, value};
+    let {hasFurtherError, errorMessage} = validate_further(input);
+    if (hasFurtherError)
+    {
+      let hasError = true;
+      console.log(errorMessage);
+      return {hasError, errorMessage};
+    }
+    else
+    {
+      let hasError = false;
+      return {hasError, value};
+    }
   }
 }
 
