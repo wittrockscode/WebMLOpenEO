@@ -65,7 +65,7 @@ const BBOX_SCHEMA = JOI.array().max(1).items(
   }).required()
 ).required();
 
-const FEATURES_SCHEMA = JOI.array().items(
+const FEATURES_SCHEMA = JOI.array().min(2).items(
   JOI.object(
     {
       type: JOI.string().custom(function(value)
