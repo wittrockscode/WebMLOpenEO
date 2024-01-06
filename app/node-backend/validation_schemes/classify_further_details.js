@@ -18,6 +18,13 @@ function validate_further(input)
         return {hasFurtherError, errorMessage};
     }
 
+    hasFurtherError = validate_area(input.Training_Data.bbox[0]);
+    if (hasFurtherError)
+    {
+        errorMessage = "The BBox of Training_Data is too large or has an invalid aspect ratio"
+        return {hasFurtherError, errorMessage};
+    }
+
     return {hasFurtherError, errorMessage};
 }
 
@@ -25,7 +32,7 @@ function validate_further(input)
  * This function tests if the BoundingBox of the Training_Data really contains all features
  * 
  * @param {*} Training_Data - Training_Data that should be validated
- * @returns {boolean} - true if the BBox is too small
+ * @returns {boolean} - true if the BBox is too small for its features
  */
 function validate_trainingBBox(Training_Data)
 {
@@ -40,6 +47,26 @@ function validate_trainingBBox(Training_Data)
 
     }
     return false;
+}
+
+/**
+ * This function checks if a Polygon has a BBox which is too big or has a unfavourable aspect ratio, so that the sentinel-data cant be loaded well.
+ * 
+ * @param {*} polygon - polygon that should be validated
+ * @returns {boolean} - true if the BBox is too big or has an invalid aspect ratio
+ */
+function validate_area(polygon)
+{
+    // check area
+    let bounding = findBoundingCoords(polygon);
+    const width = Math.abs(bounding.east - bounding.west);
+    const height = Math.abs(bounding.north - bounding.south);
+    const area = width * height;
+
+    // check aspect ratio
+    const aspectRatio = width / height;
+
+    return (area > 1000000000 || aspectRatio < 0.05 || aspectRatio > 20); // TODO: werte anpassen!
 }
 
 /**
