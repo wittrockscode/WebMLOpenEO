@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 RUN echo $PORT
+RUN echo $VITE_NODE_BACKEND_URI_CONTAINER
 COPY . .
 RUN npm run build
 
