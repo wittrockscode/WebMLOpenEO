@@ -9,7 +9,7 @@ services:
     restart: always
     environment:
       - PORT=80
-      - VITE_NODE_BACKEND_URI=http://node_backend:3000
+      - VITE_NODE_BACKEND_URI_CONTAINER=http://node_backend:3000/api
 
   node_backend:
     build: ./app/node-backend
