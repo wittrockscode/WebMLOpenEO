@@ -1,0 +1,27 @@
+name: remote ssh command
+on:
+  push:
+    branches:
+      - main
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote ssh commands using ssh key
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd WebMLOpenEO/
+          git pull https://wittrockscode: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@github.com/wittrockscode/WebMLOpenEO
+          cd app/frontend/
+          mv .env .env.old
+          mv .env.prod .env
+          docker compose down
+          docker compose up --build -d
+  
