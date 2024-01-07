@@ -1,14 +1,14 @@
 <template lang="pug">
-button.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow(
+button.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow.form-item(
   :id="id"
-  :class="'hover:bg-ml-blue hover:text-ml-black'"
+  :class="classString"
   v-text="value"
   @click="$emit('click')"
 )
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 
 export default defineComponent({
   props: {
@@ -20,10 +20,27 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    fullW: {
+      type: Boolean,
+      default: false,
+    },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+    error: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["click"],
-  setup() {
-    return {};
+  setup(props) {
+
+    const classString = computed(() =>
+      `hover:bg-ml-blue hover:text-ml-black ${props.fullW ? 'w-full' : ''} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''}`
+    );
+
+    return { classString };
   },
 });
 </script>
