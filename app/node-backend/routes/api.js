@@ -3,11 +3,29 @@
 const EXPRESS = require('express');
 const ROUTER = EXPRESS.Router();
 
-const fs = require('fs');
-const path = require('path');
+const  demodata = require('./../demodata.json');
 
-const { OpenEO } = require('@openeo/js-client');
-const Connection = require("@openeo/js-client/src/connection");
+// OpenAPI is used for Dokumentation and first limited validation
+const path = require('path');
+const OpenApiValidator = require('express-openapi-validator');
+const openApiSpec = require('./../openapi.json');
+const apiSpecPath = path.join(__dirname, './../openapi.json');
+
+// JOI is used for precised validation
+const {CLASSIFY_SCHEMA, validate_input} = require("../validation_schemes/classify_schemas");
+
+// Init dictionary to save modelpaths
+const fs = require('fs');
+let modelFolder = "./models";
+let modelPathDict = {};
+let id_count = 0;
+// FOR TESTING:
+let testmodel = './model.rds';
+
+// ----------------- Middleware --------------------
+
+// Checks if request fits to OpenAPI-specification
+ROUTER.use(OpenApiValidator.middleware({ apiSpec: apiSpecPath, validateResponses: true, }));
 
 // API calls generally do not want caching because the returned data may change
 ROUTER.use(function(req, res, next)
@@ -16,105 +34,101 @@ ROUTER.use(function(req, res, next)
   next();
 });
 
+// ----------------- Endpoints -----------------------
+
+// GET OpenAPI-Documentation about this API 
+ROUTER.get('/', function(req, res) 
+{
+  res.setHeader('Content-Type', 'application/json');
+  res.send(openApiSpec);
+});
+
+// GET an example Json-Request for classify-Endpoint 
+ROUTER.get('/getdemodata', function(req, res) 
+{
+  res.setHeader('Content-Type', 'application/json');
+  res.send(demodata);
+});
+
 // Train Model and classify map
-ROUTER.post('/preRelease', async function(req, res) 
+ROUTER.post('/classify', function(req, res) 
 {
   try 
   {
-    let east, west, north, south;
-    east = req.body.geometry.coordinates[0][0][0];
-    west = east;
-    north = req.body.geometry.coordinates[0][0][1];
-    south = north;
-    for(let i=0;i<req.body.geometry.coordinates[0].length;i++)
+    // request mit JOI validieren:
+    let validation_result = validate_input(req.body, CLASSIFY_SCHEMA);
+    console.log("valid result", validation_result.errorDetails);
+
+    if (validation_result.hasError)
     {
-      if (req.body.geometry.coordinates[0][i][0] < west)
-      {
-        west = req.body.geometry.coordinates[0][i][0];
-      }
-      if (req.body.geometry.coordinates[0][i][0] > east)
-      {
-        east = req.body.geometry.coordinates[0][i][0];
-      }
-      if (req.body.geometry.coordinates[0][i][1] < south)
-      {
-        south = req.body.geometry.coordinates[0][i][1];
-      }
-      if (req.body.geometry.coordinates[0][i][1] > north)
-      {
-        north = req.body.geometry.coordinates[0][i][1];
-      }
+      res.status(422).json({errors: validation_result.errorDetails});
     }
-
-    try 
+    else
     {
-      // build connection
-      let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
-
-      // basic login with default params
-      await client.authenticateBasic("user", "password");
-
-      // get the collection list
-      //const collections = await client.listCollections();
-      //console.log('Accesable Collections:', collections);
-
-      // to check description of a collection
-      //const collectionDescription = await client.describeCollection('sentinel-s2-l2a-cogs');
-      //console.log('Description of Collection:', collectionDescription);
-
-      // get the process collection to use the predefined processes of the back-end
-      //const processes = await client.listProcesses();
-      //console.log('Verfügbare Prozesse:', processes);
-
-      // describe a single process
-      //console.log(await client.describeProcess("load_collection"));
-
-      // build a user-defined process
-      let builder = await client.buildProcess();
-
-      // load the initial data collection and limit the amount of data loaded
-      const datacubeInit = builder.load_collection(
-        'sentinel-s2-l2a-cogs',
-        { west: west, south: south, east: east, north: north }, // Bspl: { west: 563080.6, south: 4483092.4, east: 609472, north: 4530135 },
-        3857, // Bspl: 32618,
-        ['2021-06-01', '2021-06-30'],
-        ["B02","B03","B04"]
-      );
-      //console.log(datacubeInit)
-
-      // filter the data cube for the desired bands
-      //const datacubeFiltered = builder.filter_bands(datacubeInit,["B02","B03","B04"]);
-      
-      //const formats = client.listFileTypes();
-      //console.log(formats.data.output.GTIFF);
-
-      // Save result as GeoTiff
-      const result = builder.save_result(datacubeInit, "GTiff");
-      
-      // Process and download data synchronously
-      const startTime = new Date();
-
-      const blob_res = await client.computeResult(result);
-
-      const endTime = new Date();
-      const timeTaken = endTime - startTime;
-      console.log('Duration of process:', timeTaken);
-
-      res.writeHead(200, {
-        'Content-Type': blob_res.type,
-      });
-
-      blob_res.data.pipe(res);
-    } catch (error) {
-        console.error('Error:', error);
+      // request-body an R-backend weiterleiten und ggf. darauf anpassen
+      let id = saveModelFile(testmodel);
+      let dummyResult = {
+        "Model": id,
+        "Model-Result": {
+          // classes, propabilities, ...
+        }
+      }
+      res.setHeader('Content-Type', 'application/json');
+      res.send(dummyResult);
     }
-
   } 
   catch (error) 
   {
-    console.error('Fehler beim Abrufen des Pre-Release-Beispiels:', error)
+    console.error('Fehler beim Abrufen der Klassifikation:', error)
     res.status(500).json({ message: 'Interner Serverfehler' })
   }
 });
+
+ROUTER.get('/getmodel', function(req, res) 
+{
+  const searchId = req.query.id;
+  try
+  {
+    // Search modelPath in Dictionary
+    let modelPath = modelPathDict[searchId];
+    res.setHeader('Content-Type', 'application/Rda');
+    res.send(modelPath); // TODO: Send data not Path
+  }
+  catch (err)
+  {
+    res.status(404).json({ message: 'Id not found' })
+  }
+});
+
+// ------------------- help-functions ----------------------------
+
+/**
+ * Save Modelfile in ModelPath and give it an id and name to find it
+ * 
+ * @param {*} rda_file - model to be saved
+ * @returns {int} - id of model
+ */
+function saveModelFile(rds_file) 
+{
+  // Give model id and name
+  let id = ++id_count;
+  let modelName = "model_" + id.toString() + ".rds"; 
+  const modelPath = path.join(modelFolder, modelName);
+
+  // Save model in modelPath
+  fs.copyFile(rds_file, modelPath, function (err) 
+  {
+    if (err) {
+      console.error('Error in model save', err);
+    } else {
+      console.log('Successful model save.');
+    }
+  });
+
+  // Save model-id and -path in dict
+  modelPathDict[id] = modelPath;
+
+  return id;
+}
 
 module.exports = ROUTER;

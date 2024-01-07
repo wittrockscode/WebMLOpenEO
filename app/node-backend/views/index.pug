@@ -10,50 +10,135 @@ block content
       document.getElementById('rightRequestButton').addEventListener('click', async function() {
       
         // API-Endpoint-URL
-        let apiUrl = '/api/preRelease';
+        let apiUrl = '/api/classify';
         
-        // example JSON-Payload
-        let rightJsonData ={
+        // example JSON-Payload (f.e. the demodata)
+        let rightJsonData = {
+          "model": "RandomForest",
+          "TOI": {
+            "start_date": "2023-08-01",
+            "end_date": "2023-08-10"
+          },
+          "AOI": {
             "geometry": {
               "type": "Polygon",
               "coordinates": [[
-                [-8232573.694427, 4959234.395142],
-                [-8232573.694427, 4984917.236646],
-                [-8201081.638773, 4984917.236646],
-                [-8201081.638773, 4959234.395142],
-                [-8232573.694427, 4959234.395142]
+                [0, 0],
+                [0, 10],
+                [10, 10],
+                [10, 0],
+                [0, 0]
               ]]
             }
-          }
-        
-        try 
-        {
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(rightJsonData),
-          });
-
-          if (!response.ok) 
-          {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'file.tif';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-
-        } 
-        catch (error) 
-        {
-          console.error('Fehler beim Herunterladen der Datei:', error);
+          },
+          "Training_Data": {
+            "type": "FeatureCollection",
+            "bbox": 
+            [
+              [
+                [
+                  7.630504968950532,
+                  51.99573229595768
+                ],
+                [
+                  7.630504968950532,
+                  51.991188630264446
+                ],
+                [
+                  7.636916282083121,
+                  51.991188630264446
+                ],
+                [
+                  7.636916282083121,
+                  51.99573229595768
+                ],
+                [
+                  7.630504968950532,
+                  51.99573229595768
+                ]
+              ]
+            ],
+            "features": [
+              {
+                "type": "Feature",
+                "properties": {
+                  "class": "Wald"
+                },
+                "geometry": {
+                  "coordinates": [
+                    [
+                      [
+                        7.631496907963083,
+                        51.99507684477683
+                      ],
+                      [
+                        7.632948526030873,
+                        51.99406385589654
+                      ],
+                      [
+                        7.633190462375666,
+                        51.995330088416296
+                      ],
+                      [
+                        7.6325372342454045,
+                        51.99546415799844
+                      ],
+                      [
+                        7.631496907963083,
+                        51.99507684477683
+                      ]
+                    ]
+                  ],
+                  "type": "Polygon"
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "class": "Acker"
+                },
+                "geometry": {
+                  "coordinates": [
+                    [
+                      [
+                        7.631593682500636,
+                        51.99203780937788
+                      ],
+                      [
+                        7.632077555190222,
+                        51.9912780182982
+                      ],
+                      [
+                        7.635682406725749,
+                        51.99196332062655
+                      ],
+                      [
+                        7.634835629519472,
+                        51.99270820256572
+                      ],
+                      [
+                        7.631593682500636,
+                        51.99203780937788
+                      ]
+                    ]
+                  ],
+                  "type": "Polygon"
+                }
+              }
+            ]
+          }, 
+          "Hyperparameter": {
+            "tbD": "xxx"
+          }, 
+          "Resolution": 30
         }
-        //console.log(await result.json());
+        
+        let result = await fetch (apiUrl, {
+          method: 'POST',
+          headers: {"content-type": "application/json"},
+          body: JSON.stringify(rightJsonData),
+        })
+        console.log(await result.json());
       });
       document.getElementById('falseRequestButton').addEventListener('click', async function() {
       
@@ -62,7 +147,119 @@ block content
         
         // example JSON-Payload
         let falseJsonData = {
-          "model": "i"
+          "model": "i",
+          "TOI": {
+            "start_date": "2018-05-05",
+            "end_date": "2025-05-05"
+          },
+          "AOI": {
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [[
+                [0, 0],
+                [0, 10],
+                [10, 10],
+                [10, 0],
+                [0, 200]
+              ]]
+            }
+          },
+          "Training_Data": {
+            "type": "FeatureCollection",
+            "bbox": 
+            [
+              [
+                [
+                  7.630504968950532,
+                  51.99573229595768
+                ],
+                [
+                  7.630504968950532,
+                  51.991188630264446
+                ],
+                [
+                  7.636916282083121,
+                  51.991188630264446
+                ],
+                [
+                  7.636916282083121,
+                  51.99573229595768
+                ],
+                [
+                  7.630504968950532,
+                  51.99573229595768
+                ]
+              ]
+            ],
+            "features": [
+              {
+                "type": "Feature",
+                "properties": {
+                  "class": "Wald"
+                },
+                "geometry": {
+                  "coordinates": [
+                    [
+                      [
+                        7.631496907963083,
+                        51.99507684477683
+                      ],
+                      [
+                        7.632948526030873,
+                        51.99406385589654
+                      ],
+                      [
+                        7.633190462375666,
+                        51.995330088416296
+                      ],
+                      [
+                        7.6325372342454045,
+                        51.99546415799844
+                      ],
+                      [
+                        7.631496907963083,
+                        51.99507684477683
+                      ]
+                    ]
+                  ],
+                  "type": "Polygon"
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "class": ""
+                },
+                "geometry": {
+                  "coordinates": [
+                    [
+                      [
+                        7.631593682500636,
+                        51.99203780937788
+                      ],
+                      [
+                        7.632077555190222,
+                        51.9912780182982
+                      ],
+                      [
+                        7.635682406725749,
+                        51.99196332062655
+                      ],
+                      [
+                        7.634835629519472,
+                        51.99270820256572
+                      ],
+                      [
+                        7.631593682500636,
+                        51.99203780937788
+                      ]
+                    ]
+                  ],
+                  "type": "Polygon"
+                }
+              }
+            ]
+          }
         }
         
         let result = await fetch (apiUrl, {
