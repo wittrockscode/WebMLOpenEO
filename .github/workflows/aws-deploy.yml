@@ -18,10 +18,5 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd WebMLOpenEO/
-          git pull https://wittrockscode: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@github.com/wittrockscode/WebMLOpenEO
-          cd app/frontend/
-          mv .env .env.old
-          mv .env.prod .env
-          docker compose down
-          docker compose up --build -d
+          ls -a
   
