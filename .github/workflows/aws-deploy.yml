@@ -12,11 +12,10 @@ jobs:
     - name: executing remote ssh commands using ssh key
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        host: http://ec2-54-70-150-226.us-west-2.compute.amazonaws.com
+        username: ubuntu
         key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
+        port: 22
         script: |
           cd WebMLOpenEO/
           ls -a
-  
