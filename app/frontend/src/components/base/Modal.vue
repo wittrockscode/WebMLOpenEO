@@ -15,7 +15,7 @@ Teleport(to="body")
                   @click="cancel"
                 )
                   mdicon(name="window-close")
-              hr.my-2.text-ml-dark
+              hr.my-2.bg-ml-dark.border-ml-dark
           .modal-body.text-3xl
             slot(
               :cancel="cancel"
@@ -27,7 +27,7 @@ Teleport(to="body")
               :cancel="cancel"
               :submit="submit"
             )
-              hr.my-4.text-ml-dark
+              hr.my-4.bg-ml-dark.border-ml-dark
               .footer-content.flex.justify-between.text-2xl
                 button.btn-secondary(
                   type="button"
@@ -44,6 +44,7 @@ Teleport(to="body")
 <script lang="ts">
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
+import type { ModalHandler } from "@/types/handlers";
 
 export default defineComponent({
   props: {

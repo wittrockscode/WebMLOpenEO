@@ -7,6 +7,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
 import { defineComponent } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import type { PropType } from "vue";
+import type { ModalHandler } from "@/types/handlers";
 
 export default defineComponent({
   components: {
