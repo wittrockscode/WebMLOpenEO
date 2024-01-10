@@ -1,5 +1,6 @@
 <template lang="pug">
 AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INTEREST_MODAL" :isPolygonSelected="aoi !== null && aoi_file === null")
+HyperparameterModal(:handler="hyperparameter_modal_handler" :id="ModalIds.HOME__HYPERPARAMETER_MODAL")
 .wrapper
   #home(v-if="!loading_result")
     CardDark
@@ -38,10 +39,19 @@ AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INT
             @deleted="reset_td")
         .row-2
           CardText.row-item.text-right.px-5(value="Hyperparameter")
-          CardButton.row-item(id="hp-button" value="Tune")
+          CardButton.row-item(
+            id="hp-button"
+            value="Tune"
+            full-w
+            @click="hyperparameter_modal_handler.open()"
+          )
         .row-2
           CardText.row-item.text-right.px-5(value="Resolution")
-          CardButton.row-item(id="rs-button" value="Select")
+          DropdownSelect.row-item(
+            id="rs-button"
+            :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
+            :selected="1"
+          )
         .row-2.row-2-b
           .px-5.row-item
             button.demo-button.transition-2(id="demo-button" v-text="'Demo'")
@@ -69,8 +79,10 @@ import CardButton from "@/components/base/CardButton.vue";
 import CardText from "@/components/base/CardText.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
 import FileUpload from "@/components/form/FileUpload.vue";
+import DropdownSelect from "@/components/form/DropdownSelect.vue";
 import OlMapTifBlob from "@/components/map/OlMapTifBlob.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
+import HyperparameterModal from "@/components/modals/home/hyperparameter.modal.vue";
 import type { SubmitPayload } from "@/types/handlers";
 import { fileToFeatureCollection, payloadToPolygonFeature } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
@@ -85,6 +97,8 @@ export default defineComponent({
     FileUpload,
     AreaOfInterestModal,
     OlMapTifBlob,
+    DropdownSelect,
+    HyperparameterModal,
   },
   setup() {
     const doi: Ref<Date[] | null> = ref(null);
@@ -108,7 +122,13 @@ export default defineComponent({
       if (payload instanceof File) aoi_file.value = payload;
       if (!aoi.value)  errors.value.aoi = true;
     };
+
+    const hyperparameter_submit = () => {
+
+    };
+
     const aoi_modal_handler = useModal(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
+    const hyperparameter_modal_handler = useModal(ModalIds.HOME__HYPERPARAMETER_MODAL, hyperparameter_submit);
 
     const deleteAoiFile = () => {
       aoi.value = null;
@@ -154,6 +174,7 @@ export default defineComponent({
       errors,
       start_request,
       loading_result,
+      hyperparameter_modal_handler,
     };
   },
 });
