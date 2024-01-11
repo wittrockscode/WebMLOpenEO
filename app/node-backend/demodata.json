@@ -28,6 +28,12 @@
             [-8232573.694427, 4959234.395142]
           ]
        ],
+       "crs": {
+        "type": "name",
+        "properties": {
+          "name": "urn:ogc:def:crs:EPSG::3857"
+        }
+      },    
       "features": [
         {
           "type": "Feature",

@@ -86,6 +86,24 @@ const FEATURES_SCHEMA = JOI.array().min(2).items(
   ).required()
 ).required();
 
+const CRS_SCHEMA = JOI.object(
+  {
+    type: JOI.string().custom(function(value)
+    {
+      if (value !== 'name')
+      {
+          throw new Error("'type' must be 'name'")
+      }
+    }
+  ).required(),
+    properties: JOI.object(
+      {
+        name: JOI.string().required()
+      }
+    ).required()
+  }
+);
+
 const TRAINING_DATA_SCHEMA = JOI.object(
   {
     type: JOI.string().custom(function(value)
@@ -97,7 +115,8 @@ const TRAINING_DATA_SCHEMA = JOI.object(
       }
     ).required(),
     bbox: BBOX_SCHEMA.required(),
-    features: FEATURES_SCHEMA.required()
+    features: FEATURES_SCHEMA.required(),
+    crs: CRS_SCHEMA
   }
 ).required();
 
