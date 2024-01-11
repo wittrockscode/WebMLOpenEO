@@ -261,7 +261,7 @@
             "type": "number"
           }
         },
-        "required": ["model", "TOI", "AOI", "Training_Data", "Hyperparameter", "Resolution"]
+        "required": ["model", "TOI", "AOI", "Training_Data", "Resolution"]
       },
       "ClassifyResponse": {
         "type": "object"

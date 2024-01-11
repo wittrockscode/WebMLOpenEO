@@ -101,7 +101,7 @@ const TRAINING_DATA_SCHEMA = JOI.object(
   }
 ).required();
 
-const HYPERPARAMETER_SCHEMA = JOI.object().required();
+const HYPERPARAMETER_SCHEMA = JOI.object();
 
 const RESOLUTION_SCHEMA = JOI.number().valid(10, 30, 60).required();
 
@@ -111,7 +111,7 @@ const CLASSIFY_SCHEMA = JOI.object(
     TOI: TOI_SCHEMA.required(),
     AOI: AOI_SCHEMA.required(),
     Training_Data: TRAINING_DATA_SCHEMA.required(),
-    Hyperparameter: HYPERPARAMETER_SCHEMA.required(),
+    Hyperparameter: HYPERPARAMETER_SCHEMA,
     Resolution: RESOLUTION_SCHEMA.required()
   }
 ).required().options({abortEarly: false}); // makes sure, each error is returned
