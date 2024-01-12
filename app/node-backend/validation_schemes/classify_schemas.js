@@ -63,7 +63,7 @@ const BBOX_SCHEMA = JOI.array().max(1).items(
       return value;
     }
   }).required()
-).required();
+);
 
 const FEATURES_SCHEMA = JOI.array().min(2).items(
   JOI.object(
@@ -114,7 +114,7 @@ const TRAINING_DATA_SCHEMA = JOI.object(
         }
       }
     ).required(),
-    bbox: BBOX_SCHEMA.required(),
+    bbox: BBOX_SCHEMA,
     features: FEATURES_SCHEMA.required(),
     crs: CRS_SCHEMA
   }

@@ -11,18 +11,25 @@ function validate_further(input)
     let hasFurtherError = false;
     let errorMessage;
 
-    hasFurtherError = validate_trainingBBox(input.Training_Data);
-    if (hasFurtherError)
+    if (input.Training_Data.hasOwnProperty("bbox")) 
     {
-        errorMessage = "The BBox of Training_Data does not contain all Training_Features"
-        return {hasFurtherError, errorMessage};
-    }
+      hasFurtherError = validate_trainingBBox(input.Training_Data);
+      if (hasFurtherError)
+      {
+          errorMessage = "The BBox of Training_Data does not contain all Training_Features"
+          return {hasFurtherError, errorMessage};
+      }
 
-    hasFurtherError = validate_area(input.Training_Data.bbox[0]);
-    if (hasFurtherError)
+      hasFurtherError = validate_area(input.Training_Data.bbox[0]);
+      if (hasFurtherError)
+      {
+          errorMessage = "The BBox of Training_Data is too large or has an invalid aspect ratio"
+          return {hasFurtherError, errorMessage};
+      }
+    }
+    else
     {
-        errorMessage = "The BBox of Training_Data is too large or has an invalid aspect ratio"
-        return {hasFurtherError, errorMessage};
+      // TODO: check area for no gegebene bbox
     }
 
     hasFurtherError = validate_area(input.AOI.geometry.coordinates[0]);

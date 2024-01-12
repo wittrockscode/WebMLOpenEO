@@ -149,7 +149,23 @@ async function trainModel(client, request_params)
   // build a user-defined process
   let builder = await client.buildProcess();
 
-  let BoundingCoords = findBoundingCoords(request_params.Training_Data.bbox[0]);
+  let BoundingCoords
+  if (request_params.Training_Data.hasOwnProperty("bbox")) 
+  {
+    BoundingCoords = findBoundingCoords(request_params.Training_Data.bbox[0]);
+  }
+  else
+  {
+    let training_coords = [];
+    request_params.Training_Data.features.forEach(function(feature) 
+    {
+      feature.geometry.coordinates[0].forEach(function(coord)
+      {
+        training_coords.push(coord);
+      });
+    });
+    BoundingCoords = findBoundingCoords(training_coords);
+  }
 
   // load the initial data collection and limit the amount of data loaded
   const datacubeInit = builder.load_collection(

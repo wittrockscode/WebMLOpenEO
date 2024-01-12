@@ -252,7 +252,7 @@
                 }
               }
             },
-          "required": ["type", "bbox", "features"]
+          "required": ["type", "features"]
           },
           "Hyperparameter": {
             "type": "object"
