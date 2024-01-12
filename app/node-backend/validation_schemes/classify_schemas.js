@@ -2,7 +2,7 @@
 
 const JOI = require("joi");
 
-const {validate_further, findBoundingCoords} = require("./classify_further_details");
+const {validate_further, findBoundingCoords, fusionCoords} = require("./classify_further_details");
 
 const MODEL_SCHEMA = JOI.string().custom(function(value)
   {
@@ -170,4 +170,4 @@ function validate_input(input, schema)
   }
 }
 
-module.exports = {CLASSIFY_SCHEMA, validate_input, findBoundingCoords};
+module.exports = {CLASSIFY_SCHEMA, validate_input, findBoundingCoords, fusionCoords};

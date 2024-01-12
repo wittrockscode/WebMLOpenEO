@@ -21,15 +21,16 @@ function validate_further(input)
       }
 
       hasFurtherError = validate_area(input.Training_Data.bbox[0]);
-      if (hasFurtherError)
-      {
-          errorMessage = "The BBox of Training_Data is too large or has an invalid aspect ratio"
-          return {hasFurtherError, errorMessage};
-      }
     }
     else
     {
-      // TODO: check area for no gegebene bbox
+      let training_coords = fusionCoords(input.Training_Data);
+      hasFurtherError = validate_area(training_coords);
+    }
+    if (hasFurtherError)
+    {
+        errorMessage = "The BBox of Training_Data is too large or has an invalid aspect ratio"
+        return {hasFurtherError, errorMessage};
     }
 
     hasFurtherError = validate_area(input.AOI.geometry.coordinates[0]);
@@ -84,6 +85,25 @@ function validate_area(polygon)
 }
 
 /**
+ * This function fusions all coordinates of all features of a featureCollection (only containing Polygons!) in one array
+ * 
+ * @param {*} featureCollection - featureCollection (only containing Polygons!) - which feature-coords should be fusiond
+ * @returns {*} - array of all coords
+ */
+function fusionCoords(featureCollection)
+{
+  let training_coords = [];
+  featureCollection.features.forEach(function(feature) 
+  {
+    feature.geometry.coordinates[0].forEach(function(coord)
+    {
+      training_coords.push(coord);
+    });
+  });
+  return training_coords;
+}
+
+/**
  * this function finds Bounding Coordinates for the four directions (west, south, east, north) out of an array of lng,lat coords
  * 
  * @param {*} coordinates - array of lng,lat coordinates
@@ -115,4 +135,4 @@ function findBoundingCoords(coordinates)
   return { west: west, south: south, east: east, north: north };
 }
 
-module.exports = {validate_further, findBoundingCoords};
+module.exports = {validate_further, findBoundingCoords, fusionCoords};

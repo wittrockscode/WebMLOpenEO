@@ -12,7 +12,7 @@ const openApiSpec = require('./../openapi.json');
 const apiSpecPath = path.join(__dirname, './../openapi.json');
 
 // JOI is used for precised validation  ----- findBoundingCoords is a helpfunction for Validation which is also used in this file
-const {CLASSIFY_SCHEMA, validate_input, findBoundingCoords} = require("../validation_schemes/classify_schemas");
+const {CLASSIFY_SCHEMA, validate_input, findBoundingCoords, fusionCoords} = require("../validation_schemes/classify_schemas");
 
 // We use the OpenEO-JS-Client to communicate with the R-Backend
 const { OpenEO } = require('@openeo/js-client');
@@ -156,14 +156,7 @@ async function trainModel(client, request_params)
   }
   else
   {
-    let training_coords = [];
-    request_params.Training_Data.features.forEach(function(feature) 
-    {
-      feature.geometry.coordinates[0].forEach(function(coord)
-      {
-        training_coords.push(coord);
-      });
-    });
+    let training_coords = fusionCoords(request_params.Training_Data);
     BoundingCoords = findBoundingCoords(training_coords);
   }
 
