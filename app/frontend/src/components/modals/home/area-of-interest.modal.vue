@@ -87,4 +87,4 @@ export default defineComponent({
   height: 50vh;
   display: block;
 }
-</style>@/types/AppTypes
+</style>

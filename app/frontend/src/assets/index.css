@@ -92,7 +92,7 @@ main {
   background-color: transparent;
 }
 
-#modal-outer-click-area {
+.modal-outer-click-area {
   position: relative;
   width: 100%;
   height: 100%;
@@ -264,6 +264,12 @@ main {
   border-radius: 0.25rem;
 }
 
+.form-disabled {
+  opacity: 0.8;
+  border-color: theme("colors.ml-dark") !important;
+  cursor: not-allowed;
+}
+
 .form-item {
   border-color: theme("colors.ml-dark");
   border-width: 3px;
@@ -271,7 +277,7 @@ main {
 }
 
 .form-item:hover {
-  border-color: theme("colors.ml-blue") !important;
+  border-color: theme("colors.ml-blue");
 }
 
 .loading {

@@ -3,12 +3,14 @@ import { Feature as OLFeature } from "ol";
 
 export type ModalHandler = {
   modal_id: import("vue").Ref<import("@/enums").ModalIds | null>;
+  zIndex: import("vue").Ref<number>;
   cancelFn: () => void;
   submitFn: (identifyier?: number) => void;
   outerClickFn: () => void;
   open: () => void;
   close: () => void;
   setPayload: (payload: SubmitPayload) => void;
+  setZIndex: (zIndex: number) => void;
   onCancel: (callback: () => void) => void;
   onSubmit: (callback: (payload: SubmitPayload, identifyier: number) => void) => void;
   onOpen: (callback: () => void) => void;
@@ -19,7 +21,7 @@ export type HyperParameter = {
   value: number;
 };
 
-export type SubmitPayload = null | Feature | FeatureCollection | File | Feature[] | HyperParameter[];
+export type SubmitPayload = null | string | Feature | FeatureCollection | File | Feature[] | HyperParameter[];
 
 export type MapHandler = {
   changeMode: (mode: import("@/enums").MapModes) => void;

@@ -95,4 +95,4 @@ export default defineComponent({
 .delete-file-button {
   vertical-align: middle;
 }
-</style>@/types/AppTypes
+</style>
