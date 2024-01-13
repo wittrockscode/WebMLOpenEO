@@ -122,7 +122,10 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { classify_request } = useApi();
+
     const doi: Ref<Date[] | null> = ref(null);
+    const tot: Ref<Date[] | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
     const hyperparams: Ref<{ name: string; value: number }[]> = ref([]);
@@ -139,8 +142,6 @@ export default defineComponent({
 
     const loading_result: Ref<boolean> = ref(false);
 
-    const { classify_request } = useApi();
-
     const aoi_submit = async (payload: SubmitPayload) => {
       errors.value.aoi = false;
       deleteAoiFile();
@@ -150,12 +151,6 @@ export default defineComponent({
       if (!aoi.value)  errors.value.aoi = true;
     };
 
-    const hyperparameter_submit = (payload: SubmitPayload) => {
-      errors.value.hyperparams = false;
-      hyperparams.value = payload as { name: string; value: number }[];
-      if (!hyperparams.value) errors.value.hyperparams = true;
-    };
-
     const td_submit = async (payload: SubmitPayload) => {
       errors.value.td = false;
       deleteTdFile();
@@ -163,6 +158,12 @@ export default defineComponent({
       (document.getElementById("td-upload") as HTMLInputElement).value = "";
       if (payload instanceof File) td_file.value = payload;
       if (!td.value)  errors.value.td = true;
+    };
+
+    const hyperparameter_submit = (payload: SubmitPayload) => {
+      errors.value.hyperparams = false;
+      hyperparams.value = payload as { name: string; value: number }[];
+      if (!hyperparams.value) errors.value.hyperparams = true;
     };
 
     const aoi_modal_handler = useModal(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
@@ -198,7 +199,7 @@ export default defineComponent({
     };
 
     const start_request = async () => {
-      if (aoi.value && doi.value?.length === 2 && td.value) {
+      if (aoi.value && doi.value?.length === 2 && tot.value?.length === 2 && td.value) {
         loading_result.value = true;
         const payload: Req.Classify.Payload = {
           model: "RandomForest",
@@ -208,6 +209,10 @@ export default defineComponent({
           },
           aoi: aoi.value.geometry,
           training_data: td.value,
+          tot: {
+            start_date: tot.value[0]!,
+            end_date: tot.value[1]!,
+          },
           hyperparameters: hyperparams.value,
           resolution: resolution.value,
         };
@@ -262,6 +267,7 @@ export default defineComponent({
     });
 
     props.demo.onFinish(() => {
+      stop_demo();
       console.log("finish!");
     });
 
@@ -270,6 +276,15 @@ export default defineComponent({
       if ($tours) {
           if ($tours['demoProcess']) {
               $tours['demoProcess'].start();
+          }
+      }
+    };
+
+    const stop_demo = () => {
+      const $tours = instance!.value.appContext.config.globalProperties.$tours;
+      if ($tours) {
+          if ($tours['demoProcess']) {
+              $tours['demoProcess'].stop();
           }
       }
     };
@@ -311,4 +326,3 @@ export default defineComponent({
   align-items: center;
 }
 </style>
-@/types/AppTypes

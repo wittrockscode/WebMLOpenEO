@@ -1,5 +1,5 @@
 import type { SubmitPayload } from "@/types/AppTypes";
-import type { Feature, FeatureCollection } from "@/types/geojson";
+
 export const demo_aoi: SubmitPayload = {
   "type": "Feature",
   "properties": {},

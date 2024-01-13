@@ -7,6 +7,7 @@ main.bg-ml-dark.w-screen.h-screen
     name="demoProcess"
     :steps="steps"
     :callbacks="demoCallbacks"
+    :options="demoOptions"
   )
 </template>
 
@@ -35,6 +36,15 @@ export default defineComponent({
       onStop: () => {
         demo.reset();
         demoOverlay.value = false;
+      },
+    };
+
+    const demoOptions = {
+      labels: {
+        buttonSkip: 'Skip tour',
+        buttonPrevious: 'Previous',
+        buttonNext: 'Next',
+        buttonStop: 'Start a demo classification',
       },
     };
 
@@ -165,9 +175,17 @@ export default defineComponent({
           resolve(true);
         }),
       },
+      {
+        target: "body",
+        content: "",
+        before: () => new Promise((resolve) => {
+          demo.finish();
+          resolve(true);
+        }),
+      },
     ];
 
-    return { steps, demo, demoCallbacks, demoOverlay };
+    return { steps, demo, demoCallbacks, demoOverlay, demoOptions };
   },
 });
 </script>
@@ -180,5 +198,6 @@ export default defineComponent({
   bottom: 0;
   left: 0;
   z-index: 101;
+  background-color: rgba(63, 63, 63, 0.2);
 }
 </style>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Polygon, FeatureCollection } from "@/types/geojson";
 import type { HyperParameter } from "./AppTypes";
 
@@ -11,8 +12,12 @@ export namespace Req {
       };
       aoi: Polygon;
       training_data: FeatureCollection;
+      tot: {
+        start_date: Date;
+        end_date: Date;
+      };
       hyperparameters: HyperParameter[];
       resolution: 10 | 30 | 60;
-    }
+    };
   }
 }
