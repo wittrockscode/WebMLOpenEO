@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('node-backend:server');
 var http = require('http');
+const deleteOldModels = require('./../modelDeletion.js');
 
 /**
  * Get port from environment and store in Express.
@@ -28,6 +29,13 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+/**
+ * Checks one time per day, which models are older than 24h and deletes them
+ */
+
+setInterval(deleteOldModels, 24 * 60 * 60 * 1000);
+
 
 /**
  * Normalize a port into a number, string, or false.
