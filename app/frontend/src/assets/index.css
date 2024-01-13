@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+main {
+  padding-top: 4rem;
+}
+
 #header {
   z-index: 100;
   position: relative;
@@ -82,7 +86,7 @@
 .modal {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 4rem;
   right: 0;
   bottom: 0;
   background-color: transparent;

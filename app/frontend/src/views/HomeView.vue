@@ -1,6 +1,7 @@
 <template lang="pug">
 AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INTEREST_MODAL" :isPolygonSelected="aoi !== null && aoi_file === null")
 HyperparameterModal(:handler="hyperparameter_modal_handler" :id="ModalIds.HOME__HYPERPARAMETER_MODAL")
+TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_MODAL")
 .wrapper
   #home(v-if="!loading_result")
     CardDark
@@ -28,15 +29,19 @@ HyperparameterModal(:handler="hyperparameter_modal_handler" :id="ModalIds.HOME__
                 mdicon(name="window-close")
         .row-2
           CardText.row-item.text-right.px-5(value="Training Data")
-          FileUpload.row-item(
-            id="td-upload"
-            value="Upload"
-            show-uploaded-file
-            :types="['json', 'geojson']"
-            :completed="td !== null"
-            :error="errors.td"
-            @uploaded="uploadedTD"
-            @deleted="reset_td")
+          .row-item
+            CardButton(
+              id="td-button"
+              full-w
+              :value="td !== null ? 'Modify' : 'Choose'"
+              :completed="td !== null"
+              :error="errors.td"
+              @click="td_modal_handler.open()"
+            )
+            .uploaded-file.mt-1.flex.justify-center(v-if="td_file")
+              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="td_file.name")
+              button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteTdFile")
+                mdicon(name="window-close")
         .row-2
           CardText.row-item.text-right.px-5(value="Hyperparameter")
           CardButton.row-item(
@@ -54,7 +59,7 @@ HyperparameterModal(:handler="hyperparameter_modal_handler" :id="ModalIds.HOME__
           )
         .row-2.row-2-b
           .px-5.row-item
-            button.demo-button.transition-2(id="demo-button" v-text="'Demo'")
+            button.demo-button.transition-2(id="demo-button" v-text="'Demo'" @click="start_demo")
           button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'" @click="start_request")
   template(v-else)
     .loading.flex.flex-col
@@ -83,8 +88,9 @@ import DropdownSelect from "@/components/form/DropdownSelect.vue";
 import OlMapTifBlob from "@/components/map/OlMapTifBlob.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
 import HyperparameterModal from "@/components/modals/home/hyperparameter.modal.vue";
+import TrainingDataModal from "@/components/modals/home/training-data.modal.vue";
 import type { SubmitPayload } from "@/types/handlers";
-import { fileToFeatureCollection, payloadToPolygonFeature } from "../helper/geojson";
+import { fileToFeatureCollection, payloadToPolygonFeature, payloadToFeatureCollection } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
 import router from "@/router";
 
@@ -99,6 +105,7 @@ export default defineComponent({
     OlMapTifBlob,
     DropdownSelect,
     HyperparameterModal,
+    TrainingDataModal,
   },
   setup() {
     const doi: Ref<Date[] | null> = ref(null);
@@ -111,6 +118,7 @@ export default defineComponent({
     });
 
     const aoi_file = ref<File | null>();
+    const td_file = ref<File | null>();
 
     const loading_result: Ref<boolean> = ref(false);
 
@@ -127,13 +135,29 @@ export default defineComponent({
 
     };
 
+    const td_submit = async (payload: SubmitPayload) => {
+      errors.value.td = false;
+      deleteTdFile();
+      td.value = await payloadToFeatureCollection(payload);
+      (document.getElementById("td-upload") as HTMLInputElement).value = "";
+      if (payload instanceof File) td_file.value = payload;
+      if (!td.value)  errors.value.td = true;
+    };
+
     const aoi_modal_handler = useModal(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
     const hyperparameter_modal_handler = useModal(ModalIds.HOME__HYPERPARAMETER_MODAL, hyperparameter_submit);
+    const td_modal_handler = useModal(ModalIds.HOME__TRAINING_DATA_MODAL, td_submit);
 
     const deleteAoiFile = () => {
       aoi.value = null;
       aoi_file.value = null;
       errors.value.aoi = false;
+    };
+
+    const deleteTdFile = () => {
+      td.value = null;
+      td_file.value = null;
+      errors.value.td = false;
     };
 
     const selectDoi = (dates: Date[]) => {
@@ -160,10 +184,15 @@ export default defineComponent({
       }
     };
 
+    const start_demo = () => {
+      //TODO
+    };
+
     return {
       aoi_modal_handler,
       ModalIds,
       aoi_file,
+      td_file,
       deleteAoiFile,
       selectDoi,
       uploadedTD,
@@ -175,6 +204,9 @@ export default defineComponent({
       start_request,
       loading_result,
       hyperparameter_modal_handler,
+      td_modal_handler,
+      start_demo,
+      deleteTdFile,
     };
   },
 });

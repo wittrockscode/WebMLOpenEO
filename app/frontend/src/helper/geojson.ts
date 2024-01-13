@@ -91,6 +91,30 @@ export const payloadToPolygonFeature = async (payload: SubmitPayload): Promise<F
   return null;
 };
 
+export const payloadToFeatureCollection = async (payload: SubmitPayload): Promise<FeatureCollection | null> => {
+  if (!payload) return null;
+  if (payload instanceof File) {
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result && typeof e.target?.result === "string") {
+          resolve(payloadToFeatureCollection(JSON.parse(e.target?.result)));
+        }
+
+        resolve(null);
+      };
+      reader.readAsText(payload);
+    });
+  }
+  if (payload instanceof Array) return null;
+  else {
+    if (payload.type === "Feature") return null;
+    else if (payload.type === "FeatureCollection") return payload;
+  }
+
+  return null;
+};
+
 export const geoJsonFileToFeatures = async (file: File): Promise<Feature[] | null> => {
 
   return await new Promise((resolve) => {
