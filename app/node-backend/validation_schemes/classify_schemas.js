@@ -10,6 +10,7 @@ const MODEL_SCHEMA = JOI.string().custom(function(value)
     {
       throw new Error("'model' must be 'RandomForest'");
     }
+    return(value);
   }
 ).required();
 
@@ -40,6 +41,7 @@ const GEOMETRY_SCHEMA = JOI.object(
           {
               throw new Error("'type' must be 'Polygon'")
           }
+          return(value);
       }
     ).required(),
   }
@@ -74,6 +76,7 @@ const FEATURES_SCHEMA = JOI.array().min(2).items(
           {
             throw new Error("'type' must be 'Feature'")
           }
+          return(value);
         }
       ).required(),
       properties: JOI.object(
@@ -92,8 +95,9 @@ const CRS_SCHEMA = JOI.object(
     {
       if (value !== 'name')
       {
-          throw new Error("'type' must be 'name'")
+        throw new Error("'type' must be 'name'")
       }
+      return(value);
     }
   ).required(),
     properties: JOI.object(
@@ -110,8 +114,9 @@ const TRAINING_DATA_SCHEMA = JOI.object(
       {
         if (value !== 'FeatureCollection')
         {
-            throw new Error("'type' must be 'FeatureCollection'")
+          throw new Error("'type' must be 'FeatureCollection'")
         }
+        return(value);
       }
     ).required(),
     bbox: BBOX_SCHEMA,
@@ -120,14 +125,12 @@ const TRAINING_DATA_SCHEMA = JOI.object(
   }
 ).required();
 
-const HYPERPARAMETER_SCHEMA = JOI.array().items(
-  JOI.object(
-    {
-      name: JOI.string().required(),
-      value: JOI.string().required(),
-    }
-  )
-);
+const RANDOMFOREST_HYPERPARAMETER_SCHEMA = JOI.array().items(
+  JOI.object({
+    name: JOI.string().valid('ntrees', 'mtry').required(),
+    value: JOI.string().regex(/^[1-9]\d*$/).required()
+  })
+).min(1).max(2).required();
 
 const RESOLUTION_SCHEMA = JOI.number().valid(10, 30, 60).required();
 
@@ -137,7 +140,12 @@ const CLASSIFY_SCHEMA = JOI.object(
     TOI: TOI_SCHEMA.required(),
     AOI: AOI_SCHEMA.required(),
     Training_Data: TRAINING_DATA_SCHEMA.required(),
-    Hyperparameter: HYPERPARAMETER_SCHEMA,
+    Hyperparameter: JOI.when('model', 
+    {
+      is: JOI.string().valid('RandomForest').required(),
+      then: RANDOMFOREST_HYPERPARAMETER_SCHEMA,
+      otherwise: JOI.optional()
+    }),
     Resolution: RESOLUTION_SCHEMA.required()
   }
 ).required().options({abortEarly: false}); // makes sure, each error is returned
