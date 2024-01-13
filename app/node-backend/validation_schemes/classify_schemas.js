@@ -120,7 +120,14 @@ const TRAINING_DATA_SCHEMA = JOI.object(
   }
 ).required();
 
-const HYPERPARAMETER_SCHEMA = JOI.object();
+const HYPERPARAMETER_SCHEMA = JOI.array().items(
+  JOI.object(
+    {
+      name: JOI.string().required(),
+      value: JOI.string().required(),
+    }
+  )
+);
 
 const RESOLUTION_SCHEMA = JOI.number().valid(10, 30, 60).required();
 

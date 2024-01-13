@@ -255,7 +255,21 @@
           "required": ["type", "features"]
           },
           "Hyperparameter": {
-            "type": "object"
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The name of the hyperparameter"
+                },
+                "value": {
+                  "type": "string",
+                  "description": "The value of the hyperparameter"
+                }
+              },
+              "required": ["name", "value"]
+            }
           },
           "Resolution": {
             "type": "number"

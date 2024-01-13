@@ -73,8 +73,5 @@
         } 
       ]
     }, 
-    "Hyperparameter": {
-      "tbD": "xxx"
-    }, 
     "Resolution": 30
   }
