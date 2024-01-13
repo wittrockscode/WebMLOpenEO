@@ -8,7 +8,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
       .card-content.text-3xl.py-3.items-center.flex.flex-col
         .row-2
           CardText.row-item.text-right.px-5(value="Algorithm")
-          CardText.row-item.text-ml-blue.text-center(value="RandomForest")
+          CardText#model-name.row-item.text-ml-blue.text-center(value="RandomForest")
         .row-2
           CardText.row-item.text-right.px-5(value="Date of Interest")
           DatePicker.row-item(id="doi-select" value="Select" @selected="selectDoi" :completed="doi !== null")
@@ -79,7 +79,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, type Ref } from "vue";
+import { defineComponent, getCurrentInstance, ref, type Ref, onMounted, type PropType } from "vue";
 import { useModal } from "@/composables/use-modal";
 import { ModalIds } from "@/enums";
 import CardDark from "@/components/base/CardDark.vue";
@@ -99,6 +99,8 @@ import type { Req } from "@/types/api";
 import router from "@/router";
 
 import { useApi } from "@/composables/use-api";
+import { useDemo } from "@/composables/use-demo";
+import { demo_aoi, demo_td } from "../helper/demodata";
 
 export default defineComponent({
   components: {
@@ -113,7 +115,13 @@ export default defineComponent({
     HyperparameterModal,
     TrainingDataModal,
   },
-  setup() {
+  props: {
+    demo: {
+      type: Object as PropType<ReturnType<typeof useDemo>>,
+      required: true,
+    },
+  },
+  setup(props) {
     const doi: Ref<Date[] | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
@@ -215,8 +223,55 @@ export default defineComponent({
       }
     };
 
+    const instance = ref();
+    onMounted(() => {
+      instance.value = getCurrentInstance();
+    });
+
+    props.demo.onSelectDoi(() => {
+      selectDoi([new Date("2023-06-15"), new Date("2024-06-25")]);
+    });
+
+    props.demo.onSelectAoi(() => {
+      aoi_modal_handler.close();
+      aoi_submit(demo_aoi);
+    });
+
+    props.demo.onSelectTd(() => {
+      td_modal_handler.close();
+      td_submit(demo_td);
+    });
+
+    props.demo.onSelectHyperparams(() => {
+      hyperparameter_submit([{ name: "ntrees", value: 100 }, { name: "mtry", value: 10 }]);
+    });
+
+    props.demo.onSelectResolution(() => {
+      resolution.value = 30;
+    });
+
+    props.demo.onReset(() => {
+      aoi_modal_handler.close();
+      td_modal_handler.close();
+      deleteAoiFile();
+      deleteTdFile();
+      reset_td();
+      hyperparams.value = [];
+      resolution.value = 30;
+      doi.value = null;
+    });
+
+    props.demo.onFinish(() => {
+      console.log("finish!");
+    });
+
     const start_demo = () => {
-      //TODO
+      const $tours = instance!.value.appContext.config.globalProperties.$tours;
+      if ($tours) {
+          if ($tours['demoProcess']) {
+              $tours['demoProcess'].start();
+          }
+      }
     };
 
     return {

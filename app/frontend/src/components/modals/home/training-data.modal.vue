@@ -3,7 +3,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
   #td-map
     OlMap(@drawend="map_drawend" :handler="mapHandler")
   .control-group.flex.justify-between.w-full.mt-4
-    CardButton(id="draw-button" :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'" @click="select_on_map")
+    CardButton(id="draw-button-td" :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'" @click="select_on_map")
     strong(v-text="'or'")
     FileUpload(
       id="td-upload"

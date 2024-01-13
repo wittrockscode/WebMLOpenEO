@@ -1,5 +1,5 @@
 <template lang="pug">
-.file-upload
+.file-upload(:id="`${id}_div`")
   label.transition-2.form-item(
     :for="id"
     v-text="value"
