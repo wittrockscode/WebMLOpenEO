@@ -44,7 +44,7 @@ Teleport(to="body")
 <script lang="ts">
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
-import type { ModalHandler } from "@/types/handlers";
+import type { ModalHandler } from "@/types/AppTypes";
 
 export default defineComponent({
   props: {
@@ -106,3 +106,4 @@ export default defineComponent({
   },
 });
 </script>
+@/types/AppTypes

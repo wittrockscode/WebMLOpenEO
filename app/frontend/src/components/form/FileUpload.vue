@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import type { ModalHandler } from "@/types/handlers";
+import type { ModalHandler } from "@/types/AppTypes";
 import { defineComponent, ref, type PropType, computed } from "vue";
 
 export default defineComponent({
@@ -95,4 +95,4 @@ export default defineComponent({
 .delete-file-button {
   vertical-align: middle;
 }
-</style>
+</style>@/types/AppTypes

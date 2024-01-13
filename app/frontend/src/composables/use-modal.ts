@@ -1,5 +1,5 @@
 import type { ModalIds } from "@/enums";
-import type { ModalHandler, SubmitPayload } from "@/types/handlers";
+import type { ModalHandler, SubmitPayload } from "@/types/AppTypes";
 import type { Ref } from "vue";
 import { ref } from "vue";
 

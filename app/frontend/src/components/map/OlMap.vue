@@ -40,7 +40,7 @@ import { defineComponent } from "vue";
 import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
 import { Map as OLMap } from 'ol';
-import type { MapHandler } from "@/types/handlers";
+import type { MapHandler } from "@/types/AppTypes";
 
 export default defineComponent({
   props: {
@@ -122,3 +122,4 @@ export default defineComponent({
 </script>
 
 <style scoped></style>
+@/types/AppTypes

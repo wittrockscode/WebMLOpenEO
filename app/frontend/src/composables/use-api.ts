@@ -1,3 +1,5 @@
+import axios from "axios";
+import type { Req } from "@/types/api";
 export const useApi = () => {
 
   let NODE_URL = "";
@@ -8,5 +10,11 @@ export const useApi = () => {
     NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER ?? "http://localhost:3000/api";
   }
 
-  return { NODE_URL };
+  const classify_request = async (payload: Req.Classify.Payload) => {
+    const response = await axios.post(`${NODE_URL}/classify`, payload);
+
+    return response;
+  };
+
+  return { NODE_URL, classify_request };
 };

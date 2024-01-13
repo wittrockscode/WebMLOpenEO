@@ -14,7 +14,12 @@ export type ModalHandler = {
   onOpen: (callback: () => void) => void;
 };
 
-export type SubmitPayload = null | Feature | FeatureCollection | File | Feature[];
+export type HyperParameter = {
+  name: string;
+  value: number;
+};
+
+export type SubmitPayload = null | Feature | FeatureCollection | File | Feature[] | HyperParameter[];
 
 export type MapHandler = {
   changeMode: (mode: import("@/enums").MapModes) => void;

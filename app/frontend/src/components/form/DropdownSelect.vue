@@ -1,6 +1,10 @@
 <template lang="pug">
 .dropdown-select
-  select.rounded.bg-ml-dark.text-ml-text.transition-2.hover-shadow.form-item.w-full.text-center.text-3xl.cursor-pointer(:id="id" class="p-0.5")
+  select.rounded.bg-ml-dark.text-ml-text.transition-2.hover-shadow.form-item.w-full.text-center.text-3xl.cursor-pointer(
+    :id="id"
+    class="p-0.5"
+    @change="event => $emit('change', event.target.value)"
+  )
     option.cursor-pointer(v-for="(value, index) in values" :value="value" v-text="value.label" :selected="index === selected")
 </template>
 
@@ -22,6 +26,7 @@ export default defineComponent({
       default: 0,
     },
   },
+  emits: ["change"],
   setup() {
 
     return { };

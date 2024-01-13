@@ -1,4 +1,4 @@
-import type { SubmitPayload } from "../types/handlers";
+import type { SubmitPayload } from "../types/AppTypes";
 import type { FeatureCollection, Polygon, Feature } from "../types/geojson";
 
 import { GeoJSON as OLGeoJSON} from 'ol/format';
@@ -21,7 +21,7 @@ export const payloadToPolygon = async (payload: SubmitPayload): Promise<Polygon 
   }
   if (payload instanceof Array) {
     if (payload.length === 0) return null;
-
+    // @ts-ignore
     if (payload[0]!.geometry.type === "Polygon") return payload[0]!.geometry;
   } else {
     if (payload.type === "Feature") {

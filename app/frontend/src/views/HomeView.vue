@@ -46,8 +46,10 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
           CardText.row-item.text-right.px-5(value="Hyperparameter")
           CardButton.row-item(
             id="hp-button"
-            value="Tune"
             full-w
+            :value="hyperparams.length > 0 ? 'Modify' : 'Tune'"
+            :completed="hyperparams.length > 0"
+            :error="errors.hyperparams"
             @click="hyperparameter_modal_handler.open()"
           )
         .row-2
@@ -56,6 +58,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             id="rs-button"
             :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
             :selected="1"
+            @change="value => resolution = value"
           )
         .row-2.row-2-b
           .px-5.row-item
@@ -89,10 +92,13 @@ import OlMapTifBlob from "@/components/map/OlMapTifBlob.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
 import HyperparameterModal from "@/components/modals/home/hyperparameter.modal.vue";
 import TrainingDataModal from "@/components/modals/home/training-data.modal.vue";
-import type { SubmitPayload } from "@/types/handlers";
+import type { SubmitPayload } from "@/types/AppTypes";
 import { fileToFeatureCollection, payloadToPolygonFeature, payloadToFeatureCollection } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
+import type { Req } from "@/types/api";
 import router from "@/router";
+
+import { useApi } from "@/composables/use-api";
 
 export default defineComponent({
   components: {
@@ -111,16 +117,21 @@ export default defineComponent({
     const doi: Ref<Date[] | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
+    const hyperparams: Ref<{ name: string; value: number }[]> = ref([]);
+    const resolution: Ref<10 | 30 | 60> = ref(30);
 
     const errors = ref({
       aoi: false,
       td: false,
+      hyperparams: false,
     });
 
     const aoi_file = ref<File | null>();
     const td_file = ref<File | null>();
 
     const loading_result: Ref<boolean> = ref(false);
+
+    const { classify_request } = useApi();
 
     const aoi_submit = async (payload: SubmitPayload) => {
       errors.value.aoi = false;
@@ -131,8 +142,10 @@ export default defineComponent({
       if (!aoi.value)  errors.value.aoi = true;
     };
 
-    const hyperparameter_submit = () => {
-
+    const hyperparameter_submit = (payload: SubmitPayload) => {
+      errors.value.hyperparams = false;
+      hyperparams.value = payload as { name: string; value: number }[];
+      if (!hyperparams.value) errors.value.hyperparams = true;
     };
 
     const td_submit = async (payload: SubmitPayload) => {
@@ -177,10 +190,28 @@ export default defineComponent({
     };
 
     const start_request = async () => {
-      if (aoi.value) {
+      if (aoi.value && doi.value?.length === 2 && td.value) {
         loading_result.value = true;
-        // TODO
+        const payload: Req.Classify.Payload = {
+          model: "RandomForest",
+          toi: {
+            start_date: doi.value[0]!,
+            end_date: doi.value[1]!,
+          },
+          aoi: aoi.value.geometry,
+          training_data: td.value,
+          hyperparameters: hyperparams.value,
+          resolution: resolution.value,
+        };
+
+        const response = await classify_request(payload);
+        console.log(response);
+
         router.push("/result");
+      }else{
+        console.log(aoi.value);
+        console.log(doi.value);
+        console.log(td.value);
       }
     };
 
@@ -200,7 +231,9 @@ export default defineComponent({
       doi,
       aoi,
       td,
+      hyperparams,
       errors,
+      resolution,
       start_request,
       loading_result,
       hyperparameter_modal_handler,
@@ -223,3 +256,4 @@ export default defineComponent({
   align-items: center;
 }
 </style>
+@/types/AppTypes

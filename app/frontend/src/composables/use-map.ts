@@ -1,6 +1,6 @@
 import { ref, type Ref } from "vue";
 import { MapModes } from "@/enums";
-import type { MapHandler } from "@/types/handlers";
+import type { MapHandler } from "@/types/AppTypes";
 import Feature from "ol/Feature";
 import { convertToEPSG3857 } from "@/helper/geojson";
 

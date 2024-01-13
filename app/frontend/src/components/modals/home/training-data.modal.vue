@@ -18,7 +18,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
 import { defineComponent } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import type { PropType } from "vue";
-import type { ModalHandler } from "@/types/handlers";
+import type { ModalHandler } from "@/types/AppTypes";
 import OlMap from "@/components/map/OlMap.vue";
 import CardButton from "@/components/base/CardButton.vue";
 import FileUpload from "@/components/form/FileUpload.vue";
@@ -88,4 +88,4 @@ export default defineComponent({
   display: block;
 }
 
-</style>
+</style>@/types/AppTypes
