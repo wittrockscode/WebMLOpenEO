@@ -19,10 +19,10 @@ const { OpenEO } = require('@openeo/js-client');
 const Connection = require("@openeo/js-client/src/connection");
 
 // Init dictionary to save modelpaths
+const uuid = require('uuid');
 const fs = require('fs');
 let modelFolder = "./models";
 let modelPathDict = {};
-let id_count = 0;
 
 // ----------------- Middleware --------------------
 
@@ -142,7 +142,7 @@ ROUTER.get('/getmodel', function(req, res)
  * 
  * @param {*} client - openEO-Client
  * @param {*} request_params - JSON-Object, which contains all needed Information (see Validation)
- * @returns {number} - id of trained model
+ * @returns {uuid} - id of trained model
  */
 async function trainModel(client, request_params)
 {
@@ -193,16 +193,16 @@ async function classifyMap(client, modelpath)
 }
 
 /**
- * Save Modelfile in ModelPath and give it an id and name to find it
+ * Save Modelfile in ModelPath and give it an uuid and name to find it
  * 
  * @param {*} rds_file - model to be saved
- * @returns {int} - id of model
+ * @returns {int} - uuid of model
  */
 async function saveModelFile(rds_file) 
 {
-  // Give model id and name
-  let id = ++id_count;
-  let modelName = "model_" + id.toString() + ".rds"; 
+  // Give model uuid and name
+  let id = uuid.v4();
+  let modelName = "model_" + id + ".rds"; 
   const modelPath = path.join(modelFolder, modelName);
 
   // Save model in modelPath
@@ -217,7 +217,7 @@ async function saveModelFile(rds_file)
 
   console.log('Result saved successfully on the server:', modelPath);
 
-  // Save model-id and -path in dict
+  // Save model-uuid and -path in dict
   modelPathDict[id] = modelPath;
 
   return id;

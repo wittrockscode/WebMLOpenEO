@@ -97,16 +97,16 @@
     },
     "/api/getmodel": {
       "get": {
-        "summary": "Get the calculated model to an id as .rds-file",
+        "summary": "Get the calculated model to an uuid as .rds-file",
         "parameters": [
           {
             "name": "id",
             "in": "query",
-            "description": "ID of model to return",
+            "description": "UUID of model to return",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
