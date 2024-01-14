@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "jest --watch"
+    "test": "jest"
   },
   "dependencies": {
     "@openeo/js-client": "^2.5.1",
