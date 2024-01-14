@@ -110,16 +110,27 @@ export default defineComponent({
         }),
       },
       {
+        target: "#tot-select",
+        header: {
+          title: "Training Data",
+        },
+        content: "First, select a date for the trainig data.",
+        before: () => new Promise((resolve) => {
+          document.getElementById("td-button")!.click();
+          resolve(true);
+        }),
+      },
+      {
         target: "#draw-button-td",
         header: {
           title: "Training Data",
         },
-        content: "Create Training Data via the map ...",
+        content: "Now create Training Data via the map ...",
         params: {
           placement: "top",
         },
         before: () => new Promise((resolve) => {
-          document.getElementById("td-button")!.click();
+          demo.selectTot();
           resolve(true);
         }),
       },
@@ -175,14 +186,6 @@ export default defineComponent({
           resolve(true);
         }),
       },
-      {
-        target: "body",
-        content: "",
-        before: () => new Promise((resolve) => {
-          demo.finish();
-          resolve(true);
-        }),
-      },
     ];
 
     return { steps, demo, demoCallbacks, demoOverlay, demoOptions };
@@ -198,6 +201,6 @@ export default defineComponent({
   bottom: 0;
   left: 0;
   z-index: 101;
-  background-color: rgba(63, 63, 63, 0.2);
+  background-color: rgba(63, 63, 63, 0.548);
 }
 </style>

@@ -11,7 +11,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
     .control-group.flex.flex-col.justify-between.w-full.mt-4(v-if="!drawMode")
       .date-select.text-left
         label.text-lg.font-semibold(for="tot-select") Select the date for the training data
-        DatePicker.mt-2(id="tot-select" placeholder="Select" @selected="totSelected" :completed="tot !== null" :value="tot")
+        DatePicker.mt-2(id="tot-select" placeholder="Select" @selected="totSelected" :completed="tot !== null" :value="tot" range)
       .options-group.w-full
         CardButton.mb-5(
           id="draw-button-td"
@@ -30,18 +30,18 @@ Modal(:handler="handler" title="Training Data" :id="id")
         )
     .control-group.flex.flex-col.justify-around.w-full.mt-4(v-else)
       CardButton(
-        id="new-polygon-button"
-        value="Select a new Polygon"
-        @click="newPolygon"
-        icon
-        iconText="vector-polyline-plus"
-      )
-      CardButton(
         id="new-class-button"
         value="Create a new Class"
         @click="newClass"
         icon
         iconText="pencil-outline"
+      )
+      CardButton(
+        id="new-polygon-button"
+        value="Select a new Polygon"
+        @click="newPolygon"
+        icon
+        iconText="vector-polyline-plus"
       )
       CardButton(
         id="view-classes-button"
@@ -119,7 +119,7 @@ export default defineComponent({
     const trainingData = useTrainingData();
     const drawMode = ref(false);
 
-    const tot: Ref<Date | null> = ref(null);
+    const tot: Ref<Date[] | null> = ref(null);
 
     const trainingDataClasses = computed(() => {
       return trainingData.classes.value;
@@ -149,7 +149,7 @@ export default defineComponent({
     };
 
     const newPolygon = () => {
-
+      select_on_map();
     };
 
     const newClass = () => {
@@ -164,8 +164,8 @@ export default defineComponent({
       drawMode.value = true;
     };
 
-    const totSelected = (date: Date) => {
-      tot.value = date;
+    const totSelected = (dates: Date[]) => {
+      tot.value = dates;
     };
 
     const go_back = () => {

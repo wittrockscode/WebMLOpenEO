@@ -217,6 +217,7 @@ export default defineComponent({
           resolution: resolution.value,
         };
 
+        console.log(JSON.stringify(payload));
         const response = await classify_request(payload);
         console.log(response);
 
@@ -240,6 +241,10 @@ export default defineComponent({
     props.demo.onSelectAoi(() => {
       aoi_modal_handler.close();
       aoi_submit(demo_aoi);
+    });
+
+    props.demo.onSelectTot(() => {
+      tot.value = [new Date("2023-06-15"), new Date("2024-06-25")];
     });
 
     props.demo.onSelectTd(() => {

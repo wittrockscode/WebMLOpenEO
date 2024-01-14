@@ -1,6 +1,7 @@
 export const useDemo = () => {
   const _doi_callbacks: (() => void)[] = [];
   const _aoi_callbacks: (() => void)[] = [];
+  const _tot_callbacks: (() => void)[] = [];
   const _td_callbacks: (() => void)[] = [];
   const _hyperparams_callbacks: (() => void)[] = [];
   const _resolution_callbacks: (() => void)[] = [];
@@ -11,6 +12,9 @@ export const useDemo = () => {
   };
   const selectAoi = () => {
     _aoi_callbacks.forEach(callback => callback());
+  };
+  const selectTot = () => {
+    _tot_callbacks.forEach(callback => callback());
   };
   const selectTd = () => {
     _td_callbacks.forEach(callback => callback());
@@ -33,6 +37,9 @@ export const useDemo = () => {
   const onSelectAoi = (callback: () => void) => {
     _aoi_callbacks.push(callback);
   };
+  const onSelectTot = (callback: () => void) => {
+    _tot_callbacks.push(callback);
+  };
   const onSelectTd = (callback: () => void) => {
     _td_callbacks.push(callback);
   };
@@ -52,6 +59,7 @@ export const useDemo = () => {
   return {
     selectDoi,
     selectAoi,
+    selectTot,
     selectTd,
     selectHyperparams,
     selectResolution,
@@ -59,6 +67,7 @@ export const useDemo = () => {
     finish,
     onSelectDoi,
     onSelectAoi,
+    onSelectTot,
     onSelectTd,
     onSelectHyperparams,
     onSelectResolution,
