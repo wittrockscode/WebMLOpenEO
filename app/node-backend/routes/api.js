@@ -219,7 +219,7 @@ async function trainModel(client, request_params)
     'sentinel-s2-l2a-cogs',
     BoundingCoords, 
     3857, 
-    ['2021-06-01', '2021-06-30'], // TODO: ANPASSEN?
+    [request_params.TOI.start_date, request_params.TOI.end_date],
     ["B02","B03","B04"] // TODO: ANPASSEN
   );
 
