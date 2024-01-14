@@ -7,40 +7,57 @@ EditClassesModal(
   @delete-class="name => trainingData.removeClass(name)"
 )
 Modal(:handler="handler" title="Training Data" :id="id")
-  #td-map
-    OlMap(@drawend="map_drawend" :handler="mapHandler")
-  .control-group.flex.justify-between.w-full.mt-4(v-if="!drawMode")
-    CardButton(id="draw-button-td" :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'" @click="toggleDrawMode")
-    strong(v-text="'or'")
-    FileUpload(
-      id="td-upload"
-      value="Upload GeoJSON"
-      :types="['json', 'geojson']"
-      input-class="file-upload-label-full"
-      @uploaded="(file) => fileUploaded(file)"
-    )
-  .control-group.flex.justify-between.w-full.mt-4(v-else)
-    CardButton(
-      id="new-polygon-button"
-      value="Select a new Polygon"
-      @click="newPolygon"
-    )
-    CardButton(
-      id="new-class-button"
-      value="Create a new Class"
-      @click="newClass"
-    )
-    CardButton(
-      id="view-classes-button"
-      value="View all classes"
-      @click="viewClasses"
-    )
+  .flex
+    .control-group.flex.flex-col.justify-between.w-full.mt-4(v-if="!drawMode")
+      .date-select.text-left
+        label.text-lg.font-semibold(for="tot-select") Select the date for the training data
+        DatePicker.mt-2(id="tot-select" placeholder="Select" @selected="totSelected" :completed="tot !== null" :value="tot")
+      .options-group.w-full
+        CardButton.mb-5(
+          id="draw-button-td"
+          :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
+          @click="toggleDrawMode"
+          full-w
+          :disabled="tot === null"
+        )
+        FileUpload(
+          id="td-upload"
+          value="Upload GeoJSON"
+          :types="['json', 'geojson']"
+          input-class="file-upload-label-full"
+          :disabled="tot === null"
+          @uploaded="(file) => fileUploaded(file)"
+        )
+    .control-group.flex.flex-col.justify-around.w-full.mt-4(v-else)
+      CardButton(
+        id="new-polygon-button"
+        value="Select a new Polygon"
+        @click="newPolygon"
+      )
+      CardButton(
+        id="new-class-button"
+        value="Create a new Class"
+        @click="newClass"
+      )
+      CardButton(
+        id="view-classes-button"
+        value="View all classes"
+        @click="viewClasses"
+      )
+      button.btn-secondary(
+        id="td-back-button"
+        type="button"
+        v-text="'Back'"
+        @click="go_back"
+      )
+    #td-map
+      OlMap(@drawend="map_drawend" :handler="mapHandler")
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
 import Modal from "@/components/base/Modal.vue";
-import type { PropType } from "vue";
+import type { PropType, Ref } from "vue";
 import type { ModalHandler, SubmitPayload } from "@/types/AppTypes";
 import OlMap from "@/components/map/OlMap.vue";
 import CardButton from "@/components/base/CardButton.vue";
@@ -55,6 +72,7 @@ import { useTrainingData } from "@/composables/use-training-data";
 import { useModal } from "@/composables/use-modal";
 import NewClassModal from "../training_data/new-class.modal.vue";
 import EditClassesModal from "../training_data/edit-classes.modal.vue";
+import DatePicker from "@/components/form/DatePicker.vue";
 
 export default defineComponent({
   components: {
@@ -64,6 +82,7 @@ export default defineComponent({
     FileUpload,
     NewClassModal,
     EditClassesModal,
+    DatePicker,
   },
   props: {
     handler: {
@@ -94,6 +113,8 @@ export default defineComponent({
     const editClassesHandler = useModal(ModalIds.TRAINING_DATA__EDIT_CLASSES_MODAL, () => {}, () => {}, 110);
     const trainingData = useTrainingData();
     const drawMode = ref(false);
+
+    const tot: Ref<Date | null> = ref(null);
 
     const trainingDataClasses = computed(() => {
       return trainingData.classes.value;
@@ -138,6 +159,14 @@ export default defineComponent({
       drawMode.value = true;
     };
 
+    const totSelected = (date: Date) => {
+      tot.value = date;
+    };
+
+    const go_back = () => {
+      drawMode.value = false;
+    };
+
     return {
       select_on_map,
       map_drawend,
@@ -153,6 +182,9 @@ export default defineComponent({
       viewClasses,
       editClassesHandler,
       trainingDataClasses,
+      tot,
+      totSelected,
+      go_back,
     };
   },
 });
@@ -160,9 +192,29 @@ export default defineComponent({
 
 <style scoped>
 #td-map {
-  width: 80vw;
+  width: 60vw;
   height: 60vh;
   display: block;
 }
 
+.control-group {
+  width: max-content;
+  min-width: 30%;
+  margin-right: 2rem;
+}
+
+.dp__theme_dark {
+  --dp-background-color: theme("colors.ml-dark") !important;
+  --dp-text-color: theme("colors.ml-text") !important;
+  --dp-hover-color: theme("colors.ml-text") !important;
+  --dp-hover-text-color: theme("colors.ml-black") !important;
+  --dp-hover-icon-color: theme("colors.ml-black") !important;
+  --dp-primary-color: theme("colors.ml-blue") !important;
+  --dp-primary-text-color: theme("colors.ml-black") !important;
+  --dp-menu-border-color: theme("colors.ml-dark") !important;
+}
+
+#tot-select {
+  background-color: theme("colors.ml-dark") !important;
+}
 </style>

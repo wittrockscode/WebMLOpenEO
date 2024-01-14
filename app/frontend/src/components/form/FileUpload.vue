@@ -10,6 +10,7 @@
     type="file"
     accept=".json, .geojson"
     capture
+    :disabled="disabled"
     @change="onFileChanged($event)"
   )
   .uploaded-file.mt-1.flex.justify-center(v-if="showUploadedFile && file")
@@ -56,6 +57,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["click", "uploaded", "deleted"],
   setup(props, { emit }) {
@@ -84,7 +89,7 @@ export default defineComponent({
       props.asSubmitFor.submitFn();
     };
 
-    const classes_to_add = computed(() => `${props.inputClass} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''}`);
+    const classes_to_add = computed(() => `${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? props.inputClass + '-disabled' : props.inputClass}`);
 
     return { onFileChanged, deleteFile, file, classes_to_add };
   },

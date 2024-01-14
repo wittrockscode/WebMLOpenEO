@@ -11,7 +11,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
           CardText#model-name.row-item.text-ml-blue.text-center(value="RandomForest")
         .row-2
           CardText.row-item.text-right.px-5(value="Date of Interest")
-          DatePicker.row-item(id="doi-select" value="Select" @selected="selectDoi" :completed="doi !== null")
+          DatePicker.row-item(id="doi-select" placeholder="Select" @selected="selectDoi" :completed="doi !== null" range :value="doi")
         .row-2
           CardText.row-item.text-right.px-5(value="Area of Interest")
           .row-item

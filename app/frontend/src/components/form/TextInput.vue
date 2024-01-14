@@ -3,7 +3,8 @@ input.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow.form-item.mb
   :type="type"
   :id="id"
   :placeholder="placeholder"
-  @input="event => $emit('input', event.target.value)"
+  @input="$emit('update:modelValue', $event.target.value)"
+  :value="modelValue"
 )
 </template>
 
@@ -12,6 +13,9 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   props: {
+    modelValue: {
+      type: [String, Number],
+    },
     type: {
       type: String,
       deafult: "text",
@@ -25,7 +29,7 @@ export default defineComponent({
       default: "",
     },
   },
-  emits: ["input"],
+  emits: ["update:modelValue"],
   setup() {
 
     return { };

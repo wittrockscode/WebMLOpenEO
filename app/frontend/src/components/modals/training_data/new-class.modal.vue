@@ -2,7 +2,7 @@
 Modal(:handler="handler" title="Create a new Class" :id="id")
   #edit-classes
     label.mr-10(for="new-class-input" v-text="'New class name:'")
-    TextInput(id="new-class-input" placeholder="enter class name" @input="value => updateValue(value)")
+    TextInput(id="new-class-input" placeholder="enter class name" v-model="textValue")
 </template>
 
 <script lang="ts">
@@ -28,13 +28,13 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const value = ref("");
-    const updateValue = (newValue: string) => {
-      value.value = newValue;
-      props.handler.setPayload(value.value);
-    };
+    const textValue = ref("");
 
-    return { updateValue };
+    props.handler.onSubmit(() => {
+      props.handler.setPayload(textValue.value);
+      textValue.value = "";
+    });
+    return { textValue };
   },
 });
 </script>

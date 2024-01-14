@@ -1,15 +1,15 @@
 <template lang="pug">
 Modal(:handler="handler" title="Hyperparameters" :id="id")
   .input-group.flex.justify-between.w-full.mt-4.flex-col
-    TextInput(id="ntrees" placeholder="ntrees" type="number" @input="value => setNtrees(value)")
-    TextInput(id="mtry" placeholder="mtry" type="number" @input="value => setMtry(value)")
+    TextInput(id="ntrees" placeholder="ntrees" type="number" v-model="ntrees")
+    TextInput(id="mtry" placeholder="mtry" type="number" v-model="mtry")
 </template>
 
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import Modal from "@/components/base/Modal.vue";
-import type { PropType } from "vue";
+import type { PropType, Ref } from "vue";
 import type { ModalHandler } from "@/types/AppTypes";
 import TextInput from "@/components/form/TextInput.vue";
 
@@ -29,20 +29,14 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const ntrees = ref(0);
-    const mtry = ref(0);
+    const ntrees: Ref<null | number> = ref(null);
+    const mtry: Ref<null | number> = ref(null);
 
-    const setNtrees = (value: number) => {
-      ntrees.value = value;
-      props.handler.setPayload([{ name: "ntrees", value: value }, { name: "mtry", value: mtry.value }]);
-    };
+    props.handler.onSubmit(() => {
+      props.handler.setPayload([{ name: "ntrees", value: ntrees.value ?? 0 }, { name: "mtry", value: mtry.value ?? 0 }]);
+    });
 
-    const setMtry = (value: number) => {
-      mtry.value = value;
-      props.handler.setPayload([{ name: "ntrees", value: ntrees.value }, { name: "mtry", value: value }]);
-    };
-
-    return { setNtrees, setMtry };
+    return { ntrees, mtry };
   },
 });
 </script>

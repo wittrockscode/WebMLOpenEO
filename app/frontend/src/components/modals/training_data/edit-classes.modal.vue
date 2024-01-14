@@ -1,11 +1,14 @@
 <template lang="pug">
 Modal(:handler="handler" title="Edit Classes" :id="id" hide-footer)
   #edit-classes.flex.flex-col
-    .class-item.my-1(v-for="(name, index) in trainingDataClasses" :key="name")
-      .flex.justify-between
-        p(v-text="name")
-        button.text-ml-red(type="button" @click="deleteClass(name)")
-          mdicon(name="trash-can")
+    template(v-if="trainingDataClasses.length > 0")
+      .class-item.my-1(v-for="(name, index) in trainingDataClasses" :key="name")
+        .flex.justify-between
+          p(v-text="name")
+          button.text-ml-red(type="button" @click="deleteClass(name)")
+            mdicon(name="trash-can")
+    template(v-else)
+      p Nothing here yet...
 </template>
 
 <script lang="ts">

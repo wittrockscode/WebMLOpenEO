@@ -20,10 +20,10 @@ export const useModal = (modalId: ModalIds, submit_callback: (payload: SubmitPay
     close();
   };
   const submitFn = (identifyier: number = 0) => {
-    submit_callback(submit_payload.value);
     _submit_callback_arr.forEach(callback => {
       callback(submit_payload.value, identifyier);
     });
+    submit_callback(submit_payload.value);
     close();
   };
   const outerClickFn = () => {

@@ -206,6 +206,24 @@ main {
   color: theme("colors.ml-black");
 }
 
+.file-upload-label-full-disabled {
+  background-color: theme("colors.ml-dark");
+  color: theme("colors.ml-text");
+  border-radius: 0.25rem;
+  text-align: center;
+  width: 100%;
+  display: block;
+  padding: 0.25rem;
+  opacity: 0.8;
+}
+
+.file-upload-label-full-disabled:hover {
+  opacity: 0.8;
+  border-color: theme("colors.ml-dark") !important;
+  cursor: not-allowed;
+}
+
+
 .file-upload-label, .demo-button {
   border-color: theme("colors.ml-text");
   border-radius: 0.25rem;
