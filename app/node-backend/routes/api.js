@@ -150,14 +150,41 @@ ROUTER.post('/getsentinelimg', async function(req, res)
     }
     else
     {
-      //const blob_res = getSentinelImg(req.body);
+      let BoundingCoords = findBoundingCoords(req.body.AOI.geometry.coordinates[0]);
+      // build connection
+      let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
 
+      // basic login with default params
+      await client.authenticateBasic("user", "password");
 
+      // build a user-defined process
+      let builder = await client.buildProcess();
+
+      // load the initial data collection and limit the amount of data loaded
+      const datacubeInit = builder.load_collection(
+        'sentinel-s2-l2a-cogs',
+        BoundingCoords, 
+        3857, 
+        [req.body.TOI.start_date, req.body.TOI.end_date], 
+        ["B02","B03","B04"]
+      );
+
+      // Save result as GeoTiff
+      const result = builder.save_result(datacubeInit, "GTiff");
+
+      // Process and download data synchronously
+      const blob_res = await client.computeResult(result);
+
+      res.writeHead(200, {
+        'Content-Type': blob_res.type,
+      });
+
+      blob_res.data.pipe(res);
     }
   } 
   catch (error) 
   {
-    console.error('Fehler beim Abrufen der Klassifikation:', error)
+    console.error('Fehler beim Abrufen der Sentinel-Bilder:', error)
     res.status(500).json({ message: 'Interner Serverfehler' })
   }
 });
@@ -176,7 +203,7 @@ async function trainModel(client, request_params)
   // build a user-defined process
   let builder = await client.buildProcess();
 
-  let BoundingCoords
+  let BoundingCoords;
   if (request_params.Training_Data.hasOwnProperty("bbox")) 
   {
     BoundingCoords = findBoundingCoords(request_params.Training_Data.bbox[0]);
