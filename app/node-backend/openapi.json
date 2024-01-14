@@ -131,6 +131,46 @@
           }
         }
       }
+    },
+    "/api/getsentinelimg": {
+      "post": {
+        "summary": "Get a sentinel RGB-image for specific time and area",
+        "description": "Takes parameter in JSON-file, ask STAC-API on openEO-conform R-Backend and response with a TIFF which contains the sentinel-data",
+        "requestBody": {
+          "description": "JSON-file with time and area of interest",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sentinelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful classification",
+            "content": {
+              "image/tiff": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid requestBody",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -146,50 +186,10 @@
             ]
           },
           "TOI": {
-            "type": "object",
-            "description": "Time of interest (for classification)",
-            "properties": {
-              "start_date": {
-                "type": "string",
-                "format": "date"
-              },
-              "end_date": {
-                "type": "string",
-                "format": "date"
-              }
-            },
-            "required": ["start_date", "end_date"]
+            "$ref": "#/components/schemas/TOI"
           },
           "AOI": {
-            "type": "object",
-            "description": "Area of interest (for classification)",
-            "properties": {
-              "geometry": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "Polygon"
-                    ]
-                  },
-                  "coordinates": {
-                    "type": "array",
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "array",
-                        "items": {
-                          "type": "number"
-                        }
-                      }
-                    }
-                  }
-                },
-                "required": ["type", "coordinates"]
-              }
-            },
-            "required": ["geometry"]
+            "$ref": "#/components/schemas/AOI"
           },
           "tot": {
             "type": "object",
@@ -300,6 +300,64 @@
       },
       "ClassifyResponse": {
         "type": "object"
+      },
+      "sentinelRequest": {
+        "type": "object",
+        "properties": {
+          "TOI": {
+            "$ref": "#/components/schemas/TOI"
+          },
+          "AOI": {
+            "$ref": "#/components/schemas/AOI"
+          }
+        },
+        "required": ["TOI", "AOI"]
+      },
+      "TOI": {
+        "type": "object",
+        "description": "Time of interest (for classification or sentinel-IMG)",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": ["start_date", "end_date"]
+      },
+      "AOI": {
+        "type": "object",
+        "description": "Area of interest (for classification or sentinel-IMG)",
+        "properties": {
+          "geometry": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Polygon"
+                ]
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            },
+            "required": ["type", "coordinates"]
+          }
+        },
+        "required": ["geometry"]
       }
     }
   }
