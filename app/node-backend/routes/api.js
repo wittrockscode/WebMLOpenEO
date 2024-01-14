@@ -13,6 +13,7 @@ const apiSpecPath = path.join(__dirname, './../openapi.json');
 
 // JOI is used for precised validation  ----- findBoundingCoords is a helpfunction for Validation which is also used in this file
 const {CLASSIFY_SCHEMA, validate_input, findBoundingCoords, fusionCoords} = require("../validation_schemes/classify_schemas");
+const {SENTINEL_SCHEMA} = require("../validation_schemes/sentinel_schemas");
 
 // We use the OpenEO-JS-Client to communicate with the R-Backend
 const { OpenEO } = require('@openeo/js-client');
@@ -132,6 +133,32 @@ ROUTER.get('/getmodel', function(req, res)
   catch (err)
   {
     res.status(404).json({ message: 'Id not found' })
+  }
+});
+
+ROUTER.post('/getsentinelimg', async function(req, res) 
+{
+  try 
+  {
+    // request mit JOI validieren:
+    let validation_result = validate_input(req.body, SENTINEL_SCHEMA);
+    //console.log(typeof validation_result.errorDetails === 'undefined' ? "valid result" : validation_result.errorDetails);
+
+    if (validation_result.hasError)
+    {
+      res.status(422).json({errors: validation_result.errorDetails});
+    }
+    else
+    {
+      //const blob_res = getSentinelImg(req.body);
+
+
+    }
+  } 
+  catch (error) 
+  {
+    console.error('Fehler beim Abrufen der Klassifikation:', error)
+    res.status(500).json({ message: 'Interner Serverfehler' })
   }
 });
 

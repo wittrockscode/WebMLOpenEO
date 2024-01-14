@@ -186,4 +186,4 @@ function validate_input(input, schema)
   }
 }
 
-module.exports = {CLASSIFY_SCHEMA, validate_input, findBoundingCoords, fusionCoords};
+module.exports = {CLASSIFY_SCHEMA, TOI_SCHEMA, AOI_SCHEMA, validate_input, findBoundingCoords, fusionCoords};
