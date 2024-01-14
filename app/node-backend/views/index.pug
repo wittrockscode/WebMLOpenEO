@@ -4,8 +4,14 @@ block content
   <!-- just for testing the API -->
   h1= title
   p Welcome to #{title}
-  button#rightRequestButton Send right API Request
-  button#falseRequestButton Send false API Request
+  div
+    p Classify
+    button#rightRequestButton Send right API Request
+    button#falseRequestButton Send false API Request
+  div 
+    p Sentinel
+    button#rightButton Send right API Request
+    button#falseButton Send false API Request
     script.
       document.getElementById('rightRequestButton').addEventListener('click', async function() {
       
@@ -110,4 +116,83 @@ block content
           body: JSON.stringify(falseJsonData),
         })
         console.log(await result.json());
+      });
+
+      document.getElementById('rightButton').addEventListener('click', async function() {
+      
+        // API-Endpoint-URL
+        let apiUrl = '/api/getsentinelimg';
+        
+        // example JSON-Payload 
+        let rightJsonData = {
+          "TOI": {
+            "start_date": "2021-06-01",
+            "end_date": "2021-06-30"
+          },
+          "AOI": {
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [[
+                [-8232573.694427, 4979234.395142],
+                [-8232573.694427, 4984917.236646],
+                [-8221081.638773, 4984917.236646],
+                [-8221081.638773, 4979234.395142],
+                [-8232573.694427, 4979234.395142]
+              ]]
+            }
+          }
+        }
+        
+        let result = await fetch (apiUrl, {
+          method: 'POST',
+          headers: {"content-type": "application/json"},
+          body: JSON.stringify(rightJsonData),
+        })
+
+        if (!result.ok)
+        {
+          throw new Error('HTTP error! Status: ${response.status}');
+        }
+
+        const blob = await result.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'file.tiff';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+
+      document.getElementById('falseButton').addEventListener('click', async function() {
+      
+        // API-Endpoint-URL
+        let apiUrl = '/api/getsentinelimg';
+        
+        // example JSON-Payload 
+        let falseJsonData = {
+          "TOI": {
+            "start_date": "2021-06-01",
+            "end_date": "2021-06-30"
+          },
+          "AOI": {
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [[
+                [-8232573.694427, 4959234.395142],
+                [-8232573.694427, 4984917.236646],
+                [8201081.638773, 4984917.236646],
+                [8201081.638773, 4959234.395142],
+                [-8232573.694427, 4959234.395142]
+              ]]
+            }
+          }
+        }
+
+        let result = await fetch (apiUrl, {
+          method: 'POST',
+          headers: {"content-type": "application/json"},
+          body: JSON.stringify(falseJsonData),
+        })
+        //console.log(await result.json());
       });
