@@ -1,11 +1,12 @@
 <template lang="pug">
-button.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow.form-item(
+button.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow.form-item.flex(
   :id="id"
   :class="classString"
-  v-text="value"
   :disabled="disabled"
   @click="$emit('click')"
 )
+  span(v-text="value")
+  mdicon.ml-3.self-center(v-if="icon" :name="iconText")
 </template>
 
 <script lang="ts">
@@ -37,12 +38,24 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    icon: {
+      type: Boolean,
+      default: false,
+    },
+    iconText: {
+      type: String,
+      default: "",
+    },
+    alignText: {
+      type: String,
+      default: "center",
+    },
   },
   emits: ["click"],
   setup(props) {
 
     const classString = computed(() =>
-      `${props.fullW ? 'w-full' : ''} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? 'form-disabled' : 'hover:bg-ml-blue hover:text-ml-black'}`
+      `${props.fullW ? 'w-full' : ''} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? 'form-disabled' : 'hover:bg-ml-blue hover:text-ml-black'} ${props.icon ? 'justify-between' : 'justify-' + props.alignText}`
     );
 
     return { classString };

@@ -33,16 +33,21 @@ Modal(:handler="handler" title="Training Data" :id="id")
         id="new-polygon-button"
         value="Select a new Polygon"
         @click="newPolygon"
+        icon
+        iconText="vector-polyline-plus"
       )
       CardButton(
         id="new-class-button"
         value="Create a new Class"
         @click="newClass"
+        icon
+        iconText="pencil-outline"
       )
       CardButton(
         id="view-classes-button"
         value="View all classes"
         @click="viewClasses"
+        alignText="left"
       )
       button.btn-secondary(
         id="td-back-button"
