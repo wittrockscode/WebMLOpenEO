@@ -186,110 +186,22 @@
             ]
           },
           "TOI": {
-            "$ref": "#/components/schemas/TOI"
+            "$ref": "#/components/schemas/TOI",
+            "description": "Time of interest (for classification)"
           },
           "AOI": {
-            "$ref": "#/components/schemas/AOI"
+            "$ref": "#/components/schemas/AOI",
+            "description": "Area of interest (for classification)"
           },
           "tot": {
-            "type": "object",
-            "description": "Time of training",
-            "properties": {
-              "start_date": {
-                "type": "string",
-                "format": "date"
-              },
-              "end_date": {
-                "type": "string",
-                "format": "date"
-              }
-            },
-            "required": ["start_date", "end_date"]
+            "$ref": "#/components/schemas/TOI",
+            "description": "Time of training"
           },
           "Training_Data": {
-            "type": "object",
-            "description": "Data for training wrapped in a FeatureCollection",
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["FeatureCollection"]
-              },
-              "bbox": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "features": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": ["Feature"]
-                    },
-                    "properties": {
-                      "type": "object",
-                      "properties": {
-                        "class": {
-                          "type": "string"
-                        }
-                      },
-                      "required": ["class"]
-                    },
-                    "geometry": {
-                      "type": "object",
-                      "properties": {
-                        "coordinates": {
-                          "type": "array",
-                          "items": {
-                            "type": "array",
-                            "items": {
-                              "type": "array",
-                              "items": {
-                                "type": "number"
-                              }
-                            }
-                          }
-                        },
-                        "type": {
-                          "type": "string",
-                          "enum": ["Polygon"]
-                        }
-                      },
-                      "required": ["coordinates", "type"]
-                    }
-                  },
-                  "required": ["type", "properties", "geometry"]
-                }
-              }
-            },
-          "required": ["type", "features"]
+            "$ref": "#/components/schemas/Training_Data"
           },
           "Hyperparameter": {
-            "type": "array",
-            "description": "Hyperparameter of ML-Model",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "The name of the hyperparameter"
-                },
-                "value": {
-                  "type": "string",
-                  "description": "The value of the hyperparameter"
-                }
-              },
-              "required": ["name", "value"]
-            }
+            "$ref": "#/components/schemas/Hyperparameter"
           },
           "Resolution": {
             "type": "number",
@@ -305,17 +217,18 @@
         "type": "object",
         "properties": {
           "TOI": {
-            "$ref": "#/components/schemas/TOI"
+            "$ref": "#/components/schemas/TOI",
+            "description": "Time of interest (for sentinel-IMG)"
           },
           "AOI": {
-            "$ref": "#/components/schemas/AOI"
+            "$ref": "#/components/schemas/AOI",
+            "description": "Area of interest (for sentinel-IMG)"
           }
         },
         "required": ["TOI", "AOI"]
       },
       "TOI": {
         "type": "object",
-        "description": "Time of interest (for classification or sentinel-IMG)",
         "properties": {
           "start_date": {
             "type": "string",
@@ -330,7 +243,6 @@
       },
       "AOI": {
         "type": "object",
-        "description": "Area of interest (for classification or sentinel-IMG)",
         "properties": {
           "geometry": {
             "type": "object",
@@ -358,6 +270,91 @@
           }
         },
         "required": ["geometry"]
+      },
+      "Training_Data": {
+        "type": "object",
+        "description": "Data for training wrapped in a FeatureCollection",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["FeatureCollection"]
+          },
+          "bbox": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["Feature"]
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "class": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["class"]
+                },
+                "geometry": {
+                  "type": "object",
+                  "properties": {
+                    "coordinates": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["Polygon"]
+                    }
+                  },
+                  "required": ["coordinates", "type"]
+                }
+              },
+              "required": ["type", "properties", "geometry"]
+            }
+          }
+        },
+      "required": ["type", "features"]
+      },
+      "Hyperparameter": {
+        "type": "array",
+        "description": "Hyperparameter of ML-Model",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the hyperparameter"
+            },
+            "value": {
+              "type": "string",
+              "description": "The value of the hyperparameter"
+            }
+          },
+          "required": ["name", "value"]
+        }
       }
     }
   }
