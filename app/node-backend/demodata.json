@@ -16,6 +16,10 @@
         ]]
       }
     },
+    "tot": {
+      "start_date": "2023-08-01",
+      "end_date": "2023-08-10"
+    },
     "Training_Data": {
       "type": "FeatureCollection",
       "bbox": 

@@ -188,6 +188,20 @@
             },
             "required": ["geometry"]
           },
+          "tot": {
+            "type": "object",
+            "properties": {
+              "start_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "end_date": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": ["start_date", "end_date"]
+          },
           "Training_Data": {
             "type": "object",
             "properties": {
@@ -275,7 +289,7 @@
             "type": "number"
           }
         },
-        "required": ["model", "TOI", "AOI", "Training_Data", "Resolution"]
+        "required": ["model", "TOI", "AOI", "tot", "Training_Data", "Resolution"]
       },
       "ClassifyResponse": {
         "type": "object"

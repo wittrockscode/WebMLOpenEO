@@ -139,6 +139,7 @@ const CLASSIFY_SCHEMA = JOI.object(
     model: MODEL_SCHEMA.required(),
     TOI: TOI_SCHEMA.required(),
     AOI: AOI_SCHEMA.required(),
+    tot: TOI_SCHEMA.required(),
     Training_Data: TRAINING_DATA_SCHEMA.required(),
     Hyperparameter: JOI.when('model', 
     {
