@@ -24,8 +24,8 @@ const TOI_SCHEMA = JOI.object(
 ).required();
 
 const POINT_SCHEMA = JOI.array().items(
-  JOI.number().min(-20048966.1).max(20048966.1).required(),
-  JOI.number().min(-20037508.34).max(20037508.34).required()
+  JOI.number().required(),
+  JOI.number().required()
 ).length(2).required();
 
 const POLYGON_SCHEMA = JOI.array().max(1).items(
@@ -89,6 +89,17 @@ const FEATURES_SCHEMA = JOI.array().min(2).items(
   ).required()
 ).required();
 
+const validCRS = [
+  'EPSG:4326',
+  'WGS84',
+  'EPSG:4269',
+  'EPSG:3857',
+  'EPSG:3785',
+  'GOOGLE',
+  'EPSG:900913',
+  'EPSG:102113'
+];
+
 const CRS_SCHEMA = JOI.object(
   {
     type: JOI.string().custom(function(value)
@@ -102,11 +113,11 @@ const CRS_SCHEMA = JOI.object(
   ).required(),
     properties: JOI.object(
       {
-        name: JOI.string().required()
+        name: JOI.string().valid(...validCRS).required()
       }
     ).required()
   }
-);
+).required();
 
 const TRAINING_DATA_SCHEMA = JOI.object(
   {
@@ -121,7 +132,7 @@ const TRAINING_DATA_SCHEMA = JOI.object(
     ).required(),
     bbox: BBOX_SCHEMA,
     features: FEATURES_SCHEMA.required(),
-    crs: CRS_SCHEMA
+    crs: CRS_SCHEMA.required()
   }
 ).required();
 
@@ -130,7 +141,7 @@ const RANDOMFOREST_HYPERPARAMETER_SCHEMA = JOI.array().items(
     name: JOI.string().valid('ntrees', 'mtry').required(),
     value: JOI.string().regex(/^[1-9]\d*$/).required()
   })
-).min(1).max(2).required();
+).min(1).max(2);
 
 const RESOLUTION_SCHEMA = JOI.number().valid(10, 30, 60).required();
 
@@ -159,7 +170,7 @@ const CLASSIFY_SCHEMA = JOI.object(
  */
 function validate_input(input, schema)
 {
-  const {value, error} = schema.validate(input);
+  let {value, error} = schema.validate(input);
 
   if (error) 
   {
@@ -170,7 +181,8 @@ function validate_input(input, schema)
   }
   else 
   {
-    let {hasFurtherError, errorMessage} = validate_further(input);
+    let {hasFurtherError, errorMessage, transformed} = validate_further(input);
+    value = transformed;
     if (hasFurtherError)
     {
       let errorDetails = errorMessage;

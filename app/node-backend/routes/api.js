@@ -91,7 +91,7 @@ ROUTER.post('/classify', async function(req, res)
       // basic login with default params
       await client.authenticateBasic("user", "password");
 
-      let id = await trainModel(client, req.body);
+      let id = await trainModel(client, validation_result.value);
 
       // TODO: classifyRequest on R-backend with traind model
 

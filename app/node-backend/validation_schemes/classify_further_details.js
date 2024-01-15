@@ -1,27 +1,38 @@
 "use strict"
 
+const proj4 = require('proj4');
+const reproject = require('reproject');
+
 /**
  * This function validates complicate constraints to the Classify-Request-Body
  * 
  * @param {*} input - Classify-Request-Body OR Sentinel-Request-Body
- * @returns {hasFurtherError, errorMessage} - Boolean if theres an error, if so also a message with Errordetails
+ * @returns {hasFurtherError, errorMessage, transformed} - Boolean if theres an error, if so also a message with Errordetails and the input maybe with transformed CRS
  */
 function validate_further(input)
 {
     let hasFurtherError = false;
     let errorMessage;
 
-    // if input is Classify-Request the bbox of training_Data has to be checked
+    // if input is Classify-Request the bbox and the CRS of training_Data has to be checked
     if (input.hasOwnProperty("Training_Data"))
     {
-      // But bbox is an optional attribut, so if its given it gets validated
+       let {hfe, i} = validate_CRS(input.Training_Data);
+       hasFurtherError = hfe;
+       input.Training_Data = i;
+      if (hasFurtherError)
+      {
+          errorMessage = "The given CRS is not found or could not be transformed to 3857"
+          return {hasFurtherError, errorMessage, transformed: input};
+      }
+      // Bbox is an optional attribut, so if its given it gets validated
       if (input.Training_Data.hasOwnProperty("bbox")) 
       {
         hasFurtherError = validate_trainingBBox(input.Training_Data);
         if (hasFurtherError)
         {
             errorMessage = "The BBox of Training_Data does not contain all Training_Features"
-            return {hasFurtherError, errorMessage};
+            return {hasFurtherError, errorMessage, transformed: input};
         }
 
         hasFurtherError = validate_area(input.Training_Data.bbox[0]);
@@ -35,7 +46,7 @@ function validate_further(input)
       if (hasFurtherError)
       {
           errorMessage = "The BBox of Training_Data is too large or has an invalid aspect ratio"
-          return {hasFurtherError, errorMessage};
+          return {hasFurtherError, errorMessage, transformed: input};
       }
     }
 
@@ -44,10 +55,10 @@ function validate_further(input)
     if (hasFurtherError)
     {
         errorMessage = "The BBox of AOI is too large or has an invalid aspect ratio"
-        return {hasFurtherError, errorMessage};
+        return {hasFurtherError, errorMessage, transformed: input};
     }
 
-    return {hasFurtherError, errorMessage};
+    return {hasFurtherError, errorMessage, transformed: input};
 }
 
 /**
@@ -89,6 +100,44 @@ function validate_area(polygon)
     const aspectRatio = width / height;
 
     return (area > 1000000000 || aspectRatio < 0.05 || aspectRatio > 20); // TODO: werte anpassen!
+}
+
+function validate_CRS(feature_collection)
+{
+  try
+  {
+    // Proj4-Definition for Web Mercator (EPSG:3857)
+    const webMercatorDef = proj4.defs('EPSG:3857');
+    
+    const sourceCRS = proj4.defs(feature_collection.crs.properties.name);
+    // transform coordinates in Webmercator if its not already in this crs
+    if (webMercatorDef != sourceCRS)
+    {
+      // coordinates of features
+      feature_collection.features.forEach( function (feature) 
+      {
+        const coordinates = feature.geometry.coordinates;
+        const transformedCoordinates = coordinates.map(ring => ring.map(coord => proj4(sourceCRS, webMercatorDef, coord)));
+        feature.geometry.coordinates = transformedCoordinates;
+      });
+      // bbox
+      if (feature_collection.hasOwnProperty("bbox")) 
+      {
+        const coordinates = feature_collection.bbox;
+        const transformedCoordinates = coordinates.map(ring => ring.map(coord => proj4(sourceCRS, webMercatorDef, coord)));
+        feature_collection.bbox = transformedCoordinates;
+      }
+      // CRS
+      feature_collection.crs.properties.name = 'EPSG:3857';
+    }
+    console.log(feature_collection.bbox)
+    return {hfe: false, i: feature_collection};
+  }
+  catch (error)
+  {
+    console.log(error);
+    return {hfe: true, i: feature_collection};
+  }
 }
 
 /**
