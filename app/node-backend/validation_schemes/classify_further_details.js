@@ -3,7 +3,7 @@
 /**
  * This function validates complicate constraints to the Classify-Request-Body
  * 
- * @param {*} input - Classify-Request-Body
+ * @param {*} input - Classify-Request-Body OR Sentinel-Request-Body
  * @returns {hasFurtherError, errorMessage} - Boolean if theres an error, if so also a message with Errordetails
  */
 function validate_further(input)
@@ -11,8 +11,10 @@ function validate_further(input)
     let hasFurtherError = false;
     let errorMessage;
 
+    // if input is Classify-Request the bbox of training_Data has to be checked
     if (input.hasOwnProperty("Training_Data"))
     {
+      // But bbox is an optional attribut, so if its given it gets validated
       if (input.Training_Data.hasOwnProperty("bbox")) 
       {
         hasFurtherError = validate_trainingBBox(input.Training_Data);
@@ -24,6 +26,7 @@ function validate_further(input)
 
         hasFurtherError = validate_area(input.Training_Data.bbox[0]);
       }
+      // else its get calculated and then checked
       else
       {
         let training_coords = fusionCoords(input.Training_Data);
@@ -36,6 +39,7 @@ function validate_further(input)
       }
     }
 
+    // The AOI has to be checked in every Request-Body
     hasFurtherError = validate_area(input.AOI.geometry.coordinates[0]);
     if (hasFurtherError)
     {
