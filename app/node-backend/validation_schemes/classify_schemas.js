@@ -97,7 +97,10 @@ const validCRS = [
   'EPSG:3785',
   'GOOGLE',
   'EPSG:900913',
-  'EPSG:102113'
+  'EPSG:102113',
+  'urn:ogc:def:crs:EPSG:3857',
+  'urn:ogc:def:crs:EPSG:4326',
+  'urn:ogc:def:crs:OGC:1.3:CRS84'
 ];
 
 const CRS_SCHEMA = JOI.object(
