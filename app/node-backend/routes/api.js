@@ -203,6 +203,7 @@ async function trainModel(client, request_params)
   // build a user-defined process
   let builder = await client.buildProcess();
 
+  // spatial extend of training data
   let BoundingCoords;
   if (request_params.Training_Data.hasOwnProperty("bbox")) 
   {
@@ -214,19 +215,48 @@ async function trainModel(client, request_params)
     BoundingCoords = findBoundingCoords(training_coords);
   }
 
+  // we define these bands as the only relevant bands for model training
+  let bands = ["B02", "B03", "B04", "B05", "B06","B07", "B08", "B8A", "B11", "B12"];
+
   // load the initial data collection and limit the amount of data loaded
-  const datacubeInit = builder.load_collection(
+  const datacube_init = builder.load_collection(
     'sentinel-s2-l2a-cogs',
     BoundingCoords, 
     3857, 
     [request_params.TOI.start_date, request_params.TOI.end_date],
-    ["B02","B03","B04"] // TODO: ANPASSEN
+    bands,
+    30 // resolution
   );
 
-  // TODO: TRAINMODEL
+  // fill NAs in Datacube
+  const datacube_NA_filled = builder.fill_missing_values(datacube_init, "near")
+
+  // calculate ndvi as additional input for ML-algorithm
+  const datacube_ndvi = builder.ndvi(datacube_NA_filled, "B08", "B04", true)
+
+  // reduces temporal period of the cube to one day
+  // custom reducer function is used to be able to convert band names, as "gdalcubes" currently doesn't support renaming with pre-defined reducers
+  const datacube_reduced = builder.reduce_dimension(
+    datacube_ndvi,
+    undefined,
+    "time",
+    // this function creates 11 new bands. Each band value is the mean of the old band values over all temporal dimensions inside the given cube 
+    "function(x){return(c(mean(x['B02',], na.rm = TRUE),mean(x['B03',], na.rm = TRUE),mean(x['B04',], na.rm = TRUE),mean(x['B05',], na.rm = TRUE),mean(x['B06',], na.rm = TRUE),mean(x['B07',], na.rm = TRUE),mean(x['B08',], na.rm = TRUE),mean(x['B8A',], na.rm = TRUE),mean(x['B11',], na.rm = TRUE),mean(x['B12',], na.rm = TRUE),mean(x['NDVI',], na.rm = TRUE)))}",
+    bands
+    )
+
+  // trains model
+  const datacube_model = builder.train_model(
+    datacube_reduced,
+    "RF",
+    JSON.stringify(request_params.Training_Data), // String containing the JSON data
+    {mtry:5, ntree:50}, // hyperparameters depending on the choosen model_type
+    true,
+    "myModel" // openEO-intern id for the trained model
+  )
 
   // Save result as RDS-file
-  const result = builder.save_result(datacubeInit, "RDS");
+  const result = builder.save_result(datacube_model, "RDS");
 
   // Process and download data synchronously
   const startTime = new Date();
@@ -275,6 +305,26 @@ async function saveModelFile(rds_file)
   modelPathDict[id] = modelPath;
 
   return id;
+}
+
+/**
+ * This function swaps evrey Quote-sign in a String
+ * 
+ * @param {*} inputString - String which Quotes should be swapped
+ * @returns {*} - String with swapped Quotes
+ */
+function swapQuotes(inputString) {
+
+  // Replace all single quotes with a temporary placeholder
+  let stringWithTempSingleQuotes = String(inputString).replace(/'/g, "##TEMP_SINGLE_QUOTE##");
+  
+  // Replace all double quotes with single quotes
+  let stringWithSwappedQuotes = stringWithTempSingleQuotes.replace(/"/g, "'");
+  
+  // Set the temporary placeholders back to double quotes
+  let finalString = stringWithSwappedQuotes.replace(/##TEMP_SINGLE_QUOTE##/g, '"');
+
+  return finalString;
 }
 
 module.exports = ROUTER;
