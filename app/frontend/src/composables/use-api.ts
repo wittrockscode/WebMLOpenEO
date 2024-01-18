@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Req } from "@/types/api";
-export const useApi = () => {
 
+export const useApi = () => {
   let NODE_URL = "";
 
   if(import.meta.env.VITE_ENV === "production") {
@@ -13,8 +13,14 @@ export const useApi = () => {
   const classify_request = async (payload: Req.Classify.Payload) => {
     const response = await axios.post(`${NODE_URL}/classify`, payload);
 
-    return response;
+    return response.data;
   };
 
-  return { NODE_URL, classify_request };
+  const sentinel_img_request = async (payload: Req.Sentinel.Payload) => {
+    const response = await axios.post<Req.Sentinel.Response>(`${NODE_URL}/getsentinelimg`, payload);
+
+    return response.data;
+  };
+
+  return { NODE_URL, classify_request, sentinel_img_request };
 };

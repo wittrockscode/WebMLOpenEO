@@ -24,11 +24,11 @@ export const payloadToPolygon = async (payload: SubmitPayload): Promise<Polygon 
     // @ts-ignore
     if (payload[0]!.geometry.type === "Polygon") return payload[0]!.geometry;
   } else {
-    if (payload.type === "Feature") {
-      if (payload.geometry.type === "Polygon") return payload.geometry;
-    } else if (payload.type === "FeatureCollection") {
-      if (payload.features.length !== 1) return null;
-      if (payload.features[0]!.geometry.type === "Polygon") return payload.features[0]!.geometry;
+    if ((payload as Feature).type === "Feature") {
+      if ((payload as Feature).geometry.type === "Polygon") return (payload as Feature<Polygon>).geometry;
+    } else if ((payload as FeatureCollection).type === "FeatureCollection") {
+      if ((payload as FeatureCollection).features.length !== 1) return null;
+      if ((payload as FeatureCollection).features[0]!.geometry.type === "Polygon") return ((payload as FeatureCollection).features[0] as Feature<Polygon>)!.geometry;
     }
   }
 
@@ -80,11 +80,11 @@ export const payloadToPolygonFeature = async (payload: SubmitPayload): Promise<F
 
     return payload[0]! as Feature<Polygon>;
   } else {
-    if (payload.type === "Feature") {
-      if (payload.geometry.type === "Polygon") return payload as Feature<Polygon>;
-    } else if (payload.type === "FeatureCollection") {
-      if (payload.features.length !== 1) return null;
-      if (payload.features[0]!.geometry.type === "Polygon") return payload.features[0]! as Feature<Polygon>;
+    if ((payload as Feature).type === "Feature") {
+      if ((payload as Feature).geometry.type === "Polygon") return payload as Feature<Polygon>;
+    } else if ((payload as FeatureCollection).type === "FeatureCollection") {
+      if ((payload as FeatureCollection).features.length !== 1) return null;
+      if ((payload as FeatureCollection).features[0]!.geometry.type === "Polygon") return (payload as FeatureCollection).features[0]! as Feature<Polygon>;
     }
   }
 
@@ -108,8 +108,8 @@ export const payloadToFeatureCollection = async (payload: SubmitPayload): Promis
   }
   if (payload instanceof Array) return null;
   else {
-    if (payload.type === "Feature") return null;
-    else if (payload.type === "FeatureCollection") return payload;
+    if ((payload as Feature).type === "Feature") return null;
+    else if ((payload as FeatureCollection).type === "FeatureCollection") return payload as FeatureCollection;
   }
 
   return null;

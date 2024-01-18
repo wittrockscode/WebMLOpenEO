@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { Polygon, FeatureCollection } from "@/types/geojson";
+import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
 import type { HyperParameter } from "./AppTypes";
 
 export namespace Req {
@@ -18,6 +18,23 @@ export namespace Req {
       };
       hyperparameters: HyperParameter[];
       resolution: 10 | 30 | 60;
+    };
+  }
+
+  namespace Sentinel {
+    type Payload = {
+      AOI: {
+        geometry: Polygon;
+      };
+      TOI: {
+        start_date: string;
+        end_date: string;
+      };
+    };
+
+    type Response = {
+      data: Blob;
+      error: string;
     };
   }
 }
