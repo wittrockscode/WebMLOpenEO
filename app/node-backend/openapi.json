@@ -2,7 +2,19 @@
   "openapi": "3.0.3",
     "info": {
     "title": "WebMLOpenEO-API",
-    "version": "1.0.0" 
+    "x-summary": "An API for web- and maschine learnig-based Landuse and Landcover-classification",
+    "description": "This API is a customised endpoint of an openEO-conform R-backend, which performs land use and land cover classifications based on machine learning algorithms. It is implemented for a specific user-friendly front-end but can be used freely without it.\n\nThis API was implemented in a project-group formed by [Michael Brüggemann](https://github.com/MichaelBrueggemann), [Tim Ciroth](https://github.com/TimCi), [Martin Kriger](https://github.com/martinkrg26) and [Leo Wittrock](https://github.com/wittrockscode) within the course 'Geosoftware II' at the Institut of Geoinformatik der Universität Münster. The project was released on '2024-01-30'.\n\nFor more information lookup our [Git-repository](https://github.com/wittrockscode/WebMLOpenEO)",
+    "x-release_date":"2024-01-30",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Tim Ciroth",
+      "url": "https://github.com/TimCi",
+      "email": "timciroth@uni-muenster.de"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
   },
   "paths": {
     "/api": {
