@@ -137,7 +137,7 @@ function validate_CRS(feature_collection)
       // CRS
       feature_collection.crs.properties.name = 'EPSG:3857';
     }
-    console.log(feature_collection.bbox)
+    
     return {hfe: false, i: feature_collection};
   }
   catch (error)

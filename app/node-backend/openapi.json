@@ -287,6 +287,9 @@
         "type": "object",
         "description": "Data for training wrapped in a FeatureCollection",
         "properties": {
+          "name": {
+            "type": "string"
+          },
           "type": {
             "type": "string",
             "enum": ["FeatureCollection"]

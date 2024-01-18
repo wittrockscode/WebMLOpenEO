@@ -124,6 +124,7 @@ const CRS_SCHEMA = JOI.object(
 
 const TRAINING_DATA_SCHEMA = JOI.object(
   {
+    name: JOI.string(),
     type: JOI.string().custom(function(value)
       {
         if (value !== 'FeatureCollection')
