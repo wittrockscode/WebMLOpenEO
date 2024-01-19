@@ -241,16 +241,31 @@ async function trainModel(client, request_params)
     bands
     );
 
-  // trains model TODO: hyperparameter dynamisch machen
-  const datacube_model = builder.train_model(
-    datacube_reduced,
-    "RF",
-    JSON.stringify(request_params.Training_Data), // String containing the JSON data
-    {mtry:5, ntree:50}, // hyperparameters depending on the choosen model_type
-    true,
-    "myModel" // R-Backend-intern id for the trained model
-  );
-
+  // trains model and initialize hyperparameter if requested
+  let datacube_model;
+  if (request_params.hasOwnProperty("Hyperparameter") && request_params.model == "RandomForest")
+  {
+    let hyperparams = transformHyperparameter(request_params.Hyperparameter);
+    datacube_model = builder.train_model(
+      datacube_reduced,
+      "RF",
+      JSON.stringify(request_params.Training_Data), // String containing the JSON data
+      hyperparams, // hyperparameters depending on the choosen model_type
+      true,
+      "myModel" // R-Backend-intern id for the trained model
+    );
+  }
+  else
+  {
+    datacube_model = builder.train_model(
+      datacube_reduced,
+      "RF",
+      JSON.stringify(request_params.Training_Data), // String containing the JSON data
+      undefined, // hyperparameters depending on the choosen model_type
+      true,
+      "myModel" // R-Backend-intern id for the trained model
+    );
+  }
   // Save result as RDS-file
   const result = builder.save_result(datacube_model, "RDS");
 
@@ -354,6 +369,32 @@ async function streamToBuffer(stream)
       reject(error);
     });
   });
+}
+
+/**
+ * This function transforms the Hyperparameter-object in classify-request to Hyperparameter-object needed in R-Backend
+ * 
+ * @param {*} hyper_request - Hyperparameter-object from request_body
+ * @returns {*} - Hyperparameter-object for R-Backend
+ */
+function transformHyperparameter(hyper_request)
+{
+  let transformed_Hyperparams = {};
+
+  hyper_request.forEach(param => {
+    transformed_Hyperparams[param.name] = parseInt(param.value, 10);
+  });
+
+  // Set value to undefined for the parameter not present in the input
+  if (!transformed_Hyperparams.mtry) {
+    transformed_Hyperparams.mtry = undefined;
+  }
+
+  if (!transformed_Hyperparams.ntrees) {
+    transformed_Hyperparams.ntrees = undefined;
+  }
+
+  return transformed_Hyperparams;
 }
 
 /**
