@@ -32,6 +32,7 @@ block content
         }
 
         const jsonResponse = await result.json();
+        console.log(jsonResponse);
         const base64String = jsonResponse.classification; 
 
         // Decode the Base64 string to get the file content

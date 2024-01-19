@@ -85,6 +85,9 @@ ROUTER.post('/classify', async function(req, res)
     }
     else
     {
+      // change class-names to numbers for easier legend of classification
+      let {class_map, processed_geojson} = mapClasses(validation_result.value);
+
       // build connection
       let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
 
@@ -98,7 +101,8 @@ ROUTER.post('/classify', async function(req, res)
       const buffer = await streamToBuffer(result);
       let response = {
         "model_id": id,
-        "classification": buffer.toString('base64')
+        "classification": buffer.toString('base64'),
+        "class_map": class_map
       }
       res.setHeader('Content-Type', 'application/json');
       res.send(response);
@@ -279,6 +283,13 @@ async function trainModel(client, request_params)
   return id;
 }
 
+/**
+ * This function builds an OpenEO-Processgraph and executes it. Thereby a present ML-model gets applied on an AOI and TOI to get a classified map
+ * 
+ * @param {*} client - openEO-Client
+ * @param {*} request_params - JSON-Object, which contains all needed Information (see Validation)
+ * @returns {*} - classified map with class_props as GTiff
+ */
 async function classifyMap(client, request_params)
 {
   // build a user-defined process
@@ -398,6 +409,59 @@ function transformHyperparameter(hyper_request)
   }
 
   return transformed_Hyperparams;
+}
+
+/**
+ * This function assigns a number to each class in a Feature Collection and creates a dictionary that contains the mapping of classes to numbers.
+ * 
+ * @param {*} request_params - request_params with class property within Training_Data
+ * @returns {*} - object with the updated features and the class dictionary.
+ */
+function mapClasses(request_params) 
+{
+  let classDictionary = {};
+  let classCounter = 0;
+
+  // Iterate through each feature in the Feature Collection
+  const updatedFeatures = request_params.Training_Data.features.map(function (feature) 
+  {
+    if (feature.properties.class in classDictionary) 
+    {
+      // Assign same number to same classes
+      feature.properties.class = classDictionary[feature.properties.class];
+    }
+    else
+    {
+      // Assign a new number to the class if not already assigned
+      classDictionary[feature.properties.class] = classCounter;
+      feature.properties.class = classCounter;
+      classCounter++;
+    }
+    return feature;
+  });
+
+  request_params.Training_Data.features = updatedFeatures;
+
+  // Return an object with the updated features and the class dictionary
+  return {processed_geojson: request_params, class_map: swapKeysValues(classDictionary)};
+}
+
+/**
+ * This function takes a dictionary and create a new one with swapped keys and values
+ * 
+ * @param {*} inputDict - Dict with key-value-pairs to be swapped
+ * @returns {*} - Dict with swapped key-value-pairs
+ */
+function swapKeysValues(inputDict) 
+{
+  const swappedDict = {};
+
+  for (const key in inputDict) 
+  {
+    swappedDict[inputDict[key]] = key;
+  }
+
+  return swappedDict;
 }
 
 /**
