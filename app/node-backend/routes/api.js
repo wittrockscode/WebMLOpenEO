@@ -93,19 +93,15 @@ ROUTER.post('/classify', async function(req, res)
 
       let id = await trainModel(client, validation_result.value);
 
-      // TODO: classifyRequest on R-backend with traind model
+      let result = await classifyMap(client, validation_result.value);
 
-      // let result = await classifyMap(client, modelPathDict[id]);
-
-      // FOR TESTING:
-      let dummyResult = {
-        "Model": id,
-        "Model-Result": {
-          // classes, propabilities, ...
-        }
+      const buffer = await streamToBuffer(result);
+      let response = {
+        "model_id": id,
+        "classification": buffer.toString('base64')
       }
       res.setHeader('Content-Type', 'application/json');
-      res.send(dummyResult);
+      res.send(response);
     }
   } 
   catch (error) 
@@ -223,16 +219,16 @@ async function trainModel(client, request_params)
     'sentinel-s2-l2a-cogs',
     BoundingCoords, 
     3857, 
-    [request_params.TOI.start_date, request_params.TOI.end_date],
+    [request_params.tot.start_date, request_params.tot.end_date],
     bands,
-    30 // resolution
+    request_params.Resolution 
   );
 
   // fill NAs in Datacube
-  const datacube_NA_filled = builder.fill_missing_values(datacube_init, "near")
+  const datacube_NA_filled = builder.fill_missing_values(datacube_init, "near");
 
   // calculate ndvi as additional input for ML-algorithm
-  const datacube_ndvi = builder.ndvi(datacube_NA_filled, "B08", "B04", true)
+  const datacube_ndvi = builder.ndvi(datacube_NA_filled, "B08", "B04", true);
 
   // reduces temporal period of the cube to one day
   // custom reducer function is used to be able to convert band names, as "gdalcubes" currently doesn't support renaming with pre-defined reducers
@@ -243,17 +239,17 @@ async function trainModel(client, request_params)
     // this function creates 11 new bands. Each band value is the mean of the old band values over all temporal dimensions inside the given cube 
     "function(x){return(c(mean(x['B02',], na.rm = TRUE),mean(x['B03',], na.rm = TRUE),mean(x['B04',], na.rm = TRUE),mean(x['B05',], na.rm = TRUE),mean(x['B06',], na.rm = TRUE),mean(x['B07',], na.rm = TRUE),mean(x['B08',], na.rm = TRUE),mean(x['B8A',], na.rm = TRUE),mean(x['B11',], na.rm = TRUE),mean(x['B12',], na.rm = TRUE),mean(x['NDVI',], na.rm = TRUE)))}",
     bands
-    )
+    );
 
-  // trains model
+  // trains model TODO: hyperparameter dynamisch machen
   const datacube_model = builder.train_model(
     datacube_reduced,
     "RF",
     JSON.stringify(request_params.Training_Data), // String containing the JSON data
     {mtry:5, ntree:50}, // hyperparameters depending on the choosen model_type
     true,
-    "myModel" // openEO-intern id for the trained model
-  )
+    "myModel" // R-Backend-intern id for the trained model
+  );
 
   // Save result as RDS-file
   const result = builder.save_result(datacube_model, "RDS");
@@ -263,17 +259,101 @@ async function trainModel(client, request_params)
   const blob_res = await client.computeResult(result);
   const endTime = new Date();
   const timeTaken = endTime - startTime;
-  console.log('Duration of process:', timeTaken);
+  console.log('Duration of training-process:', timeTaken);
   let id = await saveModelFile(await blob_res.data);
   return id;
 }
 
-async function classifyMap(client, modelpath)
+async function classifyMap(client, request_params)
 {
   // build a user-defined process
   let builder = await client.buildProcess();
 
-  //TODO: Add process
+  // define Bounding of AOI
+  let BoundingCoords = findBoundingCoords(request_params.AOI.geometry.coordinates[0]);
+  
+  // we define these bands as the only relevant bands for classification
+  let bands = ["B02", "B03", "B04", "B05", "B06","B07", "B08", "B8A", "B11", "B12"];
+
+  // load the initial data collection and limit the amount of data loaded
+  const datacube_init = builder.load_collection(
+    'sentinel-s2-l2a-cogs',
+    BoundingCoords, 
+    3857, 
+    [request_params.TOI.start_date, request_params.TOI.end_date],
+    bands,
+    request_params.Resolution 
+  );
+
+  // fill NAs in Datacube
+  const datacube_NA_filled = builder.fill_missing_values(datacube_init, "near");
+
+  // calculate ndvi as additional input for ML-algorithm
+  const datacube_ndvi = builder.ndvi(datacube_NA_filled, "B08", "B04", true);
+
+  // reduces temporal period of the cube to one day
+  // custom reducer function is used to be able to convert band names, as "gdalcubes" currently doesn't support renaming with pre-defined reducers
+  const datacube_reduced = builder.reduce_dimension(
+    datacube_ndvi,
+    undefined,
+    "time",
+    // this function creates 11 new bands. Each band value is the mean of the old band values over all temporal dimensions inside the given cube 
+    "function(x){return(c(mean(x['B02',], na.rm = TRUE),mean(x['B03',], na.rm = TRUE),mean(x['B04',], na.rm = TRUE),mean(x['B05',], na.rm = TRUE),mean(x['B06',], na.rm = TRUE),mean(x['B07',], na.rm = TRUE),mean(x['B08',], na.rm = TRUE),mean(x['B8A',], na.rm = TRUE),mean(x['B11',], na.rm = TRUE),mean(x['B12',], na.rm = TRUE),mean(x['NDVI',], na.rm = TRUE)))}",
+    bands
+  );
+
+  // the model stated in R-Backend-intern "model_id" has to be created with the "openeocubes" process "train_model"
+  const datacube_predict = builder.apply_prediction(
+    datacube_reduced,
+    "myModel",
+  );
+
+  // Save result as GTiff
+  const result = builder.save_result(datacube_predict, "GTiff");
+
+  // Process and download data synchronously
+  const startTime = new Date();
+  const blob_res = await client.computeResult(result);
+  const endTime = new Date();
+  const timeTaken = endTime - startTime;
+  console.log('Duration of classify-process:', timeTaken);
+
+  return await blob_res.data;
+}
+
+/**
+ * This function converts a stream to a buffer
+ * 
+ * @param {*} stream - stream that should be converted
+ * @returns {*} - buffer which is created from stream
+ */
+async function streamToBuffer(stream) 
+{
+  // Return a promise to handle asynchronous operations
+  return new Promise(function(resolve, reject) 
+  {
+    // Initialize an array to store stream chunks
+    const chunks = [];
+
+    // Listen for 'data' events to accumulate chunks
+    stream.on('data', function(chunk)
+    {
+      chunks.push(chunk);
+    });
+
+    // Listen for the 'end' event to signify the end of the stream
+    stream.on('end', function() 
+    {
+      // Concatenate all chunks into a single buffer
+      resolve(Buffer.concat(chunks));
+    });
+
+    // Listen for 'error' events in case of any errors during the stream
+    stream.on('error', function(error) 
+    {
+      reject(error);
+    });
+  });
 }
 
 /**
@@ -305,26 +385,6 @@ async function saveModelFile(rds_file)
   modelPathDict[id] = modelPath;
 
   return id;
-}
-
-/**
- * This function swaps evrey Quote-sign in a String
- * 
- * @param {*} inputString - String which Quotes should be swapped
- * @returns {*} - String with swapped Quotes
- */
-function swapQuotes(inputString) {
-
-  // Replace all single quotes with a temporary placeholder
-  let stringWithTempSingleQuotes = String(inputString).replace(/'/g, "##TEMP_SINGLE_QUOTE##");
-  
-  // Replace all double quotes with single quotes
-  let stringWithSwappedQuotes = stringWithTempSingleQuotes.replace(/"/g, "'");
-  
-  // Set the temporary placeholders back to double quotes
-  let finalString = stringWithSwappedQuotes.replace(/##TEMP_SINGLE_QUOTE##/g, '"');
-
-  return finalString;
 }
 
 module.exports = ROUTER;

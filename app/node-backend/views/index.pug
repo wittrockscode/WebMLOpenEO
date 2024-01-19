@@ -27,7 +27,33 @@ block content
           headers: {"content-type": "application/json"},
           body: JSON.stringify(rightJsonData),
         })
-        console.log(await result.json());
+        if (!result.ok) {
+          throw new Error(`HTTP error! Status: ${result.status}`);
+        }
+
+        const jsonResponse = await result.json();
+        const base64String = jsonResponse.classification; 
+
+        // Decode the Base64 string to get the file content
+        const decodedFileContent = atob(base64String);
+
+        // Convert the decoded content to a Uint8Array
+        const uint8Array = new Uint8Array(decodedFileContent.length);
+        for (let i = 0; i < decodedFileContent.length; i++) {
+          uint8Array[i] = decodedFileContent.charCodeAt(i);
+        }
+
+        // Create a Blob from the Uint8Array
+        const blob = new Blob([uint8Array], { type: 'application/octet-stream' });
+
+        // Create a download link and trigger the download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'file.tiff';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       });
       document.getElementById('falseRequestButton').addEventListener('click', async function() {
       
