@@ -142,7 +142,7 @@ const TRAINING_DATA_SCHEMA = JOI.object(
 
 const RANDOMFOREST_HYPERPARAMETER_SCHEMA = JOI.array().items(
   JOI.object({
-    name: JOI.string().valid('ntrees', 'mtry').required(),
+    name: JOI.string().valid('ntree', 'mtry').required(),
     value: JOI.string().regex(/^[1-9]\d*$/).required()
   })
 ).min(1).max(2);

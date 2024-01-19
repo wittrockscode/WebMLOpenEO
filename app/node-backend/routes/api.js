@@ -381,17 +381,20 @@ function transformHyperparameter(hyper_request)
 {
   let transformed_Hyperparams = {};
 
-  hyper_request.forEach(param => {
+  hyper_request.forEach(function (param)
+  {
     transformed_Hyperparams[param.name] = parseInt(param.value, 10);
   });
 
   // Set value to undefined for the parameter not present in the input
-  if (!transformed_Hyperparams.mtry) {
+  if (!transformed_Hyperparams.mtry) 
+  {
     transformed_Hyperparams.mtry = undefined;
   }
 
-  if (!transformed_Hyperparams.ntrees) {
-    transformed_Hyperparams.ntrees = undefined;
+  if (!transformed_Hyperparams.ntree) 
+  {
+    transformed_Hyperparams.ntree = undefined;
   }
 
   return transformed_Hyperparams;
