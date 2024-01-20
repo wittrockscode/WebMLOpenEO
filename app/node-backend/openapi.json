@@ -223,7 +223,22 @@
         "required": ["model", "TOI", "AOI", "tot", "Training_Data", "Resolution"]
       },
       "ClassifyResponse": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "description": "ID of trained model"
+          },
+          "classification": {
+            "type": "string",
+            "description": "A binary String which contains the classification_result as GTiff"
+          },
+          "class_map": {
+            "type": "object",
+            "description": "Map which can be used for decoding classnumbers back to classnames"
+          }
+        },
+        "required": ["model_id", "classification", "class_map"]
       },
       "sentinelRequest": {
         "type": "object",
