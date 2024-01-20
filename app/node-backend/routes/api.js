@@ -87,16 +87,56 @@ ROUTER.post('/classify', async function(req, res)
     {
       // change class-names to numbers for easier legend of classification
       let {class_map, processed_geojson} = mapClasses(validation_result.value);
-
+      //console.log(processed_geojson.Training_Data.features)  
       // build connection
       let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
 
       // basic login with default params
       await client.authenticateBasic("user", "password");
 
-      let id = await trainModel(client, validation_result.value);
+      let id = await trainModel(client, processed_geojson, false);
 
-      let result = await classifyMap(client, validation_result.value);
+      let result = await classifyMap(client, processed_geojson, false);
+
+      const buffer = await streamToBuffer(result);
+      let response = {
+        "model_id": id,
+        "classification": await buffer.toString('base64'),
+        "class_map": class_map
+      }
+      res.setHeader('Content-Type', 'application/json');
+      res.send(response);
+    }
+  } 
+  catch (error) 
+  {
+    console.error('Fehler beim Abrufen der Klassifikation:', error)
+    res.status(500).json({ message: 'Interner Serverfehler' })
+  }
+});
+
+ROUTER.post('/demo_classify', async function(req, res) 
+{
+  try 
+  {
+    if (req.body != demodata)
+    {
+      res.status(422).json({errors: "This demo-Endpoint only allows the demodata (see also getdemodata) as request-body."});
+    }
+    else
+    {
+      // change class-names to numbers for easier legend of classification
+      let {class_map, processed_geojson} = mapClasses(req.body);
+          
+      // build connection
+      let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
+
+      // basic login with default params
+      await client.authenticateBasic("user", "password");
+
+      let id = await trainModel(client, processed_geojson, true);
+
+      let result = await classifyMap(client, processed_geojson, true);
 
       const buffer = await streamToBuffer(result);
       let response = {
@@ -196,9 +236,10 @@ ROUTER.post('/getsentinelimg', async function(req, res)
  * 
  * @param {*} client - openEO-Client
  * @param {*} request_params - JSON-Object, which contains all needed Information (see Validation)
+ * @param {boolean} isDemo - Truth-value if its the demo-process
  * @returns {uuid} - id of trained model
  */
-async function trainModel(client, request_params)
+async function trainModel(client, request_params, isDemo)
 {
   // build a user-defined process
   let builder = await client.buildProcess();
@@ -288,9 +329,10 @@ async function trainModel(client, request_params)
  * 
  * @param {*} client - openEO-Client
  * @param {*} request_params - JSON-Object, which contains all needed Information (see Validation)
+ * @param {boolean} isDemo - Truth-value if its the demo-process
  * @returns {*} - classified map with class_props as GTiff
  */
-async function classifyMap(client, request_params)
+async function classifyMap(client, request_params, isDemo)
 {
   // build a user-defined process
   let builder = await client.buildProcess();
