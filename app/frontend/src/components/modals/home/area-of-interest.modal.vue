@@ -1,9 +1,14 @@
 <template lang="pug">
 Modal(:handler="handler" title="Area of Interest" :id="id")
   #aoi-map
-    OlMap(@drawend="map_drawend" :handler="mapHandler")
+    OlMap(@draw-polygon="map_drawend" :handler="mapHandler")
   .control-group.flex.justify-between.w-full.mt-4
-    CardButton(id="draw-button" :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'" @click="select_on_map")
+    CardButton(
+      id="draw-button"
+      :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'"
+      @click="select_on_map"
+      v-tippy="{ content: 'Create a new Polygon on the map.' }"
+    )
     strong(v-text="'or'")
     FileUpload(
       id="aoi-upload"
@@ -11,6 +16,7 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
       :types="['json', 'geojson']"
       input-class="file-upload-label-full"
       @uploaded="(file) => fileUploaded(file)"
+      v-tippy="{ content: 'Upload the Area of Interest as a GeoJSON or GPKG file.' }"
     )
 </template>
 

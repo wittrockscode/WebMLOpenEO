@@ -10,7 +10,7 @@ export const useModal = (modalId: ModalIds, submit_callback: (payload: SubmitPay
   const zIndex = ref(z_index);
   const _cancel_callback_arr: (() => void)[] = [];
   const _submit_callback_arr: ((payload: SubmitPayload, identifyier: number) => void)[] = [];
-  const _open_callback_arr: (() => void)[] = [];
+  const _open_callback_arr: ((value?: any) => void)[] = [];
 
   const cancelFn = () => {
     cancel_callback();
@@ -32,12 +32,12 @@ export const useModal = (modalId: ModalIds, submit_callback: (payload: SubmitPay
     });
     close();
   };
-  const open = () => {
+  const open = (value: any = null) => {
     if(!visible.value){
       visible.value = true;
       const elem = window.document.getElementById(modalId);
       if(elem) elem.classList.add("visible");
-      _open_callback_arr.forEach(callback => callback());
+      _open_callback_arr.forEach(callback => callback(value));
     }
   };
   const close = () => {

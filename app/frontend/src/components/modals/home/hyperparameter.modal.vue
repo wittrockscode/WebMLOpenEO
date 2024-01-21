@@ -1,7 +1,7 @@
 <template lang="pug">
 Modal(:handler="handler" title="Hyperparameters" :id="id")
   .input-group.flex.justify-between.w-full.mt-4.flex-col
-    TextInput(id="ntrees" placeholder="ntrees" type="number" v-model="ntrees")
+    TextInput(id="ntree" placeholder="ntree" type="number" v-model="ntree")
     TextInput(id="mtry" placeholder="mtry" type="number" v-model="mtry")
 </template>
 
@@ -29,14 +29,14 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const ntrees: Ref<null | number> = ref(null);
+    const ntree: Ref<null | number> = ref(null);
     const mtry: Ref<null | number> = ref(null);
 
     props.handler.onSubmit(() => {
-      props.handler.setPayload([{ name: "ntrees", value: ntrees.value ?? 0 }, { name: "mtry", value: mtry.value ?? 0 }]);
+      props.handler.setPayload([{ name: "ntree", value: ntree.value ?? 0 }, { name: "mtry", value: mtry.value ?? 0 }]);
     });
 
-    return { ntrees, mtry };
+    return { ntree, mtry };
   },
 });
 </script>

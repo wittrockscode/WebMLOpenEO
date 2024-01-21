@@ -17,25 +17,31 @@ ol-map(
   )
   ol-tile-layer
     ol-source-osm
-  ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor")
+  ol-webgl-tile-layer
     ol-source-geo-tiff(
       :sources="[{ BASE_TIFF }]"
+      v-if="BASE_TIFF" :style="trueColor"
     )
-  ol-vector-layer(v-if="MODE === MapModes.DRAW_RECTANGLE")
+  ol-vector-layer
     ol-source-vector(:projection="projection")
       ol-interaction-draw(
         type="Circle"
         :geometry-function="createBox()"
         @drawend="(event: DrawEvent) => $emit('drawRect', event.feature)"
+        v-if="MODE === MapModes.DRAW_RECTANGLE"
       )
         ol-style
           ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
           ol-style-fill(color="rgba(255, 255, 255, 0)")
-  ol-vector-layer(v-if="MODE === MapModes.DRAW_POLYGON")
+    ol-style
+      ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+      ol-style-fill(color="rgba(255, 231, 155, 0.1)")
+  ol-vector-layer
     ol-source-vector(:projection="projection" ref="drawSourceRef")
       ol-interaction-draw(
         type="Polygon"
         @drawend="(event: DrawEvent) => $emit('drawPolygon', event.feature)"
+        v-if="MODE === MapModes.DRAW_POLYGON"
       )
         ol-style
           ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
@@ -128,6 +134,10 @@ export default defineComponent({
     props.handler.onFeaturesAdded(async () => {
       await nextTick();
       fitToFeatures();
+    });
+
+    props.handler.onBaseTiffSet(async () => {
+      await nextTick();
     });
 
     return {

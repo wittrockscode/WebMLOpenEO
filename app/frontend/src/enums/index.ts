@@ -4,6 +4,7 @@ export enum ModalIds {
   HOME__HYPERPARAMETER_MODAL = "home--hyperparameter-modal",
   TRAINING_DATA__NEW_CLASS_MODAL = "training-data--new-class-modal",
   TRAINING_DATA__EDIT_CLASSES_MODAL = "training-data--edit-classes-modal",
+  TRAINING_DATA__FINISH_POLYGON_MODAL = "training-data--finish-polygon-modal",
 }
 
 export enum MapModes {

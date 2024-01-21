@@ -11,7 +11,16 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
           CardText#model-name.row-item.text-ml-blue.text-center(value="RandomForest")
         .row-2
           CardText.row-item.text-right.px-5(value="Date of Interest")
-          DatePicker.row-item(id="doi-select" placeholder="Select" @selected="selectDoi" :completed="doi !== null" range :value="doi")
+          DatePicker.row-item(
+            id="doi-select"
+            placeholder="Select"
+            @selected="selectDoi"
+            :completed="doi !== null"
+            range
+            :value="doi"
+            :error="errors.doi"
+            v-tippy="{ content: 'You can select a range of dates to be used in the classification process here.' }"
+          )
         .row-2
           CardText.row-item.text-right.px-5(value="Area of Interest")
           .row-item
@@ -22,6 +31,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               :completed="aoi !== null"
               :error="errors.aoi"
               @click="aoi_modal_handler.open()"
+              v-tippy="{ content: 'This button is used to select the area of interest for your classification.' }"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="aoi_file")
               small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file.name")
@@ -37,6 +47,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               :completed="td !== null"
               :error="errors.td"
               @click="td_modal_handler.open()"
+              v-tippy="{ content: 'This button is used to select the training data for your classification.' }"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="td_file")
               small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="td_file.name")
@@ -51,6 +62,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             :completed="hyperparams.length > 0"
             :error="errors.hyperparams"
             @click="hyperparameter_modal_handler.open()"
+            v-tippy="{ content: 'Tune hyperparameters for your clasification.' }"
           )
         .row-2
           CardText.row-item.text-right.px-5(value="Resolution")
@@ -59,6 +71,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
             :selected="1"
             @change="value => resolution = value"
+            v-tippy="{ content: 'This button is used to select the resolution for your classification.' }"
           )
         .row-2.row-2-b
           .px-5.row-item
@@ -132,6 +145,7 @@ export default defineComponent({
     const resolution: Ref<10 | 30 | 60> = ref(30);
 
     const errors = ref({
+      doi: false,
       aoi: false,
       td: false,
       hyperparams: false,
@@ -151,12 +165,16 @@ export default defineComponent({
       if (!aoi.value)  errors.value.aoi = true;
     };
 
-    const td_submit = async (payload: SubmitPayload) => {
+    const td_submit = async (payload: any) => {
+      if (payload.tot) tot.value = payload.tot;
       errors.value.td = false;
       deleteTdFile();
-      td.value = await payloadToFeatureCollection(payload);
-      (document.getElementById("td-upload") as HTMLInputElement).value = "";
-      if (payload instanceof File) td_file.value = payload;
+      if (payload.file instanceof File) {
+        td.value = await payloadToFeatureCollection(payload.file);
+        td_file.value = payload.file;
+      } else {
+        td.value = await payloadToFeatureCollection(payload.collection);
+      }
       if (!td.value)  errors.value.td = true;
     };
 
@@ -203,29 +221,32 @@ export default defineComponent({
         loading_result.value = true;
         const payload: Req.Classify.Payload = {
           model: "RandomForest",
-          toi: {
-            start_date: doi.value[0]!,
-            end_date: doi.value[1]!,
+          TOI: {
+            start_date: doi.value[0]!.toISOString().split("T")[0]!,
+            end_date: doi.value[1]!.toISOString().split("T")[0]!,
           },
-          aoi: aoi.value.geometry,
-          training_data: td.value,
+          AOI: {
+            geometry: aoi.value.geometry,
+          },
+          Training_Data: td.value,
           tot: {
-            start_date: tot.value[0]!,
-            end_date: tot.value[1]!,
+            start_date: tot.value[0]!.toISOString().split("T")[0]!,
+            end_date: tot.value[1]!.toISOString().split("T")[0]!,
           },
-          hyperparameters: hyperparams.value,
-          resolution: resolution.value,
+          Hyperparameter: hyperparams.value,
+          Resolution: resolution.value,
         };
-
+        console.log(payload);
         console.log(JSON.stringify(payload));
         const response = await classify_request(payload);
         console.log(response);
 
         router.push("/result");
       }else{
-        console.log(aoi.value);
-        console.log(doi.value);
-        console.log(td.value);
+        if (!aoi.value) errors.value.aoi = true;
+        if (!doi.value || doi.value.length !== 2) errors.value.doi = true;
+        if (!tot.value || tot.value.length !== 2) errors.value.td = true;
+        if (!td.value) errors.value.td = true;
       }
     };
 
@@ -253,7 +274,7 @@ export default defineComponent({
     });
 
     props.demo.onSelectHyperparams(() => {
-      hyperparameter_submit([{ name: "ntrees", value: 100 }, { name: "mtry", value: 10 }]);
+      hyperparameter_submit([{ name: "ntree", value: 100 }, { name: "mtry", value: 10 }]);
     });
 
     props.demo.onSelectResolution(() => {
@@ -272,8 +293,8 @@ export default defineComponent({
     });
 
     props.demo.onFinish(() => {
+      start_request();
       stop_demo();
-      console.log("finish!");
     });
 
     const start_demo = () => {

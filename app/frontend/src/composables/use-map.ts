@@ -10,6 +10,7 @@ export const useMap = (): MapHandler => {
   const _on_reset_callbacks: (() => void)[] = [];
   const _delete_draw_features_callbacks: (() => void)[] = [];
   const _add_features_callbacks: (() => void)[] = [];
+  const _on_base_tiff_set_callbacks: (() => void)[] = [];
 
   const FEATURES: Ref<Feature[]> = ref([]);
 
@@ -49,11 +50,16 @@ export const useMap = (): MapHandler => {
 
   const setBaseTiff = (tiff: Blob) => {
     BASE_TIFF.value = tiff;
+    _on_base_tiff_set_callbacks.forEach(callback => callback());
   };
 
   const onFeaturesAdded = (callback: () => void) => {
     _add_features_callbacks.push(callback);
   };
 
-  return { changeMode, reset, onReset, deleteDrawFeatures, onDeleteDrawFeatures, addFeatures, onFeaturesAdded, setBaseTiff, MAP_MODE, FEATURES, BASE_TIFF };
+  const onBaseTiffSet = (callback: () => void) => {
+    _on_base_tiff_set_callbacks.push(callback);
+  };
+
+  return { changeMode, reset, onReset, deleteDrawFeatures, onDeleteDrawFeatures, addFeatures, onFeaturesAdded, setBaseTiff, onBaseTiffSet, MAP_MODE, FEATURES, BASE_TIFF };
 };

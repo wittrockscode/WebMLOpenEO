@@ -6,18 +6,20 @@ export namespace Req {
   namespace Classify {
     type Payload = {
       model: "RandomForest";
-      toi: {
-        start_date: Date;
-        end_date: Date;
+      TOI: {
+        start_date: string;
+        end_date: string;
       };
-      aoi: Polygon;
-      training_data: FeatureCollection;
+      AOI: {
+        geometry: Polygon;
+      };
+      Training_Data: FeatureCollection;
       tot: {
-        start_date: Date;
-        end_date: Date;
+        start_date: string;
+        end_date: string;
       };
-      hyperparameters: HyperParameter[];
-      resolution: 10 | 30 | 60;
+      Hyperparameter: HyperParameter[];
+      Resolution: 10 | 30 | 60;
     };
   }
 

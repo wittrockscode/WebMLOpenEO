@@ -55,6 +55,9 @@ export default defineComponent({
           title: 'Welcome!',
         },
         content: 'This is the algorithm used to train the model.',
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
       },
       {
         target: "#doi-select",
@@ -62,6 +65,9 @@ export default defineComponent({
           title: "Date of Interest",
         },
         content: "You can select a range of dates to be used in the classification process here.",
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
       },
       {
         target: "#aoi-button",
@@ -97,6 +103,9 @@ export default defineComponent({
         params: {
           placement: "top",
         },
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
       },
       {
         target: "#td-button",
@@ -143,6 +152,9 @@ export default defineComponent({
         params: {
           placement: "top",
         },
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
       },
       {
         target: "#hp-button",

@@ -7,13 +7,13 @@ export type ModalHandler = {
   cancelFn: () => void;
   submitFn: (identifyier?: number) => void;
   outerClickFn: () => void;
-  open: () => void;
+  open: (value?: any) => void;
   close: () => void;
   setPayload: (payload: SubmitPayload) => void;
   setZIndex: (zIndex: number) => void;
   onCancel: (callback: () => void) => void;
   onSubmit: (callback: (payload: SubmitPayload, identifyier: number) => void) => void;
-  onOpen: (callback: () => void) => void;
+  onOpen: (callback: (value?: any) => void) => void;
 };
 
 export type HyperParameter = {
@@ -32,6 +32,7 @@ export type MapHandler = {
   addFeatures: (features: OLFeature[]) => void;
   onFeaturesAdded: (callback: () => void) => void;
   setBaseTiff: (tiff: any) => void;
+  onBaseTiffSet: (callback: () => void) => void;
   MAP_MODE: import("vue").Ref<import("@/enums").MapModes>;
   FEATURES: import("vue").Ref<OLFeature[]>;
   BASE_TIFF: import("vue").Ref<Blob | null>;

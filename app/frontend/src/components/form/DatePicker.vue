@@ -7,7 +7,7 @@ VueDatePicker.form-item(
   :format="range ? formatRange : format"
   dark
   @update:model-value="handleDateSelect"
-  :class="completed ? 'form-completed' : ''"
+  :class="error ? 'form-error' : completed ? 'form-completed' : ''"
   :range="range"
   :max-date="new Date()"
 )
@@ -37,6 +37,10 @@ export default defineComponent({
     value: {
       type: [Date, Array],
       default: null,
+    },
+    error: {
+      type: Boolean,
+      default: false,
     }
   },
   emits: ["selected"],
