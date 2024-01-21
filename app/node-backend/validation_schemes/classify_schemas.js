@@ -140,12 +140,15 @@ const TRAINING_DATA_SCHEMA = JOI.object(
   }
 ).required();
 
-const RANDOMFOREST_HYPERPARAMETER_SCHEMA = JOI.array().items(
-  JOI.object({
-    name: JOI.string().valid('ntree', 'mtry').required(),
-    value: JOI.string().regex(/^[1-9]\d*$/).required()
-  })
-).min(1).max(2);
+const RANDOMFOREST_HYPERPARAMETER_SCHEMA = JOI.any().when(JOI.array().length(0), {
+  then: JOI.array().length(0),
+  otherwise: JOI.array().items(
+    JOI.object({
+      name: JOI.string().valid('ntree', 'mtry').required(),
+      value: JOI.string().regex(/^[1-9]\d*$/).required()
+    })
+  ).length(2)
+});
 
 const RESOLUTION_SCHEMA = JOI.number().valid(10, 30, 60).required();
 
