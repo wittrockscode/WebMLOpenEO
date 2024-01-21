@@ -260,15 +260,22 @@ async function trainModel(client, request_params, isDemo)
   let bands = ["B02", "B03", "B04", "B05", "B06","B07", "B08", "B8A", "B11", "B12"];
 
   // load the initial data collection and limit the amount of data loaded
-  const datacube_init = builder.load_collection(
-    'sentinel-s2-l2a-cogs',
-    BoundingCoords, 
-    3857, 
-    [request_params.tot.start_date, request_params.tot.end_date],
-    bands,
-    request_params.Resolution 
-  );
-
+  let datacube_init;
+  if (isDemo)
+  {
+    datacube_init = builder.load_netCDF_cube("Training_Testcube")
+  }
+  else
+  {
+    datacube_init = builder.load_collection(
+      'sentinel-s2-l2a-cogs',
+      BoundingCoords, 
+      3857, 
+      [request_params.tot.start_date, request_params.tot.end_date],
+      bands,
+      request_params.Resolution 
+    );
+  }
   // fill NAs in Datacube
   const datacube_NA_filled = builder.fill_missing_values(datacube_init, "near");
 
@@ -344,14 +351,22 @@ async function classifyMap(client, request_params, isDemo)
   let bands = ["B02", "B03", "B04", "B05", "B06","B07", "B08", "B8A", "B11", "B12"];
 
   // load the initial data collection and limit the amount of data loaded
-  const datacube_init = builder.load_collection(
-    'sentinel-s2-l2a-cogs',
-    BoundingCoords, 
-    3857, 
-    [request_params.TOI.start_date, request_params.TOI.end_date],
-    bands,
-    request_params.Resolution 
-  );
+  let datacube_init;
+  if (isDemo)
+  {
+    datacube_init = builder.load_netCDF_cube("AOI_Testcube")
+  }
+  else
+  {
+    datacube_init = builder.load_collection(
+      'sentinel-s2-l2a-cogs',
+      BoundingCoords, 
+      3857, 
+      [request_params.TOI.start_date, request_params.TOI.end_date],
+      bands,
+      request_params.Resolution 
+    );
+  }
 
   // fill NAs in Datacube
   const datacube_NA_filled = builder.fill_missing_values(datacube_init, "near");
