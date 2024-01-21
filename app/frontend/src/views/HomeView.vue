@@ -114,6 +114,7 @@ import router from "@/router";
 import { useApi } from "@/composables/use-api";
 import { useDemo } from "@/composables/use-demo";
 import { demo_aoi, demo_td } from "../helper/demodata";
+import { useBlobResult } from "@/composables/use-blob-result";
 
 export default defineComponent({
   components: {
@@ -136,6 +137,7 @@ export default defineComponent({
   },
   setup(props) {
     const { classify_request } = useApi();
+    const { setResult } = useBlobResult();
 
     const doi: Ref<Date[] | null> = ref(null);
     const tot: Ref<Date[] | null> = ref(null);
@@ -239,7 +241,13 @@ export default defineComponent({
         console.log(payload);
         console.log(JSON.stringify(payload));
         const response = await classify_request(payload);
-        console.log(response);
+        const base64_string = response.classification;
+        const blob = b64toBlob(base64_string, "image/tiff");
+
+        const blobUrl = URL.createObjectURL(blob);
+
+        document.location = blobUrl;
+        setResult(blob);
 
         router.push("/result");
       }else{
@@ -248,6 +256,26 @@ export default defineComponent({
         if (!tot.value || tot.value.length !== 2) errors.value.td = true;
         if (!td.value) errors.value.td = true;
       }
+    };
+
+    const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
+      const byteCharacters = atob(b64Data);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+
+      const blob = new Blob(byteArrays, {type: contentType});
+      return blob;
     };
 
     const instance = ref();

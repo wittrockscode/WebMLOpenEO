@@ -8,9 +8,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { nextTick, onMounted, ref } from "vue";
-import { fromUrl } from "geotiff";
+import { fromBlob } from "geotiff";
 import OlMapTifTest from "./OlMapTifTest.vue";
 import MapLegend from "./MapLegend.vue";
+import { useBlobResult } from "@/composables/use-blob-result";
 
 export default defineComponent({
   components: {
@@ -18,6 +19,8 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
+    const { result } = useBlobResult();
+
     const minBandVal = ref(1);
     const maxBandVal = ref(1);
     const colorsArray = ref<string[]>([]);
@@ -43,14 +46,15 @@ export default defineComponent({
       const colorArray: string[] = [];
       const partial_color_range = 360 / (colors - 1);
       [...Array(colors)].map((_, i) => {
-        colorArray.push(hslToHex(partial_color_range * i, 100, 50));
+        colorArray.push(hslToHex(partial_color_range * i, 75, 50));
       });
 
       return colorArray;
     };
 
     onMounted(async () => {
-      const tiff = await fromUrl("pred_test.tif");
+      if (result.value === null) return;
+      const tiff = await fromBlob(result.value);
       const image = await tiff.getImage();
       const rasters = await image.readRasters();
       const typed_arr = rasters[0]! as import("geotiff").TypedArray;

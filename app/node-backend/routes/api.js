@@ -86,7 +86,7 @@ ROUTER.post('/classify', async function(req, res)
     else
     {
       // change class-names to numbers for easier legend of classification
-      let {class_map, processed_geojson} = mapClasses(validation_result.value);
+      //let {class_map, processed_geojson} = mapClasses(validation_result.value);
       //console.log(processed_geojson.Training_Data.features)  
       // build connection
       let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
@@ -94,15 +94,15 @@ ROUTER.post('/classify', async function(req, res)
       // basic login with default params
       await client.authenticateBasic("user", "password");
 
-      let id = await trainModel(client, processed_geojson, false);
+      let id = await trainModel(client, validation_result.value, false);
 
-      let result = await classifyMap(client, processed_geojson, false);
+      let result = await classifyMap(client, validation_result.value, false);
 
       const buffer = await streamToBuffer(result);
       let response = {
         "model_id": id,
         "classification": await buffer.toString('base64'),
-        "class_map": class_map
+        "class_map": {},
       }
       res.setHeader('Content-Type', 'application/json');
       res.send(response);
@@ -204,7 +204,7 @@ ROUTER.post('/getsentinelimg', async function(req, res)
       const datacubeInit = builder.load_collection(
         'sentinel-s2-l2a-cogs',
         BoundingCoords, 
-        32618,
+        3857,
         [req.body.TOI.start_date, req.body.TOI.end_date],
         ["B02","B03","B04"]
       );
@@ -283,8 +283,8 @@ async function trainModel(client, request_params, isDemo)
     "time",
     // this function creates 11 new bands. Each band value is the mean of the old band values over all temporal dimensions inside the given cube 
     "function(x){return(c(mean(x['B02',], na.rm = TRUE),mean(x['B03',], na.rm = TRUE),mean(x['B04',], na.rm = TRUE),mean(x['B05',], na.rm = TRUE),mean(x['B06',], na.rm = TRUE),mean(x['B07',], na.rm = TRUE),mean(x['B08',], na.rm = TRUE),mean(x['B8A',], na.rm = TRUE),mean(x['B11',], na.rm = TRUE),mean(x['B12',], na.rm = TRUE),mean(x['NDVI',], na.rm = TRUE)))}",
-    bands
-    );
+    [...bands, "NDVI"]
+  );
 
   // trains model and initialize hyperparameter if requested
   let datacube_model;
@@ -367,7 +367,7 @@ async function classifyMap(client, request_params, isDemo)
     "time",
     // this function creates 11 new bands. Each band value is the mean of the old band values over all temporal dimensions inside the given cube 
     "function(x){return(c(mean(x['B02',], na.rm = TRUE),mean(x['B03',], na.rm = TRUE),mean(x['B04',], na.rm = TRUE),mean(x['B05',], na.rm = TRUE),mean(x['B06',], na.rm = TRUE),mean(x['B07',], na.rm = TRUE),mean(x['B08',], na.rm = TRUE),mean(x['B8A',], na.rm = TRUE),mean(x['B11',], na.rm = TRUE),mean(x['B12',], na.rm = TRUE),mean(x['NDVI',], na.rm = TRUE)))}",
-    bands
+    [...bands, "NDVI"]
   );
 
   // the model stated in R-Backend-intern "model_id" has to be created with the "openeocubes" process "train_model"
@@ -517,7 +517,7 @@ async function saveModelFile(rds_file)
   // Give model uuid and name
   let id = uuid.v4();
   let modelName = "model_" + id + ".rds"; 
-  const modelPath = path.join(modelFolder, modelName);
+  const modelPath = path.join(__dirname, path.join(modelFolder, modelName));
 
   // Save model in modelPath
   const writeStream = fs.createWriteStream(modelPath);

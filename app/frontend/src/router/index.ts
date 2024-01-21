@@ -15,7 +15,7 @@ const router = createRouter({
     {
       path: "/result",
       name: "result",
-      component: OlMapTifTest
+      component: MapWrapper
     },
     {
       path: "/test",

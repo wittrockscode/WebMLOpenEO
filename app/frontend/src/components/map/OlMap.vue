@@ -19,7 +19,7 @@ ol-map(
     ol-source-osm
   ol-webgl-tile-layer
     ol-source-geo-tiff(
-      :sources="[{ BASE_TIFF }]"
+      :sources="[{ blob_result }]"
       v-if="BASE_TIFF" :style="trueColor"
     )
   ol-vector-layer
@@ -54,7 +54,7 @@ ol-map(
 </template>
 
 <script lang="ts">
-import { computed, ref, type PropType, nextTick } from "vue";
+import { computed, ref, type PropType, nextTick, type Ref } from "vue";
 import { defineComponent } from "vue";
 import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
@@ -84,6 +84,8 @@ export default defineComponent({
     function normalize(value: any) {
       return ["/", value, max];
     }
+
+    const blob_result: Ref<Blob | null> = ref(null);
 
     const red = normalize(["band", 1]);
     const green = normalize(["band", 2]);
@@ -137,6 +139,10 @@ export default defineComponent({
     });
 
     props.handler.onBaseTiffSet(async () => {
+      console.log("test1")
+      console.log(props.handler.BASE_TIFF.value);
+      blob_result.value = props.handler.BASE_TIFF.value;
+
       await nextTick();
     });
 
@@ -154,6 +160,7 @@ export default defineComponent({
       featureSourceRef,
       mapRef,
       trueColor,
+      blob_result,
       mousedown,
       mouseup,
       createBox,

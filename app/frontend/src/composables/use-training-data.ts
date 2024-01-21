@@ -43,7 +43,7 @@ export const useTrainingData = () => {
       collection: {
         type: "FeatureCollection",
         features: polygons.value,
-        crs: { type: "name", properties: { name: "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+        crs: { type: "name", properties: { name: "EPSG:3857" } },
       } as FeatureCollection,
     };
   };

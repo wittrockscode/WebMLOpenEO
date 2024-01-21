@@ -218,7 +218,12 @@ export default defineComponent({
           end_date: trainingData.tot.value![1]!.toISOString().split("T")[0]!,
         }
       };
+
+      console.log(payload);
       const response = await sentinel_img_request(payload);
+      //const blobUrl = URL.createObjectURL([{response.data}]);
+
+      //document.location = blobUrl;
       mapHandler.setBaseTiff(response.data);
     };
 

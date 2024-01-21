@@ -18,13 +18,14 @@
     ol-webgl-tile-layer(:style="tifColors")
       ol-source-geo-tiff(
         :normalize="false"
-        :sources="[{url: 'pred_test.tif'}]"
+        :sources="[{blob}]"
       )
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { defineComponent } from "vue";
+import { useBlobResult } from "@/composables/use-blob-result";
 
 export default defineComponent({
   props: {
@@ -43,6 +44,9 @@ export default defineComponent({
     const zoom = ref(15);
     const rotation = ref(0);
 
+    const { result } = useBlobResult();
+
+    const blob = ref<Blob | null>(null);
 
     const tifColors = ref({
       color: [
@@ -56,7 +60,12 @@ export default defineComponent({
       ],
     });
 
-    return { center, projection, zoom, rotation, tifColors };
+    onMounted(() => {
+      if (result.value === null) return;
+      blob.value = result.value;
+    });
+
+    return { center, projection, zoom, rotation, tifColors, blob };
   },
 });
 </script>
