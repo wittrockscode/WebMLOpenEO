@@ -13,6 +13,8 @@ export const useMap = (): MapHandler => {
 
   const FEATURES: Ref<Feature[]> = ref([]);
 
+  const BASE_TIFF: Ref<Blob | null> = ref(null);
+
   const changeMode = (mode: MapModes) => {
     MAP_MODE.value = mode;
   };
@@ -45,9 +47,13 @@ export const useMap = (): MapHandler => {
     });
   };
 
+  const setBaseTiff = (tiff: Blob) => {
+    BASE_TIFF.value = tiff;
+  };
+
   const onFeaturesAdded = (callback: () => void) => {
     _add_features_callbacks.push(callback);
   };
 
-  return { changeMode, reset, onReset, deleteDrawFeatures, onDeleteDrawFeatures, addFeatures, onFeaturesAdded, MAP_MODE, FEATURES };
+  return { changeMode, reset, onReset, deleteDrawFeatures, onDeleteDrawFeatures, addFeatures, onFeaturesAdded, setBaseTiff, MAP_MODE, FEATURES, BASE_TIFF };
 };

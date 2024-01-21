@@ -9,16 +9,31 @@ EditClassesModal(
 Modal(:handler="handler" title="Training Data" :id="id")
   .flex
     .control-group.flex.flex-col.justify-between.w-full.mt-4(v-if="!drawMode")
-      .date-select.text-left
-        label.text-lg.font-semibold(for="tot-select") Select the date for the training data
-        DatePicker.mt-2(id="tot-select" placeholder="Select" @selected="totSelected" :completed="tot !== null" :value="tot" range)
+      .options-group.w-full
+        .date-select.text-left.mb-5
+          label.text-lg.font-semibold(for="tot-select") Select the date for the training data
+          DatePicker.mt-2(id="tot-select" placeholder="Select" @selected="totSelected" :completed="tot !== null" :value="tot" range)
+        CardButton.mb-5(
+          id="aot-button"
+          :value="'Select area of training'"
+          @click="selectAreaOftraining"
+          full-w
+          :disabled="tot === null"
+        )
+        CardButton(
+          id="sentinel-img-td-button"
+          :value="'Fetch fitting satellite image'"
+          @click="fetchSentinelImage"
+          full-w
+          :disabled="tot === null || aot === null"
+        )
       .options-group.w-full
         CardButton.mb-5(
           id="draw-button-td"
           :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
           @click="toggleDrawMode"
           full-w
-          :disabled="tot === null"
+          :disabled="tot === null || aot === null"
         )
         FileUpload(
           id="td-upload"
@@ -56,7 +71,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
         @click="go_back"
       )
     #td-map
-      OlMap(@drawend="map_drawend" :handler="mapHandler")
+      OlMap(@draw-polygon="map_drawend" :handler="mapHandler" @draw-rect="map_drawrect")
 </template>
 
 <script lang="ts">
@@ -71,13 +86,15 @@ import { MapModes, ModalIds } from "@/enums";
 import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
-import type { Feature } from "@/types/geojson";
+import type { Feature, Polygon } from "@/types/geojson";
 import { geoJsonFileToFeatures } from "@/helper/geojson";
 import { useTrainingData } from "@/composables/use-training-data";
 import { useModal } from "@/composables/use-modal";
 import NewClassModal from "../training_data/new-class.modal.vue";
 import EditClassesModal from "../training_data/edit-classes.modal.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
+
+import { useApi } from "@/composables/use-api";
 
 export default defineComponent({
   components: {
@@ -121,9 +138,13 @@ export default defineComponent({
 
     const tot: Ref<Date[] | null> = ref(null);
 
+    const aot = ref<Polygon | null>(null);
+
     const trainingDataClasses = computed(() => {
       return trainingData.classes.value;
     });
+
+    const { sentinel_img_request } = useApi();
 
     const select_on_map = () => {
       mapHandler.reset();
@@ -139,6 +160,14 @@ export default defineComponent({
       props.handler.setPayload(geoJson);
     };
 
+    const map_drawrect = (feature: OLFeature) => {
+      const format = new OLGeoJSON();
+      const geoJsonString = format.writeFeature(feature);
+      const geoJson = JSON.parse(geoJsonString) as Feature;
+      mapHandler.changeMode(MapModes.DISPLAY_OSM);
+      aot.value = geoJson.geometry as Polygon;
+    };
+
     const fileUploaded = async (file: File) => {
       mapHandler.reset();
       const features = await geoJsonFileToFeatures(file) as unknown;
@@ -146,6 +175,26 @@ export default defineComponent({
         props.handler.setPayload(file);
         mapHandler.addFeatures(features as OLFeature[]);
       }
+    };
+
+    const selectAreaOftraining = () => {
+      mapHandler.changeMode(MapModes.DRAW_RECTANGLE);
+    };
+
+    const fetchSentinelImage = async () => {
+      if (tot.value === null || aot.value === null) return;
+
+      const payload = {
+        AOI: {
+          geometry: aot.value!,
+        },
+        TOI: {
+          start_date: tot.value![0]!.toISOString().split("T")[0]!,
+          end_date: tot.value![1]!.toISOString().split("T")[0]!,
+        }
+      };
+      const response = await sentinel_img_request(payload);
+      mapHandler.setBaseTiff(response.data);
     };
 
     const newPolygon = () => {
@@ -188,8 +237,12 @@ export default defineComponent({
       editClassesHandler,
       trainingDataClasses,
       tot,
+      aot,
       totSelected,
       go_back,
+      selectAreaOftraining,
+      fetchSentinelImage,
+      map_drawrect,
     };
   },
 });

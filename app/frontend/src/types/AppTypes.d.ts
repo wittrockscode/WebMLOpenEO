@@ -31,6 +31,8 @@ export type MapHandler = {
   onDeleteDrawFeatures: (callback: () => void) => void;
   addFeatures: (features: OLFeature[]) => void;
   onFeaturesAdded: (callback: () => void) => void;
+  setBaseTiff: (tiff: any) => void;
   MAP_MODE: import("vue").Ref<import("@/enums").MapModes>;
   FEATURES: import("vue").Ref<OLFeature[]>;
+  BASE_TIFF: import("vue").Ref<Blob | null>;
 }

@@ -17,12 +17,25 @@ ol-map(
   )
   ol-tile-layer
     ol-source-osm
-  ol-vector-layer
+  ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor")
+    ol-source-geo-tiff(
+      :sources="[{ BASE_TIFF }]"
+    )
+  ol-vector-layer(v-if="MODE === MapModes.DRAW_RECTANGLE")
+    ol-source-vector(:projection="projection")
+      ol-interaction-draw(
+        type="Circle"
+        :geometry-function="createBox()"
+        @drawend="(event: DrawEvent) => $emit('drawRect', event.feature)"
+      )
+        ol-style
+          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+          ol-style-fill(color="rgba(255, 255, 255, 0)")
+  ol-vector-layer(v-if="MODE === MapModes.DRAW_POLYGON")
     ol-source-vector(:projection="projection" ref="drawSourceRef")
       ol-interaction-draw(
-        v-if="MODE === MapModes.DRAW_POLYGON"
         type="Polygon"
-        @drawend="(event: DrawEvent) => $emit('drawend', event.feature)"
+        @drawend="(event: DrawEvent) => $emit('drawPolygon', event.feature)"
       )
         ol-style
           ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
@@ -41,6 +54,7 @@ import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
 import { Map as OLMap } from 'ol';
 import type { MapHandler } from "@/types/AppTypes";
+import { createBox } from 'ol/interaction/Draw.js';
 
 export default defineComponent({
   props: {
@@ -49,7 +63,7 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ["drawend"],
+  emits: ["drawRect", "drawPolygon"],
   setup(props) {
     const center = ref([848933.5687385835, 6793022.627243362]);
     const projection = ref("EPSG:3857");
@@ -59,6 +73,20 @@ export default defineComponent({
     const drawSourceRef = ref<any>(null);
     const featureSourceRef = ref<any>(null);
     const mapRef = ref<any>(null);
+
+    const max = 3000;
+    function normalize(value: any) {
+      return ["/", value, max];
+    }
+
+    const red = normalize(["band", 1]);
+    const green = normalize(["band", 2]);
+    const blue = normalize(["band", 3]);
+
+    const trueColor = ref({
+      color: ["array", red, green, blue, 1],
+      gamma: 1.1,
+    });
 
     props.handler.onDeleteDrawFeatures(() => {
       removeDrawFeatures();
@@ -109,13 +137,16 @@ export default defineComponent({
       rotation,
       MODE: props.handler.MAP_MODE,
       FEATURES: props.handler.FEATURES,
+      BASE_TIFF: props.handler.BASE_TIFF,
       MapModes,
       mapCursor,
       drawSourceRef,
       featureSourceRef,
       mapRef,
+      trueColor,
       mousedown,
       mouseup,
+      createBox,
     };
   },
 });

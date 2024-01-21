@@ -164,7 +164,7 @@ ROUTER.post('/getsentinelimg', async function(req, res)
       const datacubeInit = builder.load_collection(
         'sentinel-s2-l2a-cogs',
         BoundingCoords, 
-        32618, 
+        32618,
         [req.body.TOI.start_date, req.body.TOI.end_date],
         ["B02","B03","B04"]
       );

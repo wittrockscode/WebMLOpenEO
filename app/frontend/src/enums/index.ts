@@ -9,4 +9,5 @@ export enum ModalIds {
 export enum MapModes {
   DISPLAY_OSM = "display-osm",
   DRAW_POLYGON = "draw-polygon",
+  DRAW_RECTANGLE = "draw-rectangle",
 }
