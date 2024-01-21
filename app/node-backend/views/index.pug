@@ -19,7 +19,7 @@ block content
         let apiUrl = '/api/classify';
         
         // example JSON-Payload (f.e. the demodata)
-        let demoData = await fetch ('/api/getdemodata');
+        let demoData = await fetch ('/api/getDemodata');
         let rightJsonData = await demoData.json();
 
         let result = await fetch (apiUrl, {
@@ -148,7 +148,7 @@ block content
       document.getElementById('rightButton').addEventListener('click', async function() {
       
         // API-Endpoint-URL
-        let apiUrl = '/api/getsentinelimg';
+        let apiUrl = '/api/getSentinelImg';
         
         // example JSON-Payload 
         let rightJsonData = {
@@ -194,7 +194,7 @@ block content
       document.getElementById('falseButton').addEventListener('click', async function() {
       
         // API-Endpoint-URL
-        let apiUrl = '/api/getsentinelimg';
+        let apiUrl = '/api/getSsentinelImg';
         
         // example JSON-Payload 
         let falseJsonData = {

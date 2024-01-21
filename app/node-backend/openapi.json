@@ -90,7 +90,7 @@
         }
       }
     },
-    "/api/demo_classify": {
+    "/api/demoClassify": {
       "post": {
         "summary": "Train model and classify map with specific demo-parameters for quick results",
         "description": "Takes parameter in JSON-file, trains model on R-Backend and response with a JSON-File which contains the model itself and the classification results",
@@ -129,7 +129,7 @@
         }
       }
     },
-    "/api/getdemodata": {
+    "/api/getDemodata": {
       "get": {
         "summary": "Get an example Json-Request for classify-Endpoint",
         "responses": {
@@ -146,7 +146,7 @@
         }
       }
     },
-    "/api/getmodel": {
+    "/api/getModel": {
       "get": {
         "summary": "Get the calculated model to an uuid as .rds-file",
         "parameters": [
@@ -183,7 +183,7 @@
         }
       }
     },
-    "/api/getsentinelimg": {
+    "/api/getSentinelImg": {
       "post": {
         "summary": "Get a sentinel RGB-image for specific time and area",
         "description": "Takes parameter in JSON-file, ask STAC-API on openEO-conform R-Backend and response with a TIFF which contains the sentinel-data",

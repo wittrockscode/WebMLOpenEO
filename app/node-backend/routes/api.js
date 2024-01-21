@@ -64,7 +64,7 @@ ROUTER.get('/openeocubes', async function(req, res)
 });
 
 // GET an example Json-Request for classify-Endpoint 
-ROUTER.get('/getdemodata', function(req, res) 
+ROUTER.get('/getDemodata', function(req, res) 
 {
   res.setHeader('Content-Type', 'application/json');
   res.send(demodata);
@@ -115,7 +115,7 @@ ROUTER.post('/classify', async function(req, res)
   }
 });
 
-ROUTER.post('/demo_classify', async function(req, res) 
+ROUTER.post('/demoClassify', async function(req, res) 
 {
   try 
   {
@@ -155,7 +155,7 @@ ROUTER.post('/demo_classify', async function(req, res)
   }
 });
 
-ROUTER.get('/getmodel', function(req, res) 
+ROUTER.get('/getModel', function(req, res) 
 {
   const searchId = req.query.id;
   try
@@ -176,7 +176,7 @@ ROUTER.get('/getmodel', function(req, res)
   }
 });
 
-ROUTER.post('/getsentinelimg', async function(req, res) 
+ROUTER.post('/getSentinelImg', async function(req, res) 
 {
   try 
   {
