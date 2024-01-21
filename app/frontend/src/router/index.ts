@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
-import OlMapTifTest from "@/components/map/OlMapTifBlob.vue";
 import MapWrapper from "@/components/map/MapWrapper.vue";
 
 const router = createRouter({

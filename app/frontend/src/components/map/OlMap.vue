@@ -139,7 +139,6 @@ export default defineComponent({
     });
 
     props.handler.onBaseTiffSet(async () => {
-      console.log("test1")
       console.log(props.handler.BASE_TIFF.value);
       blob_result.value = props.handler.BASE_TIFF.value;
 
