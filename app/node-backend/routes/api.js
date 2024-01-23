@@ -119,9 +119,9 @@ ROUTER.post('/demoClassify', async function(req, res)
 {
   try 
   {
-    if (false)
+    if (!areObjectsEqual(req.body, demodata))
     {
-      res.status(422).json({errors: "This demo-Endpoint only allows the demodata (see also getdemodata) as request-body."});
+      res.status(422).json({errors: "This demo-Endpoint only allows the demodata (see also /getDemodata) as request-body."});
     }
     else
     {
@@ -508,6 +508,47 @@ function swapKeysValues(inputDict)
   }
 
   return swappedDict;
+}
+
+/**
+ * Checks recursive if two objects are equal
+ * 
+ * @param {*} obj1 
+ * @param {*} obj2 
+ * @returns {boolean} - if they are equal
+ */
+function areObjectsEqual(obj1, obj2) {
+  // Check if both arguments are objects
+  if (typeof obj1 !== typeof obj2 ) 
+  {
+      return false;
+  }
+  else if (typeof obj1 !== 'object' || typeof obj2 !== 'object') 
+  {
+    return obj1 == obj2;
+  }
+
+  // Get the keys of both objects
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  // Check if the number of keys is the same
+  if (keys1.length !== keys2.length) 
+  {
+      return false;
+  }
+
+  // Check values for each key
+  for (const key of keys1) 
+  {
+      // If the key doesn't exist in the second object or the values are not equal, return false
+      if (!obj2[key] || !areObjectsEqual(obj1[key], obj2[key])) {
+          return false;
+      }
+  }
+
+  // If all checks pass, the objects are equal
+  return true;
 }
 
 /**
