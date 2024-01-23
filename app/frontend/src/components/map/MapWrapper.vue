@@ -8,7 +8,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { nextTick, onMounted, ref } from "vue";
-import { fromBlob, fromUrl } from "geotiff";
+import { fromBlob } from "geotiff";
 import OlMapTif from "./OlMapTif.vue";
 import MapLegend from "./MapLegend.vue";
 import { useBlobResult } from "@/composables/use-blob-result";
@@ -57,9 +57,8 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      //if (result.value === null) return;
-      const c_map = ["wasser", "wald", "stadt", "feld"];
-      const tiff = await fromUrl('big.tif');
+      if (result.value === null) return;
+      const tiff = await fromBlob(result.value);
       const image = await tiff.getImage();
       const rasters = await image.readRasters();
       const typed_arr = rasters[0]! as import("geotiff").TypedArray;
@@ -70,7 +69,7 @@ export default defineComponent({
       colorsArray.value = getUniqueColors(uniqueVals.length);
       uniqueVals.forEach((v, i) => {
         argsList.value.push(v);
-        argsListLegend.value.push(c_map[v] ?? "");
+        argsListLegend.value.push(class_map.value[v] ?? "");
         argsList.value.push(i);
         argsListLegend.value.push("");
       });

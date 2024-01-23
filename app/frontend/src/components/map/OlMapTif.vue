@@ -18,12 +18,12 @@
     ol-webgl-tile-layer(:style="tifColors" v-if="showTif && !showConfidences")
       ol-source-geo-tiff(
         :normalize="false"
-        :sources="[{url: 'big.tif'}]"
+        :sources="[{blob}]"
       )
     ol-webgl-tile-layer(:style="greyscaleColors" v-if="showTif && showConfidences")
       ol-source-geo-tiff(
         :normalize="false"
-        :sources="[{url: 'big.tif'}]"
+        :sources="[{blob}]"
       )
 </template>
 
