@@ -36,7 +36,7 @@
       }, 
     "Hyperparameter": [
       { "name": "mtry", "value": "5"},
-      { "name": "ntree", "value": "50"} 
+      { "name": "ntree", "value": "2"}
     ],
     "Resolution": 30
   }

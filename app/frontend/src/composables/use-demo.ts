@@ -7,6 +7,10 @@ export const useDemo = () => {
   const _resolution_callbacks: (() => void)[] = [];
   const _reset_callbacks: (() => void)[] = [];
   const _finish_callbacks: (() => void)[] = [];
+  const _start_callbacks: (() => void)[] = [];
+  const start = () => {
+    _start_callbacks.forEach(callback => callback());
+  };
   const selectDoi = () => {
     _doi_callbacks.forEach(callback => callback());
   };
@@ -55,6 +59,9 @@ export const useDemo = () => {
   const onFinish = (callback: () => void) => {
     _finish_callbacks.push(callback);
   };
+  const onStart = (callback: () => void) => {
+    _start_callbacks.push(callback);
+  };
 
   return {
     selectDoi,
@@ -65,6 +72,7 @@ export const useDemo = () => {
     selectResolution,
     reset,
     finish,
+    start,
     onSelectDoi,
     onSelectAoi,
     onSelectTot,
@@ -73,5 +81,6 @@ export const useDemo = () => {
     onSelectResolution,
     onReset,
     onFinish,
+    onStart,
   };
 };
