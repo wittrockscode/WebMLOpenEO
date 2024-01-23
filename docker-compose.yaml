@@ -3,17 +3,17 @@ version: "0.0.0"
 services:
   frontend:
     build: ./app/frontend
-    container_name: Frontend
+    container_name: frontend
     ports:
       - "80:80"
     restart: always
     environment:
       - PORT=80
-      - VITE_NODE_BACKEND_URI=http://node_backend:3000
+      - VITE_NODE_BACKEND_URI_CONTAINER=http://node_backend:3000/api
 
   node_backend:
     build: ./app/node-backend
-    container_name: Node-Backend
+    container_name: node_backend
     ports:
       - "3000:3000"
     restart: always

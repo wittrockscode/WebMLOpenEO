@@ -1,16 +1,46 @@
 <template lang="pug">
 Modal(:handler="handler" title="Area of Interest" :id="id")
-  h1 TODO: Area of Interest modal
+  #aoi-map
+    OlMap(@draw-polygon="map_drawend" :handler="mapHandler")
+  .control-group.flex.justify-between.w-full.mt-4
+    CardButton(
+      id="draw-button"
+      :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'"
+      @click="select_on_map"
+      v-tippy="{ content: 'Create a new Polygon on the map.' }"
+    )
+    strong(v-text="'or'")
+    FileUpload(
+      id="aoi-upload"
+      value="Upload GeoJSON"
+      :types="['json', 'geojson']"
+      input-class="file-upload-label-full"
+      @uploaded="(file) => fileUploaded(file)"
+      v-tippy="{ content: 'Upload the Area of Interest as a GeoJSON or GPKG file.' }"
+    )
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import type { PropType } from "vue";
+import type { ModalHandler } from "@/types/AppTypes";
+import OlMap from "@/components/map/OlMap.vue";
+import CardButton from "@/components/base/CardButton.vue";
+import FileUpload from "@/components/form/FileUpload.vue";
+import { MapModes } from "@/enums";
+import { useMap } from "@/composables/use-map";
+import { Feature as OLFeature } from "ol";
+import OLGeoJSON from 'ol/format/GeoJSON';
+import type { Feature } from "@/types/geojson";
+import { geoJsonFileToFeatures } from "@/helper/geojson";
 
 export default defineComponent({
   components: {
     Modal,
+    OlMap,
+    CardButton,
+    FileUpload,
   },
   props: {
     handler: {
@@ -21,10 +51,46 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    isPolygonSelected: {
+      type: Boolean,
+      default: false,
+    },
   },
-  setup() {
+  setup(props) {
+    const mapHandler = useMap();
 
-    return {};
+    const select_on_map = () => {
+      mapHandler.reset();
+      mapHandler.deleteDrawFeatures();
+      mapHandler.changeMode(MapModes.DRAW_POLYGON);
+    };
+
+    const map_drawend = (feature: OLFeature) => {
+      const format = new OLGeoJSON();
+      const geoJsonString = format.writeFeature(feature);
+      const geoJson = JSON.parse(geoJsonString) as Feature;
+      mapHandler.changeMode(MapModes.DISPLAY_OSM);
+      props.handler.setPayload(geoJson);
+    };
+
+    const fileUploaded = async (file: File) => {
+      mapHandler.reset();
+      const features = await geoJsonFileToFeatures(file) as unknown;
+      if(features !== null) {
+        props.handler.setPayload(file);
+        mapHandler.addFeatures(features as OLFeature[]);
+      }
+    };
+
+    return { select_on_map, map_drawend, mapHandler, fileUploaded };
   },
 });
 </script>
+
+<style scoped>
+#aoi-map {
+  width: 50vw;
+  height: 50vh;
+  display: block;
+}
+</style>

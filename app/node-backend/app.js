@@ -3,11 +3,14 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
+const cors = require("cors");
 
 let indexRouter = require('./routes/index');
 let apiRouter = require('./routes/api');
+let swaggerRouter = require('./routes/swagger');
 
 let app = express();
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -21,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
+app.use('/swagger', swaggerRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
