@@ -1,7 +1,6 @@
 "use strict"
 
 const proj4 = require('proj4');
-const reproject = require('reproject');
 
 /**
  * This function validates complicate constraints to the Classify-Request-Body
