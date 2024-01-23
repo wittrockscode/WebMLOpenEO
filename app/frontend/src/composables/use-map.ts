@@ -1,6 +1,6 @@
 import { ref, type Ref } from "vue";
 import { MapModes } from "@/enums";
-import type { MapHandler } from "@/types/handlers";
+import type { MapHandler } from "@/types/AppTypes";
 import Feature from "ol/Feature";
 import { convertToEPSG3857 } from "@/helper/geojson";
 
@@ -10,8 +10,12 @@ export const useMap = (): MapHandler => {
   const _on_reset_callbacks: (() => void)[] = [];
   const _delete_draw_features_callbacks: (() => void)[] = [];
   const _add_features_callbacks: (() => void)[] = [];
+  const _on_base_tiff_set_callbacks: (() => void)[] = [];
+  const _on_delete_rect_features_callbacks: (() => void)[] = [];
 
   const FEATURES: Ref<Feature[]> = ref([]);
+
+  const BASE_TIFF: Ref<Blob | null> = ref(null);
 
   const changeMode = (mode: MapModes) => {
     MAP_MODE.value = mode;
@@ -30,12 +34,20 @@ export const useMap = (): MapHandler => {
     _delete_draw_features_callbacks.forEach(callback => callback());
   };
 
+  const deleteRectFeatures = () => {
+    _on_delete_rect_features_callbacks.forEach(callback => callback());
+  };
+
   const onReset = (callback: () => void) => {
     _on_reset_callbacks.push(callback);
   };
 
   const onDeleteDrawFeatures = (callback: () => void) => {
     _delete_draw_features_callbacks.push(callback);
+  };
+
+  const onDeleteRectFeatures = (callback: () => void) => {
+    _on_delete_rect_features_callbacks.push(callback);
   };
 
   const addFeatures = (features: Feature[]) => {
@@ -45,9 +57,33 @@ export const useMap = (): MapHandler => {
     });
   };
 
+  const setBaseTiff = (tiff: Blob) => {
+    BASE_TIFF.value = tiff;
+    _on_base_tiff_set_callbacks.forEach(callback => callback());
+  };
+
   const onFeaturesAdded = (callback: () => void) => {
     _add_features_callbacks.push(callback);
   };
 
-  return { changeMode, reset, onReset, deleteDrawFeatures, onDeleteDrawFeatures, addFeatures, onFeaturesAdded, MAP_MODE, FEATURES };
+  const onBaseTiffSet = (callback: () => void) => {
+    _on_base_tiff_set_callbacks.push(callback);
+  };
+
+  return {
+    changeMode,
+    reset,
+    onReset,
+    deleteDrawFeatures,
+    onDeleteDrawFeatures,
+    addFeatures,
+    onFeaturesAdded,
+    setBaseTiff,
+    onBaseTiffSet,
+    deleteRectFeatures,
+    onDeleteRectFeatures,
+    MAP_MODE,
+    FEATURES,
+    BASE_TIFF
+  };
 };

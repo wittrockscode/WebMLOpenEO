@@ -17,12 +17,31 @@ ol-map(
   )
   ol-tile-layer
     ol-source-osm
+  ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor")
+    ol-source-geo-tiff(
+      :normalize="false"
+      :sources="[{ blob_result }]"
+    )
+  ol-vector-layer
+    ol-source-vector(:projection="projection" ref="drawRectRef")
+      ol-interaction-draw(
+        type="Circle"
+        :geometry-function="createBox()"
+        @drawend="(event: DrawEvent) => $emit('drawRect', event.feature)"
+        v-if="MODE === MapModes.DRAW_RECTANGLE"
+      )
+        ol-style
+          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+          ol-style-fill(color="rgba(255, 255, 255, 0)")
+    ol-style
+      ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+      ol-style-fill(color="rgba(255, 231, 155, 0.1)")
   ol-vector-layer
     ol-source-vector(:projection="projection" ref="drawSourceRef")
       ol-interaction-draw(
-        v-if="MODE === MapModes.DRAW_POLYGON"
         type="Polygon"
-        @drawend="(event: DrawEvent) => $emit('drawend', event.feature)"
+        @drawend="(event: DrawEvent) => $emit('drawPolygon', event.feature)"
+        v-if="MODE === MapModes.DRAW_POLYGON"
       )
         ol-style
           ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
@@ -35,12 +54,13 @@ ol-map(
 </template>
 
 <script lang="ts">
-import { computed, ref, type PropType, nextTick } from "vue";
+import { computed, ref, type PropType, nextTick, type Ref } from "vue";
 import { defineComponent } from "vue";
 import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
 import { Map as OLMap } from 'ol';
-import type { MapHandler } from "@/types/handlers";
+import type { MapHandler } from "@/types/AppTypes";
+import { createBox } from 'ol/interaction/Draw.js';
 
 export default defineComponent({
   props: {
@@ -49,7 +69,7 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ["drawend"],
+  emits: ["drawRect", "drawPolygon"],
   setup(props) {
     const center = ref([848933.5687385835, 6793022.627243362]);
     const projection = ref("EPSG:3857");
@@ -57,11 +77,32 @@ export default defineComponent({
     const rotation = ref(0);
 
     const drawSourceRef = ref<any>(null);
+    const drawRectRef = ref<any>(null);
     const featureSourceRef = ref<any>(null);
     const mapRef = ref<any>(null);
 
+    const max = 3000;
+    function normalize(value: any) {
+      return ["/", value, max];
+    }
+
+    const blob_result: Ref<Blob | null> = ref(null);
+
+    const red = normalize(["band", 1]);
+    const green = normalize(["band", 2]);
+    const blue = normalize(["band", 3]);
+
+    const trueColor = ref({
+      color: ["array", red, green, blue, 1],
+      gamma: 1.1,
+    });
+
     props.handler.onDeleteDrawFeatures(() => {
       removeDrawFeatures();
+    });
+
+    props.handler.onDeleteRectFeatures(() => {
+      removeRectFeatures();
     });
 
     const isMouseDown = ref(false);
@@ -79,6 +120,11 @@ export default defineComponent({
     const removeDrawFeatures = () => {
       const drawSource: VectorSource = drawSourceRef.value.source;
       drawSource.clear();
+    };
+
+    const removeRectFeatures = () => {
+      const drawSource: VectorSource = drawRectRef.value?.source;
+      if (drawSource) drawSource.clear();
     };
 
     const mousedown = () => {
@@ -102,6 +148,12 @@ export default defineComponent({
       fitToFeatures();
     });
 
+    props.handler.onBaseTiffSet(async () => {
+      blob_result.value = props.handler.BASE_TIFF.value;
+
+      await nextTick();
+    });
+
     return {
       center,
       projection,
@@ -109,13 +161,18 @@ export default defineComponent({
       rotation,
       MODE: props.handler.MAP_MODE,
       FEATURES: props.handler.FEATURES,
+      BASE_TIFF: props.handler.BASE_TIFF,
       MapModes,
       mapCursor,
       drawSourceRef,
+      drawRectRef,
       featureSourceRef,
       mapRef,
+      trueColor,
+      blob_result,
       mousedown,
       mouseup,
+      createBox,
     };
   },
 });

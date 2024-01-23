@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+main {
+  padding-top: 4rem;
+}
+
 #header {
   z-index: 100;
   position: relative;
@@ -82,13 +86,13 @@
 .modal {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 4rem;
   right: 0;
   bottom: 0;
   background-color: transparent;
 }
 
-#modal-outer-click-area {
+.modal-outer-click-area {
   position: relative;
   width: 100%;
   height: 100%;
@@ -202,6 +206,24 @@
   color: theme("colors.ml-black");
 }
 
+.file-upload-label-full-disabled {
+  background-color: theme("colors.ml-dark");
+  color: theme("colors.ml-text");
+  border-radius: 0.25rem;
+  text-align: center;
+  width: 100%;
+  display: block;
+  padding: 0.25rem;
+  opacity: 0.8;
+}
+
+.file-upload-label-full-disabled:hover {
+  opacity: 0.8;
+  border-color: theme("colors.ml-dark") !important;
+  cursor: not-allowed;
+}
+
+
 .file-upload-label, .demo-button {
   border-color: theme("colors.ml-text");
   border-radius: 0.25rem;
@@ -260,6 +282,12 @@
   border-radius: 0.25rem;
 }
 
+.form-disabled {
+  opacity: 0.8;
+  border-color: theme("colors.ml-dark") !important;
+  cursor: not-allowed;
+}
+
 .form-item {
   border-color: theme("colors.ml-dark");
   border-width: 3px;
@@ -267,7 +295,7 @@
 }
 
 .form-item:hover {
-  border-color: theme("colors.ml-blue") !important;
+  border-color: theme("colors.ml-blue");
 }
 
 .loading {
@@ -280,4 +308,9 @@
   top: 0;
   right: 0;
   bottom: 0;
+}
+
+.demo-highlight {
+  position: relative;
+  z-index: 150 !important;
 }

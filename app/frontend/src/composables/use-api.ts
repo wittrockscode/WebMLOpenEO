@@ -1,5 +1,7 @@
-export const useApi = () => {
+import axios from "axios";
+import type { Req } from "@/types/api";
 
+export const useApi = () => {
   let NODE_URL = "";
 
   if(import.meta.env.VITE_ENV === "production") {
@@ -8,5 +10,17 @@ export const useApi = () => {
     NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER ?? "http://localhost:3000/api";
   }
 
-  return { NODE_URL };
+  const classify_request = async (payload: Req.Classify.Payload) => {
+    const response = await axios.post(`${NODE_URL}/classify`, payload);
+
+    return response.data;
+  };
+
+  const sentinel_img_request = async (payload: Req.Sentinel.Payload) => {
+    const response = await axios.post<Req.Sentinel.Response>(`${NODE_URL}/getSentinelImg`, payload, { responseType: "blob" });
+
+    return response.data;
+  };
+
+  return { NODE_URL, classify_request, sentinel_img_request };
 };

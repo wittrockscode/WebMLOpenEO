@@ -1,9 +1,9 @@
 <template lang="pug">
 Teleport(to="body")
   div.modal-invisible(:id="id")
-    .modal-backdrop(v-if="backdrop")
-    .modal.block
-      #modal-outer-click-area(@mousedown="outerClick" @click="outerClick")
+    .modal-backdrop(v-if="backdrop" :style="{ zIndex: zIndexCalc - 1 }")
+    .modal.block(:style="{ zIndex: zIndexCalc }")
+      .modal-outer-click-area(@mousedown="outerClick" @click="outerClick")
         .modal-content(@mousedown.stop="" @click.stop="").rounded.bg-ml-text.text-ml-black.px-5.py-3
           .modal-header(v-if="!hideHeader")
             slot(name="header")
@@ -15,8 +15,8 @@ Teleport(to="body")
                   @click="cancel"
                 )
                   mdicon(name="window-close")
-              hr.my-2.bg-ml-dark.border-ml-dark
-          .modal-body.text-3xl
+              hr.mt-2.bg-ml-dark.border-ml-dark
+          .modal-body.text-3xl.my-4
             slot(
               :cancel="cancel"
               :submit="submit"
@@ -27,7 +27,7 @@ Teleport(to="body")
               :cancel="cancel"
               :submit="submit"
             )
-              hr.my-4.bg-ml-dark.border-ml-dark
+              hr.mb-4.bg-ml-dark.border-ml-dark
               .footer-content.flex.justify-between.text-2xl
                 button.btn-secondary(
                   type="button"
@@ -42,9 +42,9 @@ Teleport(to="body")
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import type { PropType } from "vue";
-import type { ModalHandler } from "@/types/handlers";
+import type { ModalHandler } from "@/types/AppTypes";
 
 export default defineComponent({
   props: {
@@ -102,7 +102,9 @@ export default defineComponent({
     const submit = props.handler ? props.handler.submitFn : (props.submitFn ?? emit("submit"));
     const outerClick = props.handler ? props.handler.outerClickFn : (props.outerClickFn ?? emit("outerClick"));
 
-    return { cancel, submit, outerClick };
+    const zIndexCalc =  ref(props.handler ? props.handler.zIndex.value : props.zIndex);
+
+    return { cancel, submit, outerClick, zIndexCalc };
   },
 });
 </script>
