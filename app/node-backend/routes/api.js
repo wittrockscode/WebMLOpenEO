@@ -59,7 +59,7 @@ ROUTER.get('/openeocubes', async function(req, res)
   catch (error) 
   {
     console.error('Fehler beim Abrufen der OpenEOcubes-Doku:', error)
-    res.status(500).json({ message: 'Interner Serverfehler' })
+    res.status(500).json({ message:  error.message })
   }
 });
 
@@ -111,7 +111,7 @@ ROUTER.post('/classify', async function(req, res)
   catch (error) 
   {
     console.error('Fehler beim Abrufen der Klassifikation:', error)
-    res.status(500).json({ message: 'Interner Serverfehler' })
+    res.status(500).json({ message:  error.message })
   }
 });
 
@@ -151,7 +151,7 @@ ROUTER.post('/demoClassify', async function(req, res)
   catch (error) 
   {
     console.error('Fehler beim Abrufen der Klassifikation:', error)
-    res.status(500).json({ message: 'Interner Serverfehler' })
+    res.status(500).json({ message:  error.message })
   }
 });
 
@@ -225,7 +225,7 @@ ROUTER.post('/getSentinelImg', async function(req, res)
   catch (error) 
   {
     console.error('Fehler beim Abrufen der Sentinel-Bilder:', error)
-    res.status(500).json({ message: 'Interner Serverfehler' })
+    res.status(500).json({ message:  error.message })
   }
 });
 
