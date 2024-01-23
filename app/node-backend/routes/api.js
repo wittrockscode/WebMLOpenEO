@@ -206,7 +206,8 @@ ROUTER.post('/getSentinelImg', async function(req, res)
         BoundingCoords, 
         3857,
         [req.body.TOI.start_date, req.body.TOI.end_date],
-        ["B02","B03","B04"]
+        ["B02","B03","B04"],
+        10
       );
 
       // Save result as GeoTiff
