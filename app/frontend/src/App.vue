@@ -56,6 +56,7 @@ export default defineComponent({
         },
         content: 'This is the algorithm used to train the model.',
         before: () => new Promise((resolve) => {
+          demo.start();
           resolve(true);
         }),
       },

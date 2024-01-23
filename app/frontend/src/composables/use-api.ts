@@ -22,5 +22,20 @@ export const useApi = () => {
     return response.data;
   };
 
-  return { NODE_URL, classify_request, sentinel_img_request };
+  const get_demo_data_request = async () => {
+    const response = await axios.get(`${NODE_URL}/getDemoData`);
+    return response.data;
+  };
+
+  const demo_classify_request = async (payload: Req.Classify.Payload) => {
+    const response = await axios.post(`${NODE_URL}/demoClassify`, payload);
+    return response.data;
+  };
+
+  const facts_api_request = async () => {
+    const response = await axios.get("https://api.api-ninjas.com/v1/facts?limit=20", { headers: { 'X-Api-Key': 'TwmHeksa0xzoVy9fkDsqqg==PW6UiF8lYWw4lRdf'} });
+    return response.data;
+  };
+
+  return { NODE_URL, classify_request, sentinel_img_request, get_demo_data_request, demo_classify_request, facts_api_request };
 };
