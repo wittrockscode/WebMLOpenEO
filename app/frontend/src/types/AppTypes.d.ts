@@ -26,6 +26,8 @@ export type SubmitPayload = null | string | Feature | FeatureCollection | File |
 export type MapHandler = {
   changeMode: (mode: import("@/enums").MapModes) => void;
   reset: () => void;
+  deleteRectFeatures: () => void;
+  onDeleteRectFeatures: (callback: () => void) => void;
   onReset: (callback: () => void) => void;
   deleteDrawFeatures: () => void;
   onDeleteDrawFeatures: (callback: () => void) => void;

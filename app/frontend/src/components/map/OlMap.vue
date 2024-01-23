@@ -17,13 +17,13 @@ ol-map(
   )
   ol-tile-layer
     ol-source-osm
-  ol-webgl-tile-layer
+  ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor")
     ol-source-geo-tiff(
+      :normalize="false"
       :sources="[{ blob_result }]"
-      v-if="BASE_TIFF" :style="trueColor"
     )
   ol-vector-layer
-    ol-source-vector(:projection="projection")
+    ol-source-vector(:projection="projection" ref="drawRectRef")
       ol-interaction-draw(
         type="Circle"
         :geometry-function="createBox()"
@@ -77,6 +77,7 @@ export default defineComponent({
     const rotation = ref(0);
 
     const drawSourceRef = ref<any>(null);
+    const drawRectRef = ref<any>(null);
     const featureSourceRef = ref<any>(null);
     const mapRef = ref<any>(null);
 
@@ -100,6 +101,10 @@ export default defineComponent({
       removeDrawFeatures();
     });
 
+    props.handler.onDeleteRectFeatures(() => {
+      removeRectFeatures();
+    });
+
     const isMouseDown = ref(false);
     const mapCursor = computed(() => {
       switch (props.handler.MAP_MODE.value) {
@@ -115,6 +120,11 @@ export default defineComponent({
     const removeDrawFeatures = () => {
       const drawSource: VectorSource = drawSourceRef.value.source;
       drawSource.clear();
+    };
+
+    const removeRectFeatures = () => {
+      const drawSource: VectorSource = drawRectRef.value?.source;
+      if (drawSource) drawSource.clear();
     };
 
     const mousedown = () => {
@@ -139,7 +149,6 @@ export default defineComponent({
     });
 
     props.handler.onBaseTiffSet(async () => {
-      console.log(props.handler.BASE_TIFF.value);
       blob_result.value = props.handler.BASE_TIFF.value;
 
       await nextTick();
@@ -156,6 +165,7 @@ export default defineComponent({
       MapModes,
       mapCursor,
       drawSourceRef,
+      drawRectRef,
       featureSourceRef,
       mapRef,
       trueColor,

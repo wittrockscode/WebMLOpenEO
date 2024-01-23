@@ -11,6 +11,7 @@ export const useMap = (): MapHandler => {
   const _delete_draw_features_callbacks: (() => void)[] = [];
   const _add_features_callbacks: (() => void)[] = [];
   const _on_base_tiff_set_callbacks: (() => void)[] = [];
+  const _on_delete_rect_features_callbacks: (() => void)[] = [];
 
   const FEATURES: Ref<Feature[]> = ref([]);
 
@@ -33,12 +34,20 @@ export const useMap = (): MapHandler => {
     _delete_draw_features_callbacks.forEach(callback => callback());
   };
 
+  const deleteRectFeatures = () => {
+    _on_delete_rect_features_callbacks.forEach(callback => callback());
+  };
+
   const onReset = (callback: () => void) => {
     _on_reset_callbacks.push(callback);
   };
 
   const onDeleteDrawFeatures = (callback: () => void) => {
     _delete_draw_features_callbacks.push(callback);
+  };
+
+  const onDeleteRectFeatures = (callback: () => void) => {
+    _on_delete_rect_features_callbacks.push(callback);
   };
 
   const addFeatures = (features: Feature[]) => {
@@ -61,5 +70,20 @@ export const useMap = (): MapHandler => {
     _on_base_tiff_set_callbacks.push(callback);
   };
 
-  return { changeMode, reset, onReset, deleteDrawFeatures, onDeleteDrawFeatures, addFeatures, onFeaturesAdded, setBaseTiff, onBaseTiffSet, MAP_MODE, FEATURES, BASE_TIFF };
+  return {
+    changeMode,
+    reset,
+    onReset,
+    deleteDrawFeatures,
+    onDeleteDrawFeatures,
+    addFeatures,
+    onFeaturesAdded,
+    setBaseTiff,
+    onBaseTiffSet,
+    deleteRectFeatures,
+    onDeleteRectFeatures,
+    MAP_MODE,
+    FEATURES,
+    BASE_TIFF
+  };
 };

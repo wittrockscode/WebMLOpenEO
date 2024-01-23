@@ -34,9 +34,6 @@ export namespace Req {
       };
     };
 
-    type Response = {
-      data: Blob;
-      error: string;
-    };
+    type Response = Blob;
   }
 }

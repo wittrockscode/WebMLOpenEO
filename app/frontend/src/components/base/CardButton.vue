@@ -5,8 +5,14 @@ button.rounded.bg-ml-dark.text-ml-text.p-1.transition-2.hover-shadow.form-item.f
   :disabled="disabled"
   @click="$emit('click')"
 )
-  span(v-text="value")
-  mdicon.ml-3.self-center(v-if="icon" :name="iconText")
+  .content(v-if="!loading")
+    span(v-text="value")
+    mdicon.ml-3.self-center(v-if="icon" :name="iconText")
+  .lds-ring(v-else)
+    div
+    div
+    div
+    div
 </template>
 
 <script lang="ts">
@@ -50,6 +56,10 @@ export default defineComponent({
       type: String,
       default: "center",
     },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["click"],
   setup(props) {
@@ -62,3 +72,7 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+@import '@/assets/small-spinner.css';
+</style>

@@ -15,10 +15,15 @@
     )
     ol-tile-layer
       ol-source-osm
-    ol-webgl-tile-layer(:style="tifColors")
+    ol-webgl-tile-layer(:style="tifColors" v-if="showTif && !showConfidences")
       ol-source-geo-tiff(
         :normalize="false"
-        :sources="[{blob}]"
+        :sources="[{url: 'big.tif'}]"
+      )
+    ol-webgl-tile-layer(:style="greyscaleColors" v-if="showTif && showConfidences")
+      ol-source-geo-tiff(
+        :normalize="false"
+        :sources="[{url: 'big.tif'}]"
       )
 </template>
 
@@ -36,6 +41,14 @@ export default defineComponent({
     argsList: {
       type: Array,
       default: () => [],
+    },
+    showTif: {
+      type: Boolean,
+      default: true,
+    },
+    showConfidences: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props) {
@@ -60,12 +73,24 @@ export default defineComponent({
       ],
     });
 
+    const greyscaleColors = ref({
+      color: [
+        'interpolate',
+        ['linear'],
+        ['band', 4],
+        0,
+        '#ffffff',
+        1,
+        '#000000',
+      ],
+    });
+
     onMounted(() => {
       if (result.value === null) return;
       blob.value = result.value;
     });
 
-    return { center, projection, zoom, rotation, tifColors, blob };
+    return { center, projection, zoom, rotation, tifColors, blob, greyscaleColors };
   },
 });
 </script>

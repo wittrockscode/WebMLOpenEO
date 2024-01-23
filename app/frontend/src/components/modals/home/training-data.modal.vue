@@ -36,6 +36,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
           full-w
           :disabled="tot === null || aot === null"
           v-tippy="{ content: 'Fetch the fitting satellite image for the selected area of training and date range.' }"
+          :loading="loadingImg"
         )
       .options-group.w-full
         CardButton.mb-5(
@@ -146,6 +147,8 @@ export default defineComponent({
 
     let fileIsUploaded = false;
 
+    const loadingImg = ref(false);
+
     const newClassHandler = useModal(
       ModalIds.TRAINING_DATA__NEW_CLASS_MODAL,
       (payload: SubmitPayload) => {
@@ -203,11 +206,13 @@ export default defineComponent({
     };
 
     const selectAreaOftraining = () => {
+      mapHandler.deleteRectFeatures();
       mapHandler.changeMode(MapModes.DRAW_RECTANGLE);
     };
 
     const fetchSentinelImage = async () => {
       if (trainingData.tot.value === null || trainingData.aot.value === null) return;
+      loadingImg.value = true;
 
       const payload = {
         AOI: {
@@ -219,12 +224,12 @@ export default defineComponent({
         }
       };
 
-      console.log(payload);
       const response = await sentinel_img_request(payload);
-      //const blobUrl = URL.createObjectURL([{response.data}]);
 
-      //document.location = blobUrl;
-      mapHandler.setBaseTiff(response.data);
+      const blob = new Blob([response], { type: 'image/tiff' });
+
+      mapHandler.setBaseTiff(blob);
+      loadingImg.value = false;
     };
 
     const newPolygon = () => {
@@ -279,6 +284,7 @@ export default defineComponent({
       fetchSentinelImage,
       map_drawrect,
       finishPolygonHandler,
+      loadingImg,
     };
   },
 });

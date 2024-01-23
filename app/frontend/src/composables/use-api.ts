@@ -17,9 +17,9 @@ export const useApi = () => {
   };
 
   const sentinel_img_request = async (payload: Req.Sentinel.Payload) => {
-    const response = await axios.post<Req.Sentinel.Response>(`${NODE_URL}/getsentinelimg`, payload);
+    const response = await axios.post<Req.Sentinel.Response>(`${NODE_URL}/getsentinelimg`, payload, { responseType: "blob" });
 
-    return response;
+    return response.data;
   };
 
   return { NODE_URL, classify_request, sentinel_img_request };

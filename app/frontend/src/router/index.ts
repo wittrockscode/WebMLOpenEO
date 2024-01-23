@@ -16,11 +16,6 @@ const router = createRouter({
       name: "result",
       component: MapWrapper
     },
-    {
-      path: "/test",
-      name: "test",
-      component: MapWrapper,
-    }
   ],
 });
 

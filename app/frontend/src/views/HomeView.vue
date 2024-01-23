@@ -101,7 +101,6 @@ import CardText from "@/components/base/CardText.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
 import FileUpload from "@/components/form/FileUpload.vue";
 import DropdownSelect from "@/components/form/DropdownSelect.vue";
-import OlMapTifBlob from "@/components/map/OlMapTifBlob.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
 import HyperparameterModal from "@/components/modals/home/hyperparameter.modal.vue";
 import TrainingDataModal from "@/components/modals/home/training-data.modal.vue";
@@ -124,7 +123,6 @@ export default defineComponent({
     DatePicker,
     FileUpload,
     AreaOfInterestModal,
-    OlMapTifBlob,
     DropdownSelect,
     HyperparameterModal,
     TrainingDataModal,
@@ -137,7 +135,7 @@ export default defineComponent({
   },
   setup(props) {
     const { classify_request } = useApi();
-    const { setResult } = useBlobResult();
+    const { setResult, setClassMap } = useBlobResult();
 
     const doi: Ref<Date[] | null> = ref(null);
     const tot: Ref<Date[] | null> = ref(null);
@@ -238,10 +236,12 @@ export default defineComponent({
           Hyperparameter: hyperparams.value,
           Resolution: resolution.value,
         };
+
         console.log(payload);
         console.log(JSON.stringify(payload));
         const response = await classify_request(payload);
         const base64_string = response.classification;
+        setClassMap(response.class_map);
         const blob = b64toBlob(base64_string, "image/tiff");
 
         const blobUrl = URL.createObjectURL(blob);

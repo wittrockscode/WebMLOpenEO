@@ -1,31 +1,35 @@
 <template lang="pug">
 .map-wrapper.flex
   template(v-if="isReady")
-    MapLegend(:args-list="argsList" :colors-array="colorsArray")
-    OlMapTifTest(:args-list="argsList" :colors-array="colorsArray")
+    MapLegend(:args-list="argsListLegend" :colors-array="colorsArray" @toggleMap="showTif = !showTif" @toggleConfidences="showConfidences = !showConfidences")
+    OlMapTif(:args-list="argsList" :colors-array="colorsArray" :showTif="showTif" :showConfidences="showConfidences")
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { nextTick, onMounted, ref } from "vue";
-import { fromBlob } from "geotiff";
-import OlMapTifTest from "./OlMapTifTest.vue";
+import { fromBlob, fromUrl } from "geotiff";
+import OlMapTif from "./OlMapTif.vue";
 import MapLegend from "./MapLegend.vue";
 import { useBlobResult } from "@/composables/use-blob-result";
 
 export default defineComponent({
   components: {
-    OlMapTifTest,
+    OlMapTif,
     MapLegend,
   },
   setup() {
-    const { result } = useBlobResult();
+    const { result, class_map } = useBlobResult();
 
     const minBandVal = ref(1);
     const maxBandVal = ref(1);
     const colorsArray = ref<string[]>([]);
     const argsList = ref<number[]>([]);
+    const argsListLegend = ref<string[]>([]);
     const isReady = ref(false);
+
+    const showTif = ref(true);
+    const showConfidences = ref(false);
 
     const getUniqueValues = (arr: Array<number>) => {
       return arr.filter((v, i, a) => a.indexOf(v) === i);
@@ -44,7 +48,7 @@ export default defineComponent({
 
     const getUniqueColors = (colors: number) => {
       const colorArray: string[] = [];
-      const partial_color_range = 360 / (colors - 1);
+      const partial_color_range = 360 / (colors);
       [...Array(colors)].map((_, i) => {
         colorArray.push(hslToHex(partial_color_range * i, 75, 50));
       });
@@ -53,8 +57,9 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      if (result.value === null) return;
-      const tiff = await fromBlob(result.value);
+      //if (result.value === null) return;
+      const c_map = ["wasser", "wald", "stadt", "feld"];
+      const tiff = await fromUrl('big.tif');
       const image = await tiff.getImage();
       const rasters = await image.readRasters();
       const typed_arr = rasters[0]! as import("geotiff").TypedArray;
@@ -65,13 +70,16 @@ export default defineComponent({
       colorsArray.value = getUniqueColors(uniqueVals.length);
       uniqueVals.forEach((v, i) => {
         argsList.value.push(v);
-        argsList.value.push(i+1);
+        argsListLegend.value.push(c_map[v] ?? "");
+        argsList.value.push(i);
+        argsListLegend.value.push("");
       });
       argsList.value.push(0);
+      argsListLegend.value.push(`${0}`);
       isReady.value = true;
       await nextTick();
     });
-    return { isReady, colorsArray, argsList };
+    return { isReady, colorsArray, argsList, argsListLegend, showTif, showConfidences };
   },
 });
 </script>
