@@ -88,7 +88,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
         div
         div
         div
-      .text-ml-text.mt-5 Loading ...
+      .text-ml-text.mt-5(v-text="facts && facts.length > 0 ? facts[current_fact].fact : 'Loading ...'")
 </template>
 
 <script lang="ts">
@@ -134,7 +134,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { classify_request } = useApi();
+    const { classify_request, get_demo_data_request, demo_classify_request, facts_api_request } = useApi();
     const { setResult, setClassMap } = useBlobResult();
 
     const doi: Ref<Date[] | null> = ref(null);
@@ -144,12 +144,17 @@ export default defineComponent({
     const hyperparams: Ref<{ name: string; value: number }[]> = ref([]);
     const resolution: Ref<10 | 30 | 60> = ref(30);
 
+    const demo_data_payload = ref(null);
+
     const errors = ref({
       doi: false,
       aoi: false,
       td: false,
       hyperparams: false,
     });
+
+    const facts = ref([]);
+    const current_fact = ref(0);
 
     const aoi_file = ref<File | null>();
     const td_file = ref<File | null>();
@@ -216,6 +221,31 @@ export default defineComponent({
       errors.value.td = false;
     };
 
+    const start_demo_request = async () => {
+      const facts_response = await facts_api_request();
+      facts.value = facts_response;
+      console.log(facts.value);
+      const intervalID = setInterval(() => {
+        current_fact.value = current_fact.value + 1;
+        if (current_fact.value >= facts.value.length) current_fact.value = 0;
+        console.log(facts.value[current_fact.value]);
+      }, 5000);
+      const start_time = Date.now();
+      loading_result.value = true;
+      const response = await demo_classify_request(demo_data_payload.value!);
+      const base64_string = response.classification;
+      setClassMap(response.class_map);
+      const blob = b64toBlob(base64_string, "image/tiff");
+
+      setResult(blob);
+
+      const end_time = Date.now();
+
+      console.log(`Demo took ${end_time - start_time}ms`);
+      clearInterval(intervalID);
+      router.push("/result");
+    };
+
     const start_request = async () => {
       if (aoi.value && doi.value?.length === 2 && tot.value?.length === 2 && td.value) {
         loading_result.value = true;
@@ -234,7 +264,7 @@ export default defineComponent({
             end_date: tot.value[1]!.toISOString().split("T")[0]!,
           },
           Hyperparameter: hyperparams.value,
-          Resolution: resolution.value,
+          Resolution: Number(resolution.value) as 10 | 30 | 60,
         };
 
         console.log(payload);
@@ -283,6 +313,11 @@ export default defineComponent({
       instance.value = getCurrentInstance();
     });
 
+    props.demo.onStart(async () => {
+      const response = await get_demo_data_request();
+      demo_data_payload.value = response;
+    });
+
     props.demo.onSelectDoi(() => {
       selectDoi([new Date("2023-06-15"), new Date("2024-06-25")]);
     });
@@ -321,7 +356,7 @@ export default defineComponent({
     });
 
     props.demo.onFinish(() => {
-      start_request();
+      start_demo_request();
       stop_demo();
     });
 
@@ -364,6 +399,8 @@ export default defineComponent({
       td_modal_handler,
       start_demo,
       deleteTdFile,
+      facts,
+      current_fact,
     };
   },
 });

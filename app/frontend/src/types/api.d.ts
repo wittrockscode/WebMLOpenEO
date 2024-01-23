@@ -36,4 +36,8 @@ export namespace Req {
 
     type Response = Blob;
   }
+
+  namespace Demo {
+    type Response = Object
+  }
 }

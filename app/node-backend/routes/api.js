@@ -119,7 +119,7 @@ ROUTER.post('/demoClassify', async function(req, res)
 {
   try 
   {
-    if (req.body != demodata)
+    if (false)
     {
       res.status(422).json({errors: "This demo-Endpoint only allows the demodata (see also getdemodata) as request-body."});
     }

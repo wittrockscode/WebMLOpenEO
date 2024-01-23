@@ -1,5 +1,5 @@
 <template lang="pug">
-.map-legend.flex.flex-col.justify-between.text-ml-text.mx-5
+.map-legend.flex.flex-col.justify-between.text-ml-text.mx-5(v-if="colorsArray.length > 0 && argsList.length > 0")
   .control-group.flex-col
     h4.text-2xl.mb-2.font-semibold Legend
     .legend-item.flex.justify-start.mb-2(v-for="(color, index) in colorsArray" :key="colors")
