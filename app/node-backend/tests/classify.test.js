@@ -4,7 +4,7 @@ const app = require('../app');
 const classify_payload = require("../demodata.json");
 
 describe('API /api/classify endpoint test', () => {
-  test('GET /api/classify should accept correct data and send the model id', async () => {
+  test('POST /api/classify should accept correct data and send the model id', async () => {
     const response = await request(app)
       .post('/api/classify')
       .send(classify_payload)

@@ -37,5 +37,6 @@ describe('API /api/getModel endpoint test', () => {
 
     const model = await request(app).get("/api/getModel?id=" + response.body.model_id);
     expect(model.statusCode).toBe(200);
+    expect(model.headers['content-type']).toEqual(expect.stringContaining('rds'));
   }, 1000000);
 });
