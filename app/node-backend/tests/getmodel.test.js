@@ -7,7 +7,7 @@ describe('API /api/getModel endpoint test', () => {
   let server;
 
   beforeAll(() => {
-    server = app.listen(3000); // Start the server before tests
+    server = app.listen(3002); // Start the server before tests
   });
   
   afterAll(() => {

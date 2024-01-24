@@ -5,7 +5,7 @@ describe('API getDemodata-Endpoint', () => {
   let server;
 
   beforeAll(() => {
-    server = app.listen(3000); // Start the server before tests
+    server = app.listen(3001); // Start the server before tests
   });
 
   afterAll(() => {
