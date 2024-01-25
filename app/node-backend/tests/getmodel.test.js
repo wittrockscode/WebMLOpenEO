@@ -39,4 +39,11 @@ describe('API /api/getModel endpoint test', () => {
     expect(model.statusCode).toBe(200);
     expect(model.headers['content-type']).toEqual(expect.stringContaining('rds'));
   }, 1000000);
+
+  test('GET /api/getModel should decline incorrect requests', async () => {
+    const response = await request(app).get("/api/getModel");
+
+    // OpenAPI-Validator should catches that and returns 400
+    expect(response.statusCode).toBe(400);
+  });
 });
