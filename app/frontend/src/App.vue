@@ -75,7 +75,7 @@ export default defineComponent({
         header: {
           title: "Area of Interest",
         },
-        content: "This button is used to select the Area of Interest for your classification.",
+        content: "This button is used to select the area of interest for your classification.",
         before: () => new Promise((resolve) => {
           demo.selectDoi();
           resolve(true);
@@ -100,7 +100,7 @@ export default defineComponent({
         header: {
           title: "Area of Interest",
         },
-        content: "... or upload a GeoJSON/GPKG file. ",
+        content: "... or upload a GeoJSON/GPKG file.",
         params: {
           placement: "top",
         },
@@ -113,7 +113,7 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "This button is used to create or upload training data for your classification.",
+        content: "This button is used to create or upload the training data for your classification.",
         before: () => new Promise((resolve) => {
           demo.selectAoi();
           resolve(true);
@@ -124,7 +124,7 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "First, select a date for the training data. This determines the temporal period for the used satellite images.",
+        content: "First, select a date for the trainig data.",
         before: () => new Promise((resolve) => {
           document.getElementById("td-button")!.click();
           resolve(true);
@@ -135,7 +135,7 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "Now create Training Data directly on the map ...",
+        content: "Now create Training Data via the map ...",
         params: {
           placement: "top",
         },
@@ -149,7 +149,7 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "... or upload a GeoJSON/GPKG file. Make sure that each Feature in the GeoJSON/GPKG contains an attribute 'class' with a label for the later classification. If you draw Features directly on the map, don't forget to give them a 'class' attribute.",
+        content: "... or upload a GeoJSON/GPKG file.",
         params: {
           placement: "top",
         },
@@ -162,7 +162,7 @@ export default defineComponent({
         header: {
           title: "Hyperparameters",
         },
-        content: "You can set the hyperparameters for your classification here. The hyperparameters will determine the quality of the classification and the amount of time needed to perform a classification.",
+        content: "You can set the hyperparameters for your classification here.",
         params: {
           placement: "top",
         },
@@ -176,7 +176,7 @@ export default defineComponent({
         header: {
           title: "Resolution",
         },
-        content: "Choose between 10x10, 30x30 or 60x60 meters per pixel. The finer the resolution, the more pixel (features) will be used for training and classification. This will increase the time needed to train a model and perform a classification.",
+        content: "Choose between 10x10, 30x30 or 60x60 meters per pixel.",
         params: {
           placement: "top",
         },
