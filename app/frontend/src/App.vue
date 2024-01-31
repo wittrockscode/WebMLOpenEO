@@ -131,6 +131,28 @@ export default defineComponent({
         }),
       },
       {
+        target: "#aot-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "Select the area in which you want to create training data.",
+        before: () => new Promise((resolve) => {
+          document.getElementById("td-button")!.click();
+          resolve(true);
+        }),
+      },
+      {
+        target: "#sentinel-img-td-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "You can optionally fetch a satellite image for the date intervall picked above. You can use it, to determine wether the satellite image has your desired qualtiy. The image you will see will be used for training/classification.",
+        before: () => new Promise((resolve) => {
+          document.getElementById("td-button")!.click();
+          resolve(true);
+        }),
+      },
+      {
         target: "#draw-button-td",
         header: {
           title: "Training Data",

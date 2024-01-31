@@ -224,11 +224,9 @@ export default defineComponent({
     const start_demo_request = async () => {
       const facts_response = await facts_api_request();
       facts.value = facts_response;
-      console.log(facts.value);
       const intervalID = setInterval(() => {
         current_fact.value = current_fact.value + 1;
         if (current_fact.value >= facts.value.length) current_fact.value = 0;
-        console.log(facts.value[current_fact.value]);
       }, 5000);
       const start_time = Date.now();
       loading_result.value = true;
