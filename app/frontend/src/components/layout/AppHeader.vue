@@ -7,6 +7,7 @@ header#header
     .header-links.flex.flex-row.justify-start.gap-20.ml-16.items-center.text-lg
       HeaderLink(value="Home" route="/")
       HeaderLink(value="About" route="/about")
+      a.header-link.text-ml-text(:href="swaggerLink") Documentation
 </template>
 
 <script lang="ts">
@@ -19,7 +20,10 @@ export default defineComponent({
     HeaderLink,
   },
   setup() {
-    return { LogoTransparent };
+    const swaggerLink = import.meta.env.VITE_ENV === "production" ?
+      "http://http://ec2-54-70-150-226.us-west-2.compute.amazonaws.com/swagger" :
+      "http://localhost:3000/swagger";
+    return { LogoTransparent, swaggerLink };
   },
 });
 </script>
