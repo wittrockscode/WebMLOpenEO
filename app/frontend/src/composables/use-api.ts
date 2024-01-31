@@ -7,7 +7,7 @@ export const useApi = () => {
   if(import.meta.env.VITE_ENV === "production") {
     NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI ?? "http://http://ec2-54-70-150-226.us-west-2.compute.amazonaws.com/api";
   } else {
-    NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER ?? "http://localhost:3000/api";
+    NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER ? `${import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER}/api` : "http://localhost:3000/api";
   }
 
   const classify_request = async (payload: Req.Classify.Payload) => {
