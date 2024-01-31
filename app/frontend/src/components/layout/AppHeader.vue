@@ -21,7 +21,7 @@ export default defineComponent({
   },
   setup() {
     const swaggerLink = import.meta.env.VITE_ENV === "production" ?
-      "http://http://ec2-54-70-150-226.us-west-2.compute.amazonaws.com/swagger" :
+      "http://ec2-54-70-150-226.us-west-2.compute.amazonaws.com/swagger" :
       "http://localhost:3000/swagger";
     return { LogoTransparent, swaggerLink };
   },
