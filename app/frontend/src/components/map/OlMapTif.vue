@@ -61,15 +61,17 @@ export default defineComponent({
 
     const blob = ref<Blob | null>(null);
 
+    // argument array is now mapped to the color array,
+    // resulting in a color for each class
     const tifColors = ref({
       color: [
         'palette',
         [
           'match',
-          ['band', 1], //Band 1
+          ['band', 1],
           ...props.argsList,
         ],
-        props.colorsArray, //Color array
+        props.colorsArray,
       ],
     });
 

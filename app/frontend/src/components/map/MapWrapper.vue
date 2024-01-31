@@ -21,8 +21,6 @@ export default defineComponent({
   setup() {
     const { result, class_map } = useBlobResult();
 
-    const minBandVal = ref(1);
-    const maxBandVal = ref(1);
     const colorsArray = ref<string[]>([]);
     const argsList = ref<number[]>([]);
     const argsListLegend = ref<string[]>([]);
@@ -58,26 +56,39 @@ export default defineComponent({
 
     onMounted(async () => {
       if (result.value === null) return;
+
+      //extract raster data from tiff
       const tiff = await fromBlob(result.value);
       const image = await tiff.getImage();
       const rasters = await image.readRasters();
+
+      //get the classification data from the rasters
       const typed_arr = rasters[0]! as import("geotiff").TypedArray;
-      const arr = Array.from(typed_arr);
-      minBandVal.value = Math.min(...arr);
-      maxBandVal.value = Math.max(...arr);
-      const uniqueVals = getUniqueValues(arr).sort();
+      const classification_array = Array.from(typed_arr);
+
+     //create unique values array and assign colors to each value
+      const uniqueVals = getUniqueValues(classification_array).sort();
       colorsArray.value = getUniqueColors(uniqueVals.length);
+
+      //create argument list for the color mapping in openlayers and the legend
       uniqueVals.forEach((v, i) => {
+        //array has structure [value, index, value, index, ...]
         argsList.value.push(v);
-        argsListLegend.value.push(class_map.value[v] ?? "");
         argsList.value.push(i);
+
+        //legend array has structure [classMapValue[v], "", classMapValue[v], "", ...]
+        argsListLegend.value.push(class_map.value[v] ?? "");
         argsListLegend.value.push("");
       });
+
+      //append fallback 0
       argsList.value.push(0);
       argsListLegend.value.push(`${0}`);
       isReady.value = true;
       await nextTick();
     });
+
+
     return { isReady, colorsArray, argsList, argsListLegend, showTif, showConfidences };
   },
 });
