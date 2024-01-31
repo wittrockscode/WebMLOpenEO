@@ -564,6 +564,8 @@ async function saveModelFile(rds_file)
   let id = uuid.v4();
   let modelName = "model_" + id + ".rds"; 
   const modelPath = path.join(__dirname, path.join(modelFolder, modelName));
+  console.log(__dirname)
+  console.log('Saving result to:', modelPath);
 
   // Save model in modelPath
   const writeStream = fs.createWriteStream(modelPath);
