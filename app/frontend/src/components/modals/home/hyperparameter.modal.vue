@@ -1,7 +1,9 @@
 <template lang="pug">
 Modal(:handler="handler" title="Hyperparameters" :id="id")
   .input-group.flex.justify-between.w-full.mt-4.flex-col
+    label(for="ntree") ntree:
     TextInput(id="ntree" placeholder="ntree" type="number" v-model="ntree")
+    label.mt-2(for="mtry") mtry:
     TextInput(id="mtry" placeholder="mtry" type="number" v-model="mtry")
 </template>
 
