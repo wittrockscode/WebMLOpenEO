@@ -2,7 +2,7 @@
 
 const EXPRESS = require('express');
 const ROUTER = EXPRESS.Router();
-const mkdirp = require("mkdirp");
+const { mkdirp } = require("mkdirp");
 
 const  demodata = require('./../demodata.json');
 
