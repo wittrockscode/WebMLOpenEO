@@ -21,14 +21,14 @@ Modal(:handler="handler" title="Training Data" :id="id")
             range
             v-tippy="{ content: 'Select the date range for the training data.' }"
           )
-        CardButton.mb-5(
-          id="aot-button"
-          :value="'Select area of training'"
-          @click="selectAreaOftraining"
-          full-w
-          :disabled="tot === null"
-          v-tippy="{ content: 'Select the area of training on the map.' }"
-        )
+        .wrap(v-tippy="{ content: tot === null ? 'Please select the date of training' : 'Select the area of training on the map.' }")
+          CardButton.mb-5(
+            id="aot-button"
+            :value="'Select area of training'"
+            @click="selectAreaOftraining"
+            full-w
+            :disabled="tot === null"
+          )
         CardButton(
           id="sentinel-img-td-button"
           :value="'Fetch fitting satellite image'"
