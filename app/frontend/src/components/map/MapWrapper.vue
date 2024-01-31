@@ -1,7 +1,7 @@
 <template lang="pug">
 .map-wrapper.flex
   template(v-if="isReady")
-    MapLegend(:args-list="argsListLegend" :colors-array="colorsArray" @toggleMap="showTif = !showTif" @toggleConfidences="showConfidences = !showConfidences")
+    MapLegend(:args-list="argsListLegend" :colors-array="colorsArray" @toggleMap="showTif = !showTif" @toggleConfidences="showConfidences = !showConfidences" :confidences="showConfidences")
     OlMapTif(:args-list="argsList" :colors-array="colorsArray" :showTif="showTif" :showConfidences="showConfidences")
 </template>
 
