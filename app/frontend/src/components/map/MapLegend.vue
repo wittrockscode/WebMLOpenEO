@@ -2,9 +2,25 @@
 .map-legend.flex.flex-col.justify-between.text-ml-text.mx-5(v-if="colorsArray.length > 0 && argsList.length > 0")
   .control-group.flex-col
     h4.text-2xl.mb-2.font-semibold Legend
-    .legend-item.flex.justify-start.mb-2(v-for="(color, index) in colorsArray" :key="colors")
-      span.w-4.mr-1(:style="{backgroundColor: color}")
-      p(:class="'whitespace-nowrap'") {{ `: ${argsList[index * 2]}` }}
+    .classification(v-if="!confidences")
+      .legend-item.flex.justify-start.mb-2(v-for="(color, index) in colorsArray" :key="colors")
+        span.w-4.mr-1(:style="{backgroundColor: color}")
+        p(:class="'whitespace-nowrap'") {{ `: ${argsList[index * 2]}` }}
+      br
+      p The colors represent the individual
+      p classes of the classification.
+    .confidences(v-else)
+      .legend-item.flex.justify-start.mb-2
+        span.w-4.mr-1(:style="{backgroundColor: '#000000'}")
+        p(:class="'whitespace-nowrap'") 100% Confidence
+      .legend-item.flex.justify-start.mb-2
+        span.w-4.mr-1(:style="{backgroundColor: '#7f7f7f'}")
+        p(:class="'whitespace-nowrap'") 50% Confidence
+      .legend-item.flex.justify-start.mb-2
+        span.w-4.mr-1(:style="{backgroundColor: '#ffffff'}")
+        p(:class="'whitespace-nowrap'") 0% Confidence
+      br
+      p Darker colors represent higher confidence values.
   .control-group.mb-5
     button.text-xl.w-full(type="button" @click="$emit('toggleConfidences')" class="btn btn-secondary") Toggle Confidences
     button.text-xl.w-full(type="button" @click="$emit('toggleMap')" class="btn btn-secondary") Toggle Layer
@@ -23,6 +39,10 @@ export default defineComponent({
       type: Array,
       default: () => [],
     },
+    confidences: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup() {
 
@@ -34,5 +54,6 @@ export default defineComponent({
 <style scoped>
 .map-legend {
   margin-top: 7rem;
+  width: 25%;
 }
 </style>

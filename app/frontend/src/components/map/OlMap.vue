@@ -20,7 +20,8 @@ ol-map(
   ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor")
     ol-source-geo-tiff(
       :normalize="false"
-      :sources="[{ blob_result }]"
+      :sources="[{ url: blob_result }]"
+      ref="geoTiffSourceRef"
     )
   ol-vector-layer
     ol-source-vector(:projection="projection" ref="drawRectRef")
@@ -80,13 +81,14 @@ export default defineComponent({
     const drawRectRef = ref<any>(null);
     const featureSourceRef = ref<any>(null);
     const mapRef = ref<any>(null);
+    const geoTiffSourceRef = ref<any>(null);
 
     const max = 3000;
     function normalize(value: any) {
       return ["/", value, max];
     }
 
-    const blob_result: Ref<Blob | null> = ref(null);
+    const blob_result: Ref<string | null> = ref(null);
 
     const red = normalize(["band", 1]);
     const green = normalize(["band", 2]);
@@ -149,7 +151,10 @@ export default defineComponent({
     });
 
     props.handler.onBaseTiffSet(async () => {
-      blob_result.value = props.handler.BASE_TIFF.value;
+      blob_result.value = URL.createObjectURL(props.handler.BASE_TIFF.value!);
+
+      const map: OLMap = mapRef.value!.map!;
+      map.updateSize();
 
       await nextTick();
     });
@@ -170,6 +175,7 @@ export default defineComponent({
       mapRef,
       trueColor,
       blob_result,
+      geoTiffSourceRef,
       mousedown,
       mouseup,
       createBox,
