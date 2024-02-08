@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import type { ModalHandler } from "@/types/AppTypes";
+import type { useModal } from "@/composables/use-modal";
 import { defineComponent, ref, type PropType, computed } from "vue";
 
 export default defineComponent({
@@ -46,7 +46,7 @@ export default defineComponent({
       default: false,
     },
     asSubmitFor: {
-      type: Object as PropType<ModalHandler>,
+      type: Object as PropType<ReturnType<typeof useModal>>,
       default: null,
     },
     completed: {

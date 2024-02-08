@@ -42,9 +42,9 @@ Teleport(to="body")
 </template>
 
 <script lang="ts">
+import type { useModal } from "@/composables/use-modal";
 import { defineComponent, ref } from "vue";
 import type { PropType } from "vue";
-import type { ModalHandler } from "@/types/AppTypes";
 
 export default defineComponent({
   props: {
@@ -92,7 +92,7 @@ export default defineComponent({
       default: null,
     },
     handler: {
-      type: Object as PropType<ModalHandler>,
+      type: Object as PropType<ReturnType<typeof useModal>>,
       required: true,
     },
   },

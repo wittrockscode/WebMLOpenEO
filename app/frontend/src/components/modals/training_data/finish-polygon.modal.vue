@@ -9,8 +9,8 @@ import { defineComponent, ref } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import DropdownSelect from "@/components/form/DropdownSelect.vue";
 import type { PropType } from "vue";
-import type { ModalHandler } from "@/types/AppTypes";
 import type { Feature } from "@/types/geojson";
+import type { useModal } from "@/composables/use-modal";
 
 export default defineComponent({
   components: {
@@ -19,7 +19,7 @@ export default defineComponent({
   },
   props: {
     handler: {
-      type: Object as PropType<ModalHandler>,
+      type: Object as PropType<ReturnType<typeof useModal>>,
       required: true,
     },
     id: {

@@ -12,8 +12,8 @@ Modal(:handler="handler" title="Hyperparameters" :id="id")
 import { defineComponent, ref } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import type { PropType, Ref } from "vue";
-import type { ModalHandler } from "@/types/AppTypes";
 import TextInput from "@/components/form/TextInput.vue";
+import type { useModal } from "@/composables/use-modal";
 
 export default defineComponent({
   components: {
@@ -22,7 +22,7 @@ export default defineComponent({
   },
   props: {
     handler: {
-      type: Object as PropType<ModalHandler>,
+      type: Object as PropType<ReturnType<typeof useModal>>,
       required: true,
     },
     id: {

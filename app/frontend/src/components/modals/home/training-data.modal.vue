@@ -29,15 +29,16 @@ Modal(:handler="handler" title="Training Data" :id="id")
             full-w
             :disabled="tot === null"
           )
-        CardButton(
-          id="sentinel-img-td-button"
-          :value="'Fetch fitting satellite image'"
-          @click="fetchSentinelImage"
-          full-w
-          :disabled="tot === null || aot === null"
-          v-tippy="{ content: 'Fetch the fitting satellite image for the selected area of training and date range.' }"
-          :loading="loadingImg"
-        )
+        .wrap(v-tippy="{ content: tot === null || aot === null ? 'Please select the date of training and area of training.' : 'Fetch the fitting satellite image for the selected area of training and date range.' }")
+          CardButton(
+            id="sentinel-img-td-button"
+            :value="'Fetch fitting satellite image'"
+            @click="fetchSentinelImage"
+            full-w
+            :disabled="tot === null || aot === null"
+            v-tippy="{ content: 'Fetch the fitting satellite image for the selected area of training and date range.' }"
+            :loading="loadingImg"
+          )
       .options-group.w-full
         CardButton.mb-5(
           id="draw-button-td"
@@ -95,7 +96,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
 import { computed, defineComponent, ref } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import type { PropType } from "vue";
-import type { ModalHandler, SubmitPayload } from "@/types/AppTypes";
+import type { Nullable, TdModalPayload } from "@/types/AppTypes";
 import OlMap from "@/components/map/OlMap.vue";
 import CardButton from "@/components/base/CardButton.vue";
 import FileUpload from "@/components/form/FileUpload.vue";
@@ -104,7 +105,7 @@ import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
 import type { Feature, Polygon } from "@/types/geojson";
-import { geoJsonFileToFeatures } from "@/helper/geojson";
+import { geoJsonFileToFeatureCollection } from "@/helper/geojson";
 import NewClassModal from "../training_data/new-class.modal.vue";
 import EditClassesModal from "../training_data/edit-classes.modal.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
@@ -127,7 +128,7 @@ export default defineComponent({
   },
   props: {
     handler: {
-      type: Object as PropType<ModalHandler>,
+      type: Object as PropType<ReturnType<typeof useModal<TdModalPayload>>>,
       required: true,
     },
     id: {
@@ -145,23 +146,24 @@ export default defineComponent({
     const trainingData = useTrainingData();
     const { sentinel_img_request } = useApi();
 
-    let fileIsUploaded = false;
+    const withFile = ref(false);
+    const fileName = ref("");
 
     const loadingImg = ref(false);
 
-    const newClassHandler = useModal(
+    const newClassHandler = useModal<string>(
       ModalIds.TRAINING_DATA__NEW_CLASS_MODAL,
-      (payload: SubmitPayload) => {
-        if (payload === null || trainingData.classes.value.includes(payload as string)) return;
-        trainingData.addClass(payload as string);
+      (payload: Nullable<string>) => {
+        if (payload === null || trainingData.classes.value.includes(payload)) return;
+        trainingData.addClass(payload);
       },
       () => {},
       110,
     );
 
-    const finishPolygonHandler = useModal(
+    const finishPolygonHandler = useModal<Feature>(
       ModalIds.TRAINING_DATA__FINISH_POLYGON_MODAL,
-      (payload: SubmitPayload) => {
+      (payload) => {
         if (payload === null) return;
         trainingData.addPolygon(payload as Feature);
       },
@@ -176,6 +178,11 @@ export default defineComponent({
     });
 
     const select_on_map = () => {
+      if (withFile.value) {
+        mapHandler.reset();
+        withFile.value = false;
+        fileName.value = "";
+      }
       mapHandler.changeMode(MapModes.DRAW_POLYGON);
     };
 
@@ -197,12 +204,15 @@ export default defineComponent({
 
     const fileUploaded = async (file: File) => {
       mapHandler.reset();
-      const features = await geoJsonFileToFeatures(file) as unknown;
-      if(features !== null) {
-        props.handler.setPayload({ tot: trainingData.tot.value, file} as any);
-        mapHandler.addFeatures(features as OLFeature[]);
-        fileIsUploaded = true;
-      }
+      const featureCollection = await geoJsonFileToFeatureCollection(file);
+      if(featureCollection === null) return;
+
+      withFile.value = true;
+      fileName.value = file.name;
+      featureCollection.features.forEach((feature) => {
+        trainingData.addPolygon(feature);
+      });
+      mapHandler.addFeatureCollection(featureCollection);
     };
 
     const selectAreaOftraining = () => {
@@ -257,8 +267,8 @@ export default defineComponent({
     };
 
     props.handler.onSubmit(() => {
-      if (!fileIsUploaded)
-        props.handler.setPayload(trainingData.getTrainingData() as any);
+      const data = trainingData.getTrainingData();
+      props.handler.setPayload({ td: data.collection, tot: data.tot!, withFile: withFile.value, fileName: fileName.value });
     });
 
     return {
