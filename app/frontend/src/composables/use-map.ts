@@ -1,11 +1,11 @@
 import { ref, type Ref } from "vue";
 import { MapModes } from "@/enums";
-import type { MapHandler } from "@/types/AppTypes";
 import Feature from "ol/Feature";
-import { convertToEPSG3857 } from "@/helper/geojson";
+import { convertToEPSG3857, featureToOLFeature } from "@/helper/geojson";
+import type { FeatureCollection } from "@/types/geojson";
 
 
-export const useMap = (): MapHandler => {
+export const useMap = () => {
   const MAP_MODE = ref(MapModes.DISPLAY_OSM);
   const _on_reset_callbacks: (() => void)[] = [];
   const _delete_draw_features_callbacks: (() => void)[] = [];
@@ -51,10 +51,17 @@ export const useMap = (): MapHandler => {
   };
 
   const addFeatures = (features: Feature[]) => {
-    _add_features_callbacks.forEach(callback => callback());
     features.forEach(feature => {
       FEATURES.value.push(convertToEPSG3857(feature));
     });
+    _add_features_callbacks.forEach(callback => callback());
+  };
+
+  const addFeatureCollection = (featureCollection: FeatureCollection) => {
+    const features = featureCollection.features.map(feature => {
+      return featureToOLFeature(feature);
+    });
+    addFeatures(features);
   };
 
   const setBaseTiff = (tiff: Blob) => {
@@ -82,6 +89,7 @@ export const useMap = (): MapHandler => {
     onBaseTiffSet,
     deleteRectFeatures,
     onDeleteRectFeatures,
+    addFeatureCollection,
     MAP_MODE,
     FEATURES,
     BASE_TIFF

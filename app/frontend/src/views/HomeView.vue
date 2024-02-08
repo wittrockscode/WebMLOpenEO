@@ -3,26 +3,14 @@ AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INT
 HyperparameterModal(:handler="hyperparameter_modal_handler" :id="ModalIds.HOME__HYPERPARAMETER_MODAL")
 TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_MODAL")
 .wrapper
-  #home(v-if="!loading_result")
+  #home.w-full(v-if="!loading_result")
     CardDark
       .card-content.text-3xl.py-3.items-center.flex.flex-col
-        .row-2
-          CardText.row-item.text-right.px-5(value="Algorithm")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Algorithm")
           CardText#model-name.row-item.text-ml-blue.text-center(value="RandomForest")
-        .row-2
-          CardText.row-item.text-right.px-5(value="Date of Interest")
-          DatePicker.row-item(
-            id="doi-select"
-            placeholder="Select"
-            @selected="selectDoi"
-            :completed="doi !== null"
-            range
-            :value="doi"
-            :error="errors.doi"
-            v-tippy="{ content: 'You can select a range of dates to be used in the classification process here.' }"
-          )
-        .row-2
-          CardText.row-item.text-right.px-5(value="Area of Interest")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Area of Interest")
           .row-item
             CardButton(
               id="aoi-button"
@@ -34,11 +22,11 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               v-tippy="{ content: 'This button is used to select the area of interest for your classification.' }"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="aoi_file")
-              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file.name")
+              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file")
               button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteAoiFile")
                 mdicon(name="window-close")
-        .row-2
-          CardText.row-item.text-right.px-5(value="Training Data")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Training Data")
           .row-item
             CardButton(
               id="td-button"
@@ -50,11 +38,11 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               v-tippy="{ content: 'This button is used to select the training data for your classification.' }"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="td_file")
-              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="td_file.name")
+              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="td_file")
               button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteTdFile")
                 mdicon(name="window-close")
-        .row-2
-          CardText.row-item.text-right.px-5(value="Hyperparameter")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Hyperparameter")
           CardButton.row-item(
             id="hp-button"
             full-w
@@ -64,8 +52,8 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             @click="hyperparameter_modal_handler.open()"
             v-tippy="{ content: 'Tune hyperparameters for your clasification.' }"
           )
-        .row-2
-          CardText.row-item.text-right.px-5(value="Resolution")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Resolution")
           DropdownSelect.row-item(
             id="rs-button"
             :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
@@ -73,8 +61,8 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             @change="value => resolution = value"
             v-tippy="{ content: 'This button is used to select the resolution for your classification.' }"
           )
-        .row-2.row-2-b
-          .px-5.row-item
+        .row-2.items-center.row-2-b
+          .pr-5.row-item
             button.demo-button.transition-2(id="demo-button" v-text="'Demo'" @click="start_demo")
           button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'" @click="start_request")
   template(v-else)
@@ -104,10 +92,9 @@ import DropdownSelect from "@/components/form/DropdownSelect.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
 import HyperparameterModal from "@/components/modals/home/hyperparameter.modal.vue";
 import TrainingDataModal from "@/components/modals/home/training-data.modal.vue";
-import type { SubmitPayload } from "@/types/AppTypes";
-import { fileToFeatureCollection, payloadToPolygonFeature, payloadToFeatureCollection } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
 import type { Req } from "@/types/api";
+import type { AoiModalPayload, TdModalPayload, HyperParameterModalPayload, Nullable } from "@/types/AppTypes";
 import router from "@/router";
 
 import { useApi } from "@/composables/use-api";
@@ -137,7 +124,7 @@ export default defineComponent({
     const { classify_request, get_demo_data_request, demo_classify_request, facts_api_request } = useApi();
     const { setResult, setClassMap } = useBlobResult();
 
-    const doi: Ref<Date[] | null> = ref(null);
+    const toi: Ref<Date[] | null> = ref(null);
     const tot: Ref<Date[] | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
@@ -147,7 +134,7 @@ export default defineComponent({
     const demo_data_payload = ref(null);
 
     const errors = ref({
-      doi: false,
+      toi: false,
       aoi: false,
       td: false,
       hyperparams: false,
@@ -156,46 +143,67 @@ export default defineComponent({
     const facts = ref([]);
     const current_fact = ref(0);
 
-    const aoi_file = ref<File | null>();
-    const td_file = ref<File | null>();
+    const aoi_file = ref<string | null>();
+    const td_file = ref<string | null>();
 
     const loading_result: Ref<boolean> = ref(false);
 
-    const aoi_submit = async (payload: SubmitPayload) => {
+    const aoi_submit = async (payload: Nullable<AoiModalPayload>) => {
+      if (payload === null) {
+        errors.value.aoi = true;
+        return;
+      };
       errors.value.aoi = false;
       deleteAoiFile();
-      aoi.value = await payloadToPolygonFeature(payload);
-      (document.getElementById("aoi-upload") as HTMLInputElement).value = "";
-      if (payload instanceof File) aoi_file.value = payload;
-      if (!aoi.value)  errors.value.aoi = true;
+      if (payload.aoi === null || payload.toi === null) {
+        aoi.value = null;
+        errors.value.aoi = true;
+        return;
+      }
+      aoi.value = payload.aoi;
+      toi.value = payload.toi;
+      if (payload.withFile)
+        aoi_file.value = payload.fileName;
     };
 
-    const td_submit = async (payload: any) => {
-      if (payload.tot) tot.value = payload.tot;
+    const td_submit = async (payload: Nullable<TdModalPayload>) => {
+      if (payload === null) {
+        errors.value.td = true;
+        return;
+      };
       errors.value.td = false;
       deleteTdFile();
-      if (payload.file instanceof File) {
-        td.value = await payloadToFeatureCollection(payload.file);
-        td_file.value = payload.file;
-      } else {
-        td.value = await payloadToFeatureCollection(payload.collection);
+      if (payload.td === null || payload.tot === null) {
+        td.value = null;
+        tot.value = null;
+        errors.value.td = true;
+        return;
       }
-      if (!td.value)  errors.value.td = true;
+      tot.value = payload.tot;
+      td.value = payload.td;
+      console.log(payload);
+      if (payload.withFile)
+        td_file.value = payload.fileName;
     };
 
-    const hyperparameter_submit = (payload: SubmitPayload) => {
+    const hyperparameter_submit = (payload: Nullable<HyperParameterModalPayload>) => {
+      if (payload === null) {
+        errors.value.hyperparams = true;
+        return;
+      };
       errors.value.hyperparams = false;
-      hyperparams.value = payload as { name: string; value: number }[];
+      hyperparams.value = payload;
       if (!hyperparams.value) errors.value.hyperparams = true;
     };
 
-    const aoi_modal_handler = useModal(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
-    const hyperparameter_modal_handler = useModal(ModalIds.HOME__HYPERPARAMETER_MODAL, hyperparameter_submit);
-    const td_modal_handler = useModal(ModalIds.HOME__TRAINING_DATA_MODAL, td_submit);
+    const aoi_modal_handler = useModal<AoiModalPayload>(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
+    const hyperparameter_modal_handler = useModal<HyperParameterModalPayload>(ModalIds.HOME__HYPERPARAMETER_MODAL, hyperparameter_submit);
+    const td_modal_handler = useModal<TdModalPayload>(ModalIds.HOME__TRAINING_DATA_MODAL, td_submit);
 
     const deleteAoiFile = () => {
       aoi.value = null;
       aoi_file.value = null;
+      (document.getElementById("aoi-upload") as HTMLInputElement).value = "";
       errors.value.aoi = false;
     };
 
@@ -203,17 +211,6 @@ export default defineComponent({
       td.value = null;
       td_file.value = null;
       errors.value.td = false;
-    };
-
-    const selectDoi = (dates: Date[]) => {
-      doi.value = dates;
-    };
-
-    const uploadedTD = async (file: File) => {
-      errors.value.td = false;
-      td.value = await fileToFeatureCollection(file);
-      (document.getElementById("td-upload") as HTMLInputElement).value = "";
-      if (!td.value) errors.value.td = true;
     };
 
     const reset_td = () =>{
@@ -245,13 +242,13 @@ export default defineComponent({
     };
 
     const start_request = async () => {
-      if (aoi.value && doi.value?.length === 2 && tot.value?.length === 2 && td.value) {
+      if (aoi.value && toi.value?.length === 2 && tot.value?.length === 2 && td.value) {
         loading_result.value = true;
         const payload: Req.Classify.Payload = {
           model: "RandomForest",
           TOI: {
-            start_date: doi.value[0]!.toISOString().split("T")[0]!,
-            end_date: doi.value[1]!.toISOString().split("T")[0]!,
+            start_date: toi.value[0]!.toISOString().split("T")[0]!,
+            end_date: toi.value[1]!.toISOString().split("T")[0]!,
           },
           AOI: {
             geometry: aoi.value.geometry,
@@ -280,7 +277,7 @@ export default defineComponent({
         router.push("/result");
       }else{
         if (!aoi.value) errors.value.aoi = true;
-        if (!doi.value || doi.value.length !== 2) errors.value.doi = true;
+        if (!toi.value || toi.value.length !== 2) errors.value.toi = true;
         if (!tot.value || tot.value.length !== 2) errors.value.td = true;
         if (!td.value) errors.value.td = true;
       }
@@ -316,17 +313,9 @@ export default defineComponent({
       demo_data_payload.value = response;
     });
 
-    props.demo.onSelectDoi(() => {
-      selectDoi([new Date("2023-06-15"), new Date("2024-06-25")]);
-    });
-
     props.demo.onSelectAoi(() => {
       aoi_modal_handler.close();
       aoi_submit(demo_aoi);
-    });
-
-    props.demo.onSelectTot(() => {
-      tot.value = [new Date("2023-06-15"), new Date("2024-06-25")];
     });
 
     props.demo.onSelectTd(() => {
@@ -350,7 +339,7 @@ export default defineComponent({
       reset_td();
       hyperparams.value = [];
       resolution.value = 30;
-      doi.value = null;
+      toi.value = null;
     });
 
     props.demo.onFinish(() => {
@@ -382,10 +371,7 @@ export default defineComponent({
       aoi_file,
       td_file,
       deleteAoiFile,
-      selectDoi,
-      uploadedTD,
       reset_td,
-      doi,
       aoi,
       td,
       hyperparams,

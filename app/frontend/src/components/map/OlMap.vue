@@ -60,13 +60,13 @@ import { defineComponent } from "vue";
 import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
 import { Map as OLMap } from 'ol';
-import type { MapHandler } from "@/types/AppTypes";
 import { createBox } from 'ol/interaction/Draw.js';
+import type { useMap } from "@/composables/use-map";
 
 export default defineComponent({
   props: {
     handler: {
-      type: Object as PropType<MapHandler>,
+      type: Object as PropType<ReturnType<typeof useMap>>,
       required: true,
     },
   },
