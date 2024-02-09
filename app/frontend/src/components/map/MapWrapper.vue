@@ -21,6 +21,25 @@ export default defineComponent({
   setup() {
     const { result, class_map } = useBlobResult();
 
+    const colorsArrayColorblind = [
+      "#490092",
+      "#22cf22",
+      "#db6d00",
+      "#009999",
+      "#b66dff",
+      "#004949",
+      "#006ddb",
+      "#171723",
+      "#ff6db6",
+      "#920000",
+      "#8f4e00",
+      "#ffdf4d",
+      "#ffffff",
+      "#676767",
+      "#252525",
+      "#000000",
+    ];
+
     const colorsArray = ref<string[]>([]);
     const argsList = ref<number[]>([]);
     const argsListLegend = ref<string[]>([]);
@@ -48,7 +67,8 @@ export default defineComponent({
       const colorArray: string[] = [];
       const partial_color_range = 360 / (colors);
       [...Array(colors)].map((_, i) => {
-        colorArray.push(hslToHex(partial_color_range * i, 75, 50));
+        if (i >= 0 && i < colorsArrayColorblind.length) colorArray.push(colorsArrayColorblind[i]!);
+        else colorArray.push(hslToHex(partial_color_range * i, 75, 50));
       });
 
       return colorArray;
