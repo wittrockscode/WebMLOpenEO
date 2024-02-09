@@ -359,14 +359,7 @@ export default defineComponent({
     });
 
     const start_demo = () => {
-      if (!document.getElementsByClassName("v-tour")[0]) {
-        const main = document.getElementsByTagName('main')[0];
-        if (!main) return;
-
-        const tour = document.createElement('div');
-        tour.classList.add('v-tour');
-        main.appendChild(tour);
-      }
+      document.getElementsByClassName("v-tour")[0]?.setAttribute('style', 'display:block');
       const $tours = instance!.value.appContext.config.globalProperties.$tours;
       if ($tours) {
           if ($tours['demoProcess']) {
@@ -382,7 +375,7 @@ export default defineComponent({
               $tours['demoProcess'].stop();
           }
       }
-      document.getElementsByClassName("v-tour")[0]?.remove();
+      document.getElementsByClassName("v-tour")[0]?.setAttribute('style', 'display:none');
     };
 
     return {
