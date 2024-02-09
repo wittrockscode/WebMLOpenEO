@@ -37,6 +37,9 @@ export default defineComponent({
         demo.reset();
         demoOverlay.value = false;
       },
+      onPreviousStep: (step: number) => {
+        handlePreviousStep(step);
+      },
     };
 
     const demoOptions = {
@@ -45,7 +48,25 @@ export default defineComponent({
         buttonPrevious: 'Previous',
         buttonNext: 'Next',
         buttonStop: 'Start a demo classification',
+        highlight: true,
       },
+    };
+
+    const handlePreviousStep = (step: number) => {
+      switch (step) {
+        case 2:
+          demo.closeAoiModal();
+          break;
+        case 5:
+          document.getElementById("aoi-button")!.click();
+          break;
+        case 6:
+          demo.closeTdModal();
+          break;
+        case 11:
+          document.getElementById("td-button")!.click();
+          break;
+      };
     };
 
     const steps = [
@@ -61,16 +82,6 @@ export default defineComponent({
         }),
       },
       {
-        target: "#doi-select",
-        header: {
-          title: "Date of Interest",
-        },
-        content: "You can select a range of dates to be used in the classification process here.",
-        before: () => new Promise((resolve) => {
-          resolve(true);
-        }),
-      },
-      {
         target: "#aoi-button",
         header: {
           title: "Area of Interest",
@@ -82,13 +93,23 @@ export default defineComponent({
         }),
       },
       {
+        target: "#toi-select",
+        header: {
+          title: "Date of Interest",
+        },
+        content: "You can select a range of dates to be used in the classification process here.",
+        before: () => new Promise((resolve) => {
+          document.getElementById("aoi-button")!.click();
+          resolve(true);
+        }),
+      },
+      {
         target: "#draw-button",
         header: {
           title: "Area of Interest",
         },
         content: "You can either draw a polygon ...",
         before: () => new Promise((resolve) => {
-          document.getElementById("aoi-button")!.click();
           resolve(true);
         }),
         params: {
@@ -221,8 +242,18 @@ export default defineComponent({
           resolve(true);
         }),
       },
+      {
+        target: "body",
+        header: {
+          title: "",
+        },
+        content: "",
+        before: () => new Promise((resolve) => {
+          demo.finish();
+          resolve(true);
+        }),
+      },
     ];
-
     return { steps, demo, demoCallbacks, demoOverlay, demoOptions };
   },
 });
