@@ -39,6 +39,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
             v-tippy="{ content: 'Fetch the fitting satellite image for the selected area of training and date range.' }"
             :loading="loadingImg"
           )
+          label.text-xl.ml-1.text-ml-red.font-semibold(for="sentinel-img-aoi-button" v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
       .options-group.w-full
         CardButton.mb-5(
           id="draw-button-td"
@@ -151,6 +152,11 @@ export default defineComponent({
 
     const loadingImg = ref(false);
 
+    const errors = ref({
+      sentinel_img: false,
+      sentinel_img_error_text: "",
+    });
+
     const newClassHandler = useModal<string>(
       ModalIds.TRAINING_DATA__NEW_CLASS_MODAL,
       (payload: Nullable<string>) => {
@@ -236,6 +242,14 @@ export default defineComponent({
 
       const response = await sentinel_img_request(payload);
 
+      if ('error' in response) {
+        const response_error = await (response.error as any).response.data.text();
+        errors.value.sentinel_img = true;
+        errors.value.sentinel_img_error_text = response_error.message;
+        loadingImg.value = false;
+        return;
+      }
+
       const blob = new Blob([response], { type: 'image/tiff' });
 
       mapHandler.setBaseTiff(blob);
@@ -295,6 +309,7 @@ export default defineComponent({
       map_drawrect,
       finishPolygonHandler,
       loadingImg,
+      errors,
     };
   },
 });

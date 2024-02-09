@@ -5,7 +5,7 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
       .options-group.w-full
         .date-select.text-left
           label.text-lg.font-semibold(for="tot-select") Select the Time of Interest
-          DatePicker.mt-2(
+          DatePicker.mt-2.mb-5(
             id="toi-select"
             placeholder="Select"
             @selected="toiSelected" :completed="toi !== null"
@@ -13,6 +13,16 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
             range
             v-tippy="{ content: 'Select the date range for the training data.' }"
           )
+          CardButton(
+            id="sentinel-img-aoi-button"
+            :value="'Fetch fitting satellite image'"
+            @click="fetchSentinelImage"
+            full-w
+            :disabled="toi === null || aoi === null"
+            v-tippy="{ content: 'Fetch the fitting satellite image for the selected area.' }"
+            :loading="loadingImg"
+          )
+          label.text-xl.ml-1.text-ml-red.font-semibold(for="sentinel-img-aoi-button" v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
       .options-group.w-full
         CardButton.mb-5(
           id="draw-button"
@@ -46,10 +56,11 @@ import { MapModes } from "@/enums";
 import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
-import type { Feature } from "@/types/geojson";
+import type { Feature, Polygon } from "@/types/geojson";
 import { geoJsonFileToFeatures, featureToOLFeature } from "@/helper/geojson";
 import DatePicker from "@/components/form/DatePicker.vue";
 import type { useModal } from "@/composables/use-modal";
+import { useApi } from "@/composables/use-api";
 
 export default defineComponent({
   components: {
@@ -75,12 +86,52 @@ export default defineComponent({
   },
   setup(props) {
     const mapHandler = useMap();
-    const aoi = ref<Feature | null>(null);
+    const aoi = ref<Feature<Polygon> | null>(null);
     const toi = ref<Date[] | null>(null);
     const withFile = ref(false);
     const fileName = ref("");
+    const errors =  ref({
+      sentinel_img: false,
+      sentinel_img_error_text: "",
+    });
     const toiSelected = (date: Date[]) => {
       toi.value = date;
+    };
+
+    const { sentinel_img_request } = useApi();
+
+    const loadingImg = ref(false);
+
+    const fetchSentinelImage = async () => {
+      if (aoi.value === null || toi.value === null) return;
+
+      errors.value.sentinel_img = false;
+      errors.value.sentinel_img_error_text = "";
+      loadingImg.value = true;
+
+      const payload = {
+        AOI: {
+          geometry: aoi.value!.geometry,
+        },
+        TOI: {
+          start_date: toi.value![0]!.toISOString().split("T")[0]!,
+          end_date: toi.value![1]!.toISOString().split("T")[0]!,
+        }
+      };
+
+      const response = await sentinel_img_request(payload);
+      if ('error' in response) {
+        const response_error = JSON.parse(await (response.error as any).response.data.text());
+        errors.value.sentinel_img = true;
+        errors.value.sentinel_img_error_text = response_error.message;
+        loadingImg.value = false;
+        return;
+      }
+
+      const blob = new Blob([response], { type: 'image/tiff' });
+
+      mapHandler.setBaseTiff(blob);
+      loadingImg.value = false;
     };
 
     const select_on_map = () => {
@@ -94,7 +145,7 @@ export default defineComponent({
     const map_drawend = (feature: OLFeature) => {
       const format = new OLGeoJSON();
       const geoJsonString = format.writeFeature(feature);
-      const geoJson = JSON.parse(geoJsonString) as Feature;
+      const geoJson = JSON.parse(geoJsonString) as Feature<Polygon>;
       mapHandler.changeMode(MapModes.DISPLAY_OSM);
       aoi.value = geoJson;
     };
@@ -103,7 +154,7 @@ export default defineComponent({
       mapHandler.reset();
       const features = await geoJsonFileToFeatures(file) as Feature[] | null;
       if(features !== null && features.length === 1) {
-        aoi.value = features[0]!;
+        aoi.value = features[0]! as Feature<Polygon>;
         withFile.value = true;
         fileName.value = file.name;
         mapHandler.addFeatures([featureToOLFeature(aoi.value)]);
@@ -114,7 +165,18 @@ export default defineComponent({
       props.handler.setPayload({ aoi: aoi.value, toi: toi.value, withFile: withFile.value, fileName: fileName.value});
     });
 
-    return { select_on_map, map_drawend, mapHandler, fileUploaded, toi, toiSelected };
+    return {
+      select_on_map,
+      map_drawend,
+      mapHandler,
+      fileUploaded,
+      toi,
+      aoi,
+      toiSelected,
+      loadingImg,
+      fetchSentinelImage,
+      errors,
+    };
   },
 });
 </script>
