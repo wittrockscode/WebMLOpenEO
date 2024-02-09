@@ -11,9 +11,12 @@ export const useApi = () => {
   }
 
   const classify_request = async (payload: Req.Classify.Payload) => {
-    const response = await axios.post(`${NODE_URL}/classify`, payload);
-
-    return response.data;
+    try {
+      const response = await axios.post(`${NODE_URL}/classify`, payload);
+      return response.data;
+    } catch (error) {
+      return {error: error};
+    }
   };
 
   const sentinel_img_request = async (payload: Req.Sentinel.Payload) => {
@@ -28,8 +31,12 @@ export const useApi = () => {
   };
 
   const demo_classify_request = async (payload: Req.Classify.Payload) => {
-    const response = await axios.post(`${NODE_URL}/demoClassify`, payload);
-    return response.data;
+    try {
+      const response = await axios.post(`${NODE_URL}/demoClassify`, payload);
+      return response.data;
+    } catch (error) {
+      return {error: error};
+    }
   };
 
   const facts_api_request = async () => {

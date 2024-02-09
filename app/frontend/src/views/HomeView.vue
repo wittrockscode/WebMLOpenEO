@@ -228,6 +228,11 @@ export default defineComponent({
       const start_time = Date.now();
       loading_result.value = true;
       const response = await demo_classify_request(demo_data_payload.value!);
+      if (response.error) {
+        router.push("/error");
+        return;
+      }
+
       const base64_string = response.classification;
       setClassMap(response.class_map);
       const blob = b64toBlob(base64_string, "image/tiff");
@@ -265,6 +270,11 @@ export default defineComponent({
         console.log(payload);
         console.log(JSON.stringify(payload));
         const response = await classify_request(payload);
+        if (response.error) {
+          router.push("/error");
+          return;
+        }
+
         const base64_string = response.classification;
         setClassMap(response.class_map);
         const blob = b64toBlob(base64_string, "image/tiff");
