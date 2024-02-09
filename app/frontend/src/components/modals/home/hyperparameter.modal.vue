@@ -5,6 +5,8 @@ Modal(:handler="handler" title="Hyperparameters" :id="id")
     TextInput(id="ntree" placeholder="ntree" type="number" v-model="ntree")
     label.mt-2(for="mtry") mtry:
     TextInput(id="mtry" placeholder="mtry" type="number" v-model="mtry")
+    br
+    p.text-lg Changing these values might affect the result in a negative way.
 </template>
 
 
