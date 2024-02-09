@@ -1,4 +1,4 @@
-import type { FeatureCollection, Feature } from "../types/geojson";
+import type { FeatureCollection, Feature, Polygon } from "../types/geojson";
 
 import { GeoJSON as OLGeoJSON} from 'ol/format';
 import { Feature as OLFeature } from "ol";
@@ -57,4 +57,51 @@ export const featureToOLFeature = (feature: Feature) => {
 
 export const OLFeatureToFeature = (feature: OLFeature) => {
   return new OLGeoJSON().writeFeatureObject(feature) as Feature;
+};
+
+export const validateGeoJsonFeaturePolygon = (feature: Feature<Polygon>) => {
+    return {
+      isFeatureType: assertEqual(feature.type, "Feature"),
+      hasGeometry: assertExists(feature.geometry),
+      isPolygon: assertEqual(feature.geometry.type, "Polygon"),
+      hasCoordinates: assertBigger(feature.geometry.coordinates.length, 0),
+      hasPoints: assertBigger(feature.geometry.coordinates[0]!.length, 0),
+    };
+};
+
+export const validateGeoJsonFeatureCollection = (featureCollection: FeatureCollection<Polygon>) => {
+  return {
+    isFeatureCollectionType: assertEqual(featureCollection.type, "FeatureCollection"),
+    hasFeatures: assertBigger(featureCollection.features.length, 0),
+    hasValidFeatures: !featureCollection.features.reduce((acc, feature) => {
+      return acc || Object.values(validateGeoJsonFeaturePolygon(feature)).some((v) => !v);
+    }, false),
+  };
+};
+
+const assertExists = <T>(a: T) => {
+  if (a === undefined || a === null) return false;
+
+  return true;
+};
+
+const assertEqual = <T>(a: T, b: T) => {
+  if (!assertExists(a) || !assertExists(b)) return false;
+  if (a !== b) return false;
+
+  return true;
+};
+
+const assertBigger = (a: number, b: number) => {
+  if (!assertExists(a) || !assertExists(b)) return false;
+  if (a <= b) return false;
+
+  return true;
+};
+
+const assertSmaller = (a: number, b: number) => {
+  if (!assertExists(a) || !assertExists(b)) return false;
+  if (a >= b) return false;
+
+  return true;
 };

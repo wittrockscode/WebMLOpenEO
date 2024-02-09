@@ -41,7 +41,8 @@ Modal(:handler="handler" title="Training Data" :id="id")
           )
           label.text-xl.ml-1.text-ml-red.font-semibold(for="sentinel-img-aoi-button" v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
       .options-group.w-full
-        CardButton.mb-5(
+        label.text-sm.ml-1.text-ml-red.font-semibold(for="td-upload" v-if="errors.td_feature_collection") {{errors.td_feature_collection_error_text}}
+        CardButton.mb-5.mt-2(
           id="draw-button-td"
           :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
           @click="toggleDrawMode"
@@ -105,8 +106,8 @@ import { MapModes, ModalIds } from "@/enums";
 import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
-import type { Feature, Polygon } from "@/types/geojson";
-import { geoJsonFileToFeatureCollection } from "@/helper/geojson";
+import type { Feature, FeatureCollection, Polygon } from "@/types/geojson";
+import { geoJsonFileToFeatureCollection, validateGeoJsonFeatureCollection } from "@/helper/geojson";
 import NewClassModal from "../training_data/new-class.modal.vue";
 import EditClassesModal from "../training_data/edit-classes.modal.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
@@ -155,6 +156,8 @@ export default defineComponent({
     const errors = ref({
       sentinel_img: false,
       sentinel_img_error_text: "",
+      td_feature_collection: false,
+      td_feature_collection_error_text: "",
     });
 
     const newClassHandler = useModal<string>(
@@ -186,6 +189,8 @@ export default defineComponent({
     const select_on_map = () => {
       if (withFile.value) {
         mapHandler.reset();
+        errors.value.td_feature_collection = false;
+        errors.value.td_feature_collection_error_text = "";
         withFile.value = false;
         fileName.value = "";
       }
@@ -209,9 +214,22 @@ export default defineComponent({
     };
 
     const fileUploaded = async (file: File) => {
+      errors.value.td_feature_collection = false;
+      errors.value.td_feature_collection_error_text = "";
       mapHandler.reset();
       const featureCollection = await geoJsonFileToFeatureCollection(file);
-      if(featureCollection === null) return;
+      if(featureCollection === null) {
+        errors.value.td_feature_collection = true;
+        errors.value.td_feature_collection_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+        return;
+      };
+
+      const valid = validateGeoJsonFeatureCollection(featureCollection as FeatureCollection<Polygon>);
+      if (Object.values(valid).includes(false)) {
+        errors.value.td_feature_collection = true;
+        errors.value.td_feature_collection_error_text = "The uploaded file does not contain a valid Polygon Featurecollection.";
+        return;
+      }
 
       withFile.value = true;
       fileName.value = file.name;

@@ -1,5 +1,5 @@
 <template lang="pug">
-.impressum.mt-7.ml-5.text-ml-text.text-sm
+.impressum.pt-7.pl-5.text-ml-text.text-sm.bg-ml-dark
   h1.font-bold Impressum
   br
   p Verantwortlich für den Inhalt:
@@ -51,3 +51,10 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.impressum {
+  height: max-content;
+  width: 100%;
+}
+</style>
