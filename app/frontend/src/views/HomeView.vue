@@ -219,6 +219,7 @@ export default defineComponent({
     };
 
     const start_demo_request = async () => {
+      loading_result.value = true;
       const facts_response = await facts_api_request();
       facts.value = facts_response;
       const intervalID = setInterval(() => {
@@ -226,7 +227,6 @@ export default defineComponent({
         if (current_fact.value >= facts.value.length) current_fact.value = 0;
       }, 5000);
       const start_time = Date.now();
-      loading_result.value = true;
       const response = await demo_classify_request(demo_data_payload.value!);
       if (response.error) {
         router.push("/error");
@@ -235,7 +235,7 @@ export default defineComponent({
 
       const base64_string = response.classification;
       setClassMap(response.class_map);
-      const blob = b64toBlob(base64_string, "image/tiff");
+      const blob = await b64toBlob(base64_string, "image/tiff");
 
       setResult(blob);
 
@@ -249,6 +249,14 @@ export default defineComponent({
     const start_request = async () => {
       if (aoi.value && toi.value?.length === 2 && tot.value?.length === 2 && td.value) {
         loading_result.value = true;
+
+        const facts_response = await facts_api_request();
+        facts.value = facts_response;
+        const intervalID = setInterval(() => {
+          current_fact.value = current_fact.value + 1;
+          if (current_fact.value >= facts.value.length) current_fact.value = 0;
+        }, 5000);
+
         const payload: Req.Classify.Payload = {
           model: "RandomForest",
           TOI: {
@@ -267,8 +275,7 @@ export default defineComponent({
           Resolution: Number(resolution.value) as 10 | 30 | 60,
         };
 
-        console.log(payload);
-        console.log(JSON.stringify(payload));
+
         const response = await classify_request(payload);
         if (response.error) {
           router.push("/error");
@@ -277,13 +284,13 @@ export default defineComponent({
 
         const base64_string = response.classification;
         setClassMap(response.class_map);
-        const blob = b64toBlob(base64_string, "image/tiff");
+        const blob = await b64toBlob(base64_string, "image/tiff");
 
         const blobUrl = URL.createObjectURL(blob);
 
         document.location = blobUrl;
+        clearInterval(intervalID);
         setResult(blob);
-
         router.push("/result");
       }else{
         if (!aoi.value) errors.value.aoi = true;
@@ -293,25 +300,7 @@ export default defineComponent({
       }
     };
 
-    const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
-      const byteCharacters = atob(b64Data);
-      const byteArrays = [];
-
-      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
-      }
-
-      const blob = new Blob(byteArrays, {type: contentType});
-      return blob;
-    };
+    const b64toBlob = (base64: string, type = 'application/octet-stream'): Promise<Blob> => fetch(`data:${type};base64,${base64}`).then(res => res.blob());
 
     const instance = ref();
     onMounted(() => {
@@ -321,6 +310,14 @@ export default defineComponent({
     props.demo.onStart(async () => {
       const response = await get_demo_data_request();
       demo_data_payload.value = response;
+    });
+
+    props.demo.onClosedAoiModal(() => {
+      aoi_modal_handler.close();
+    });
+
+    props.demo.onClosedTdModal(() => {
+      td_modal_handler.close();
     });
 
     props.demo.onSelectAoi(() => {
@@ -357,7 +354,19 @@ export default defineComponent({
       stop_demo();
     });
 
+    props.demo.onClosedDemoModal(() => {
+      stop_demo();
+    });
+
     const start_demo = () => {
+      if (!document.getElementsByClassName("v-tour")[0]) {
+        const main = document.getElementsByTagName('main')[0];
+        if (!main) return;
+
+        const tour = document.createElement('div');
+        tour.classList.add('v-tour');
+        main.appendChild(tour);
+      }
       const $tours = instance!.value.appContext.config.globalProperties.$tours;
       if ($tours) {
           if ($tours['demoProcess']) {
@@ -373,6 +382,7 @@ export default defineComponent({
               $tours['demoProcess'].stop();
           }
       }
+      document.getElementsByClassName("v-tour")[0]?.remove();
     };
 
     return {
