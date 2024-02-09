@@ -99,7 +99,7 @@ export default defineComponent({
   emits: ["close", "submit", "outerClick"],
   setup(props, { emit }) {
     const cancel = props.handler ? props.handler.cancelFn : (props.cancelFn ?? emit("close"));
-    const submit = props.handler ? props.handler.submitFn : (props.submitFn ?? emit("submit"));
+    const submit = props.handler ? props.handler.beforeSubmit : (props.submitFn ?? emit("submit"));
     const outerClick = props.handler ? props.handler.outerClickFn : (props.outerClickFn ?? emit("outerClick"));
 
     const zIndexCalc =  ref(props.handler ? props.handler.zIndex.value : props.zIndex);

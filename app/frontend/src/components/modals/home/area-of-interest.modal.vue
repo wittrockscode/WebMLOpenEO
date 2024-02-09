@@ -24,7 +24,8 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
           )
           label.text-xl.ml-1.text-ml-red.font-semibold(for="sentinel-img-aoi-button" v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
       .options-group.w-full
-        CardButton.mb-5(
+        label.text-sm.ml-1.text-ml-red.font-semibold(for="aoi-upload" v-if="errors.aoi_feature") {{errors.aoi_feature_error_text}}
+        CardButton.mb-5.mt-2(
           id="draw-button"
           :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'"
           @click="select_on_map"
@@ -57,7 +58,7 @@ import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
 import type { Feature, Polygon } from "@/types/geojson";
-import { geoJsonFileToFeatures, featureToOLFeature } from "@/helper/geojson";
+import { geoJsonFileToFeatures, featureToOLFeature, validateGeoJsonFeaturePolygon } from "@/helper/geojson";
 import DatePicker from "@/components/form/DatePicker.vue";
 import type { useModal } from "@/composables/use-modal";
 import { useApi } from "@/composables/use-api";
@@ -93,6 +94,8 @@ export default defineComponent({
     const errors =  ref({
       sentinel_img: false,
       sentinel_img_error_text: "",
+      aoi_feature: false,
+      aoi_feature_error_text: "",
     });
     const toiSelected = (date: Date[]) => {
       toi.value = date;
@@ -137,6 +140,8 @@ export default defineComponent({
     const select_on_map = () => {
       withFile.value = false;
       fileName.value = "";
+      errors.value.aoi_feature = false;
+      errors.value.aoi_feature_error_text = "";
       mapHandler.reset();
       mapHandler.deleteDrawFeatures();
       mapHandler.changeMode(MapModes.DRAW_POLYGON);
@@ -152,12 +157,29 @@ export default defineComponent({
 
     const fileUploaded = async (file: File) => {
       mapHandler.reset();
-      const features = await geoJsonFileToFeatures(file) as Feature[] | null;
+      errors.value.aoi_feature = false;
+      errors.value.aoi_feature_error_text = "";
+      const features = await geoJsonFileToFeatures(file) as Feature<Polygon>[] | null;
       if(features !== null && features.length === 1) {
+        const valid = validateGeoJsonFeaturePolygon(features[0]!);
+        if (Object.values(valid).includes(false)) {
+          errors.value.aoi_feature = true;
+          errors.value.aoi_feature_error_text = "The uploaded file does not contain a valid Polygon Feature.";
+          return;
+        }
         aoi.value = features[0]! as Feature<Polygon>;
         withFile.value = true;
         fileName.value = file.name;
         mapHandler.addFeatures([featureToOLFeature(aoi.value)]);
+      } else {
+        if (features === null) {
+          errors.value.aoi_feature = true;
+          errors.value.aoi_feature_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+          return;
+        } else {
+          errors.value.aoi_feature = true;
+          errors.value.aoi_feature_error_text = "The uploaded file contains more than one Feature.";
+        }
       }
     };
 
