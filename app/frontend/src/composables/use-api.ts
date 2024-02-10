@@ -12,7 +12,7 @@ export const useApi = () => {
 
   const classify_request = async (payload: Req.Classify.Payload) => {
     try {
-      const response = await axios.post(`${NODE_URL}/classify`, payload);
+      const response = await axios.post<Req.Classify.Response>(`${NODE_URL}/classify`, payload);
       return response.data;
     } catch (error) {
       return {error: error};
@@ -43,10 +43,19 @@ export const useApi = () => {
     }
   };
 
+  const get_model_request = async (id: string) => {
+    try {
+      const response = await axios.get<Req.Model.Response>(`${NODE_URL}/getModel?id=${id}`, { responseType: "arraybuffer", headers: { "Content-Type": "application/rds", "Accept": "application/rds" }});
+      return response.data;
+    } catch (error) {
+      return {error: error};
+    }
+  };
+
   const facts_api_request = async () => {
     const response = await axios.get("https://api.api-ninjas.com/v1/facts?limit=20", { headers: { 'X-Api-Key': 'TwmHeksa0xzoVy9fkDsqqg==PW6UiF8lYWw4lRdf'} });
     return response.data;
   };
 
-  return { NODE_URL, classify_request, sentinel_img_request, get_demo_data_request, demo_classify_request, facts_api_request };
+  return { NODE_URL, classify_request, sentinel_img_request, get_demo_data_request, demo_classify_request, facts_api_request, get_model_request };
 };

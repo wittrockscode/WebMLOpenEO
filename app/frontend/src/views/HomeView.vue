@@ -122,7 +122,7 @@ export default defineComponent({
   },
   setup(props) {
     const { classify_request, get_demo_data_request, demo_classify_request, facts_api_request } = useApi();
-    const { setResult, setClassMap } = useBlobResult();
+    const { setResult, setClassMap, setModelId, setIsDemo } = useBlobResult();
 
     const toi: Ref<Date[] | null> = ref(null);
     const tot: Ref<Date[] | null> = ref(null);
@@ -234,6 +234,8 @@ export default defineComponent({
       }
 
       const base64_string = response.classification;
+      setIsDemo(true);
+      setModelId(response.model_id);
       setClassMap(response.class_map);
       const blob = await b64toBlob(base64_string, "image/tiff");
 
@@ -277,18 +279,17 @@ export default defineComponent({
 
 
         const response = await classify_request(payload);
-        if (response.error) {
+        if ("error" in response) {
           router.push("/error");
           return;
         }
 
         const base64_string = response.classification;
+        setIsDemo(false);
         setClassMap(response.class_map);
+        setModelId(response.model_id);
         const blob = await b64toBlob(base64_string, "image/tiff");
 
-        const blobUrl = URL.createObjectURL(blob);
-
-        document.location = blobUrl;
         clearInterval(intervalID);
         setResult(blob);
         router.push("/result");
