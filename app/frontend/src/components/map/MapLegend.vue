@@ -12,13 +12,13 @@
     .confidences(v-else)
       .legend-item.flex.justify-start.mb-2
         span.w-4.mr-1(:style="{backgroundColor: '#000000'}")
-        p(:class="'whitespace-nowrap'") 100% Confidence
+        p(:class="'whitespace-nowrap'") ~100% Confidence
       .legend-item.flex.justify-start.mb-2
         span.w-4.mr-1(:style="{backgroundColor: '#7f7f7f'}")
         p(:class="'whitespace-nowrap'") 50% Confidence
       .legend-item.flex.justify-start.mb-2
         span.w-4.mr-1(:style="{backgroundColor: '#ffffff'}")
-        p(:class="'whitespace-nowrap'") 0% Confidence
+        p(:class="'whitespace-nowrap'") ~0% Confidence
       br
       p Darker colors represent higher confidence values.
   .group

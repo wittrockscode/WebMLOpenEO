@@ -1,7 +1,7 @@
 <template lang="pug">
 Modal(:handler="handler" title="Area of Interest" :id="id")
-  .flex
-    .control-group.flex.flex-col.justify-between.w-full.mt-4
+  .flex.content
+    .control-group.flex.flex-col.justify-between.w-full.mt-4.content-group
       .options-group.w-full
         .date-select.text-left
           label.text-lg.font-semibold(for="tot-select") Select the Time of Interest
@@ -22,9 +22,13 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
             v-tippy="{ content: 'Fetch the fitting satellite image for the selected area.' }"
             :loading="loadingImg"
           )
-          label.text-xl.ml-1.text-ml-red.font-semibold(for="sentinel-img-aoi-button" v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
+          label.text-xl.ml-1.text-ml-red.font-semibold( v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
+          .info-box.w-full.p-2.mt-4(v-if="showInfoText")
+            mdicon.mr-3.self-center.inline-block.icon(name="alert-outline" size="40")
+            p.text-base.text-ml-dark.inline-block Black pixels indicate missing data. Values for these pixels will be determined by interpolation. Classification results will be worse the more data is missing inside the satellite image (e.g. black pixels).
       .options-group.w-full
-        label.text-sm.ml-1.text-ml-red.font-semibold(for="aoi-upload" v-if="errors.aoi_feature") {{errors.aoi_feature_error_text}}
+        p.text-sm.ml-1.text-ml-red.font-semibold(for="aoi-upload" v-if="errors.aoi_feature") {{errors.aoi_feature_error_text}}
+        label.text-lg.font-semibold(for="draw-button") Area of Interest
         CardButton.mb-5.mt-2(
           id="draw-button"
           :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'"
@@ -62,6 +66,7 @@ import { geoJsonFileToFeatures, featureToOLFeature, validateGeoJsonFeaturePolygo
 import DatePicker from "@/components/form/DatePicker.vue";
 import type { useModal } from "@/composables/use-modal";
 import { useApi } from "@/composables/use-api";
+import { fromBlob } from "geotiff";
 
 export default defineComponent({
   components: {
@@ -100,6 +105,7 @@ export default defineComponent({
     const toiSelected = (date: Date[]) => {
       toi.value = date;
     };
+    const showInfoText = ref(false);
 
     const { sentinel_img_request } = useApi();
 
@@ -132,6 +138,16 @@ export default defineComponent({
       }
 
       const blob = new Blob([response], { type: 'image/tiff' });
+
+      const tiff = await fromBlob(blob);
+      const image = await tiff.getImage();
+      const rasters = await image.readRasters();
+
+      const nan_vals = rasters.some((raster: any) => {
+        return raster.some((pixel: any) => isNaN(pixel));
+      });
+
+      if (nan_vals) showInfoText.value = true;
 
       mapHandler.setBaseTiff(blob);
       loadingImg.value = false;
@@ -198,6 +214,7 @@ export default defineComponent({
       loadingImg,
       fetchSentinelImage,
       errors,
+      showInfoText,
     };
   },
 });
@@ -205,8 +222,7 @@ export default defineComponent({
 
 <style scoped>
 #aoi-map {
-  width: 60vw;
-  height: 60vh;
+  width: 100%;
   display: block;
 }
 
@@ -214,6 +230,28 @@ export default defineComponent({
   width: max-content;
   min-width: 30%;
   margin-right: 2rem;
+  max-width: 30%
+}
+
+.info-box {
+  border-radius: 0.25rem;
+  background-color: #d3d3d3;
+  font-weight: 500;
+}
+
+.content-group {
+  max-width: 30%;
+}
+
+.info-box {
+  border-radius: 0.25rem;
+  background-color: #d3d3d3;
+  font-weight: 500;
+}
+
+.content {
+  min-width: 90vw;
+  min-height: 65vh;
 }
 
 .dp__theme_dark {
