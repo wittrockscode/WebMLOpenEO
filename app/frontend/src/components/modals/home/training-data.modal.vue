@@ -8,8 +8,8 @@ EditClassesModal(
 )
 FinishPolygonModal(:handler="finishPolygonHandler" :id="ModalIds.TRAINING_DATA__FINISH_POLYGON_MODAL" :trainingDataClasses="trainingDataClasses")
 Modal(:handler="handler" title="Training Data" :id="id")
-  .flex
-    .control-group.flex.flex-col.justify-between.w-full.mt-4(v-if="!drawMode")
+  .flex.items-stretch.content
+    .control-group.flex.flex-col.justify-between.mt-4.content-group(v-if="!drawMode")
       .options-group.w-full
         .date-select.text-left.mb-5
           label.text-lg.font-semibold(for="tot-select") Select the date for the training data
@@ -40,6 +40,9 @@ Modal(:handler="handler" title="Training Data" :id="id")
             :loading="loadingImg"
           )
           label.text-xl.ml-1.text-ml-red.font-semibold(for="sentinel-img-aoi-button" v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
+          .info-box.p-2.mt-4(v-if="showInfoText")
+            mdicon.mr-3.self-center.inline-block.icon(name="alert-outline" size="40")
+            p.text-base.text-ml-dark.inline-block Black pixels indicate missing data. Values for these pixels will be determined by interpolation. Training results will be worse the more data is missing inside the satellite image (e.g. black pixels).
       .options-group.w-full
         label.text-sm.ml-1.text-ml-red.font-semibold(for="td-upload" v-if="errors.td_feature_collection") {{errors.td_feature_collection_error_text}}
         CardButton.mb-5.mt-2(
@@ -116,6 +119,7 @@ import FinishPolygonModal from "../training_data/finish-polygon.modal.vue";
 import { useModal } from "@/composables/use-modal";
 import { useTrainingData } from "@/composables/use-training-data";
 import { useApi } from "@/composables/use-api";
+import { fromBlob } from "geotiff";
 
 export default defineComponent({
   components: {
@@ -152,6 +156,8 @@ export default defineComponent({
     const fileName = ref("");
 
     const loadingImg = ref(false);
+
+    const showInfoText = ref(false);
 
     const errors = ref({
       sentinel_img: false,
@@ -270,6 +276,16 @@ export default defineComponent({
 
       const blob = new Blob([response], { type: 'image/tiff' });
 
+      const tiff = await fromBlob(blob);
+      const image = await tiff.getImage();
+      const rasters = await image.readRasters();
+
+      const nan_vals = rasters.some((raster: any) => {
+        return raster.some((pixel: any) => isNaN(pixel));
+      });
+
+      if (nan_vals) showInfoText.value = true;
+
       mapHandler.setBaseTiff(blob);
       loadingImg.value = false;
     };
@@ -328,6 +344,7 @@ export default defineComponent({
       finishPolygonHandler,
       loadingImg,
       errors,
+      showInfoText,
     };
   },
 });
@@ -335,8 +352,7 @@ export default defineComponent({
 
 <style scoped>
 #td-map {
-  width: 60vw;
-  height: 60vh;
+  width: 100%;
   display: block;
 }
 
@@ -344,6 +360,21 @@ export default defineComponent({
   width: max-content;
   min-width: 30%;
   margin-right: 2rem;
+}
+
+.content-group {
+  max-width: 30%;
+}
+
+.info-box {
+  border-radius: 0.25rem;
+  background-color: #d3d3d3;
+  font-weight: 500;
+}
+
+.content {
+  min-width: 90vw;
+  min-height: 65vh;
 }
 
 .dp__theme_dark {
