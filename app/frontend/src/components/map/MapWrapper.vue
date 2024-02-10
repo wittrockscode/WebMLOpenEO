@@ -1,7 +1,17 @@
 <template lang="pug">
 .map-wrapper.flex
   template(v-if="isReady")
-    MapLegend(:args-list="argsListLegend" :colors-array="colorsArray" @toggleMap="showTif = !showTif" @toggleConfidences="showConfidences = !showConfidences" :confidences="showConfidences")
+    MapLegend(
+      :args-list="argsListLegend"
+      :colors-array="colorsArray"
+      :confidences="showConfidences"
+      :is-demo="is_demo"
+      @toggleMap="showTif = !showTif"
+      @toggleConfidences="showConfidences = !showConfidences"
+      @download-model="downloadModel"
+      @download-tif="downloadTif"
+      @download-demo-payload="downloadDemoPayload"
+    )
     OlMapTif(:args-list="argsList" :colors-array="colorsArray" :showTif="showTif" :showConfidences="showConfidences")
 </template>
 
@@ -12,6 +22,7 @@ import { fromBlob } from "geotiff";
 import OlMapTif from "./OlMapTif.vue";
 import MapLegend from "./MapLegend.vue";
 import { useBlobResult } from "@/composables/use-blob-result";
+import { useApi } from "@/composables/use-api";
 
 export default defineComponent({
   components: {
@@ -19,7 +30,8 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    const { result, class_map } = useBlobResult();
+    const { result, class_map, model_id, is_demo } = useBlobResult();
+    const { get_model_request, get_demo_data_request } = useApi();
 
     const colorsArrayColorblind = [
       "#490092",
@@ -108,8 +120,53 @@ export default defineComponent({
       await nextTick();
     });
 
+    const downloadTif = () => {
+      if (result.value === null) return;
 
-    return { isReady, colorsArray, argsList, argsListLegend, showTif, showConfidences };
+      const url = window.URL.createObjectURL(result.value);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'result.tif');
+      document.body.appendChild(link);
+      link.click();
+    };
+
+    const downloadModel = async () => {
+      if (model_id.value === null) return;
+
+      const model = await get_model_request(model_id.value);
+
+      if ("error" in model || model === null) return;
+
+      const url = window.URL.createObjectURL(new Blob([model]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'model.rds');
+      document.body.appendChild(link);
+      link.click();
+    };
+
+    const downloadDemoPayload = async () => {
+      const demo_data_payload = await get_demo_data_request();
+
+      const blob = new Blob([JSON.stringify(demo_data_payload)], { type: "text/json" });
+      const link = document.createElement("a");
+
+      link.download = "demo_data_payload.json";
+      link.href = window.URL.createObjectURL(blob);
+      link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+      const evt = new MouseEvent("click", {
+          view: window,
+          bubbles: true,
+          cancelable: true,
+      });
+
+      link.dispatchEvent(evt);
+      link.remove();
+    };
+
+    return { isReady, colorsArray, argsList, argsListLegend, showTif, showConfidences, is_demo, downloadModel, downloadTif, downloadDemoPayload };
   },
 });
 </script>

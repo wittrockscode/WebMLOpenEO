@@ -21,6 +21,11 @@ export namespace Req {
       Hyperparameter: HyperParameter[];
       Resolution: 10 | 30 | 60;
     };
+    type Response = {
+      model_id: string;
+      classification: string;
+      class_map: string[];
+    };
   }
 
   namespace Sentinel {
@@ -34,10 +39,14 @@ export namespace Req {
       };
     };
 
-    type Response = Blob;
+    type Response = Blob | { message: string};
   }
 
   namespace Demo {
     type Response = Object
+  }
+
+  namespace Model {
+    type Response = ArrayBuffer;
   }
 }

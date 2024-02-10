@@ -3,7 +3,7 @@
   .control-group.flex-col
     h4.text-2xl.mb-2.font-semibold Legend
     .classification(v-if="!confidences")
-      .legend-item.flex.justify-start.mb-2(v-for="(color, index) in colorsArray" :key="colors")
+      .legend-item.flex.justify-start.mb-2(v-for="(color, index) in colorsArray" :key="color")
         span.w-4.mr-1(:style="{backgroundColor: color}")
         p(:class="'whitespace-nowrap'") {{ `: ${argsList[index * 2]}` }}
       br
@@ -21,9 +21,16 @@
         p(:class="'whitespace-nowrap'") 0% Confidence
       br
       p Darker colors represent higher confidence values.
-  .control-group.mb-5
-    button.text-xl.w-full(type="button" @click="$emit('toggleConfidences')" class="btn btn-secondary") Toggle Confidences
-    button.text-xl.w-full(type="button" @click="$emit('toggleMap')" class="btn btn-secondary") Toggle Layer
+  .group
+    .control-group.mb-10
+      button.text-xl.w-full(type="button" @click="$emit('toggleConfidences')" class="btn btn-secondary") Toggle Confidences
+      button.text-xl.w-full(type="button" @click="$emit('toggleMap')" class="btn btn-secondary") Toggle Layer
+    .divider
+    .control-group(v-if="isDemo")
+      button.text-xl.w-full.btn-download(type="button" @click="$emit('downloadDemoPayload')" class="btn btn-primary") Download demo payload
+    .control-group.mb-5
+      button.text-xl.w-full.btn-download(type="button" @click="$emit('downloadTif')" class="btn btn-primary") Download TIF
+      button.text-xl.w-full.btn-download(type="button" @click="$emit('downloadModel')" class="btn btn-primary") Download Model
 </template>
 
 <script lang="ts">
@@ -43,7 +50,12 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    isDemo: {
+      type: Boolean,
+      default: false,
+    },
   },
+  emits: ["toggleMap", "toggleConfidences", "downloadTif", "downloadModel", "downloadDemoPayload"],
   setup() {
 
     return { };
@@ -55,5 +67,10 @@ export default defineComponent({
 .map-legend {
   margin-top: 7rem;
   width: 25%;
+}
+
+.btn-download {
+  border-width: 2px;
+  margin-bottom: 0.3rem;
 }
 </style>
