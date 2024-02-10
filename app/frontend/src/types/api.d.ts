@@ -39,7 +39,7 @@ export namespace Req {
       };
     };
 
-    type Response = Blob | { message: string};
+    type Response = Blob | { error: string};
   }
 
   namespace Demo {

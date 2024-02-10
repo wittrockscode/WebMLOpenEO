@@ -33,11 +33,13 @@ Teleport(to="body")
                   type="button"
                   @click="cancel"
                   v-text="cancelText"
+                  :id="`${id}-cancel-button`"
                 )
                 button.btn-primary(
                   type="button"
                   @click="submit"
                   v-text="submitText"
+                  :id="`${id}-submit-button`"
                 )
 </template>
 

@@ -98,10 +98,3 @@ const assertBigger = (a: number, b: number) => {
 
   return true;
 };
-
-const assertSmaller = (a: number, b: number) => {
-  if (!assertExists(a) || !assertExists(b)) return false;
-  if (a >= b) return false;
-
-  return true;
-};

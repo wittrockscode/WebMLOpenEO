@@ -191,6 +191,7 @@ ROUTER.post('/getSentinelImg', async function(req, res)
     }
     else
     {
+
       let BoundingCoords = findBoundingCoords(req.body.AOI.geometry.coordinates[0]);
       // build connection
       let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");

@@ -46,7 +46,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
           CardButton.row-item(
             id="hp-button"
             full-w
-            :value="hyperparams.length > 0 ? 'Modify' : 'Tune'"
+            :value="hyperparams.length > 0 ? 'Modify' : 'Choose'"
             :completed="hyperparams.length > 0"
             :error="errors.hyperparams"
             @click="hyperparameter_modal_handler.open()"
@@ -276,7 +276,6 @@ export default defineComponent({
           Hyperparameter: hyperparams.value,
           Resolution: Number(resolution.value) as 10 | 30 | 60,
         };
-
 
         const response = await classify_request(payload);
         if ("error" in response) {

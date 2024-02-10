@@ -90,9 +90,9 @@ export default defineComponent({
 
     const blob_result: Ref<string | null> = ref(null);
 
-    const red = normalize(["band", 1]);
+    const red = normalize(["band", 3]);
     const green = normalize(["band", 2]);
-    const blue = normalize(["band", 3]);
+    const blue = normalize(["band", 1]);
 
     const trueColor = ref({
       color: ["array", red, green, blue, 1],

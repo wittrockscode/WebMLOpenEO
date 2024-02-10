@@ -7,6 +7,7 @@ EditClassesModal(
   @delete-class="name => trainingData.removeClass(name)"
 )
 FinishPolygonModal(:handler="finishPolygonHandler" :id="ModalIds.TRAINING_DATA__FINISH_POLYGON_MODAL" :trainingDataClasses="trainingDataClasses")
+DeleteWarningModal(:handler="deleteWarningHandler" title="Change Mode" :id="ModalIds.TRAINING_DATA__DELETE_WARNING_MODAL")
 Modal(:handler="handler" title="Training Data" :id="id")
   .flex
     .control-group.flex.flex-col.justify-between.w-full.mt-4(v-if="!drawMode")
@@ -42,6 +43,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
           label.text-xl.ml-1.text-ml-red.font-semibold(for="sentinel-img-aoi-button" v-if="errors.sentinel_img") {{errors.sentinel_img_error_text}}
       .options-group.w-full
         label.text-sm.ml-1.text-ml-red.font-semibold(for="td-upload" v-if="errors.td_feature_collection") {{errors.td_feature_collection_error_text}}
+        label.text-lg.font-semibold(for="draw-button-td") Training features
         CardButton.mb-5.mt-2(
           id="draw-button-td"
           :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
@@ -112,6 +114,7 @@ import NewClassModal from "../training_data/new-class.modal.vue";
 import EditClassesModal from "../training_data/edit-classes.modal.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
 import FinishPolygonModal from "../training_data/finish-polygon.modal.vue";
+import DeleteWarningModal from "../training_data/delete-warning-modal.vue";
 
 import { useModal } from "@/composables/use-modal";
 import { useTrainingData } from "@/composables/use-training-data";
@@ -127,6 +130,7 @@ export default defineComponent({
     EditClassesModal,
     DatePicker,
     FinishPolygonModal,
+    DeleteWarningModal,
   },
   props: {
     handler: {
@@ -178,6 +182,19 @@ export default defineComponent({
       },
       () => {},
       115,
+    );
+
+    const deleteWarningHandler = useModal<string>(
+      ModalIds.TRAINING_DATA__DELETE_WARNING_MODAL,
+      (payload) => {
+        if (payload === "upload") {
+          return;
+        } else if (payload === "draw") {
+          toggleDrawMode();
+        }
+      },
+      () => {},
+      120,
     );
 
     const drawMode = ref(false);
@@ -303,6 +320,14 @@ export default defineComponent({
       props.handler.setPayload({ td: data.collection, tot: data.tot!, withFile: withFile.value, fileName: fileName.value });
     });
 
+    const showWarningModal = (type: string) => {
+      deleteWarningHandler.open(type);
+    };
+
+    const test = () => {
+      console.log("test");
+    };
+
     return {
       select_on_map,
       map_drawend,
@@ -328,6 +353,9 @@ export default defineComponent({
       finishPolygonHandler,
       loadingImg,
       errors,
+      deleteWarningHandler,
+      showWarningModal,
+      test,
     };
   },
 });

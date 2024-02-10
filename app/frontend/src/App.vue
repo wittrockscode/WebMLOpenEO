@@ -57,13 +57,13 @@ export default defineComponent({
         case 2:
           demo.closeAoiModal();
           break;
-        case 5:
+        case 7:
           document.getElementById("aoi-button")!.click();
           break;
-        case 6:
+        case 8:
           demo.closeTdModal();
           break;
-        case 11:
+        case 14:
           document.getElementById("td-button")!.click();
           break;
       };
@@ -130,6 +130,26 @@ export default defineComponent({
         }),
       },
       {
+        target: "#sentinel-img-aoi-button",
+        header: {
+          title: "Area of Interest",
+        },
+        content: "You can optionally fetch a satellite image for the date intervall picked above. You can use it, to determine wether the satellite image has your desired qualtiy. The image you will see will be used for classification.",
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
+      },
+      {
+        target: "#home--area-of-interest-modal-submit-button",
+        header: {
+          title: "Submit",
+        },
+        content: "Submit the Area of Interest.",
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
+      },
+      {
         target: "#td-button",
         header: {
           title: "Training Data",
@@ -167,7 +187,7 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "You can optionally fetch a satellite image for the date intervall picked above. You can use it, to determine wether the satellite image has your desired qualtiy. The image you will see will be used for training/classification.",
+        content: "You can optionally fetch a satellite image for the date intervall picked above. You can use it, to determine wether the satellite image has your desired qualtiy. The image you will see will be used for training.",
         before: () => new Promise((resolve) => {
           document.getElementById("td-button")!.click();
           resolve(true);
@@ -196,6 +216,16 @@ export default defineComponent({
         params: {
           placement: "top",
         },
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
+      },
+      {
+        target: "#home--training-data-modal-submit-button",
+        header: {
+          title: "Submit",
+        },
+        content: "Submit the training data.",
         before: () => new Promise((resolve) => {
           resolve(true);
         }),
