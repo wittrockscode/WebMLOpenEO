@@ -5,7 +5,7 @@
 ### With Docker
 
 1. Make sure Docker is installed on your system.
-2. Navigate to the root of this project in your terminal.
+2. Navigate to the ``/WebMLOpenEO/app/node-backend`` in your terminal.
 3. Run the following command to build the Docker image:
    ```bash
    docker build -t node-backend .
@@ -15,7 +15,7 @@
 ### Without Docker
 
 1. Make sure node.js is installed on your system.
-2. Navigate to the root of this project in your terminal.
+2. Navigate to ``/WebMLOpenEO/app/node-backend`` in your terminal.
 3. Run the following command to install all dependencies:
    ```bash
    npm install
@@ -23,3 +23,17 @@
 
    ```bash
    npm start
+
+## Testing
+
+1. Make sure node.js is installed on your system.
+2. Navigate to ``/WebMLOpenEO/app/node-backend`` in your terminal.
+3. Run the following command to install all dependencies:
+   ```bash
+   npm install
+3. Run the following command to test the application:
+
+   ```bash
+   npm test
+
+> Attention! As this app is heavily dependent on the R-backend, 6 out of 14 tests will fail if the R-backend is not accessible. To start it, please refer to its README.
