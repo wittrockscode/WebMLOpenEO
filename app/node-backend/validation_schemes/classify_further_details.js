@@ -108,10 +108,12 @@ function validate_CRS(feature_collection)
     // Proj4-Definition for Web Mercator (EPSG:3857)
     const webMercatorDef = proj4.defs('EPSG:3857');
 
-    // add more CRS and alias then proj4-default:
+    // add more CRS and alias then proj4-default: 
+    // TODO: Any CRS or alias could simply be added here.
     proj4.defs('urn:ogc:def:crs:EPSG:3857', proj4.defs('EPSG:3857'));
     proj4.defs('urn:ogc:def:crs:EPSG:4326', proj4.defs('EPSG:4326'));
     proj4.defs('urn:ogc:def:crs:OGC:1.3:CRS84', proj4.defs('EPSG:4326'));
+    proj4.defs('urn:ogc:def:crs:OGC::CRS84', proj4.defs('EPSG:4326'));
 
     // lookup sourceCRS
     const sourceCRS = proj4.defs(feature_collection.crs.properties.name);

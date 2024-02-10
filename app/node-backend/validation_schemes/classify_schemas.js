@@ -100,7 +100,8 @@ const validCRS = [
   'EPSG:102113',
   'urn:ogc:def:crs:EPSG:3857',
   'urn:ogc:def:crs:EPSG:4326',
-  'urn:ogc:def:crs:OGC:1.3:CRS84'
+  'urn:ogc:def:crs:OGC:1.3:CRS84',
+  'urn:ogc:def:crs:OGC::CRS84'
 ];
 
 const CRS_SCHEMA = JOI.object(
