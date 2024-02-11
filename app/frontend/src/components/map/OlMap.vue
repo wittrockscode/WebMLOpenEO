@@ -151,7 +151,6 @@ export default defineComponent({
     });
 
     props.handler.onBaseTiffSet(async () => {
-      console.log("test")
       if (props.handler.BASE_TIFF.value !== null) {
         blob_result.value = URL.createObjectURL(props.handler.BASE_TIFF.value!);
       } else {
