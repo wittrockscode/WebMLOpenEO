@@ -269,7 +269,9 @@ export default defineComponent({
 
     const fetchSentinelImage = async () => {
       if (trainingData.tot.value === null || trainingData.aot.value === null) return;
+      mapHandler.setBaseTiff(null);
       loadingImg.value = true;
+      showInfoText.value = false;
 
       const payload = {
         AOI: {

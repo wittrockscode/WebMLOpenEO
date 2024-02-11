@@ -151,7 +151,12 @@ export default defineComponent({
     });
 
     props.handler.onBaseTiffSet(async () => {
-      blob_result.value = URL.createObjectURL(props.handler.BASE_TIFF.value!);
+      console.log("test")
+      if (props.handler.BASE_TIFF.value !== null) {
+        blob_result.value = URL.createObjectURL(props.handler.BASE_TIFF.value!);
+      } else {
+        blob_result.value = "";
+      }
 
       const map: OLMap = mapRef.value!.map!;
       map.updateSize();

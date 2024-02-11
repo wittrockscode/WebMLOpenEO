@@ -112,8 +112,10 @@ export default defineComponent({
     const loadingImg = ref(false);
 
     const fetchSentinelImage = async () => {
-      if (aoi.value === null || toi.value === null) return;
+      if (aoi.value === null || toi.value === null || loadingImg.value) return;
 
+      mapHandler.setBaseTiff(null);
+      showInfoText.value = false;
       errors.value.sentinel_img = false;
       errors.value.sentinel_img_error_text = "";
       loadingImg.value = true;
