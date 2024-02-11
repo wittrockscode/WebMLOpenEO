@@ -60,8 +60,7 @@ Replace the `VITE_ENV` value with `production`.
 Finally, save the file.
 
 
-We have provided a sample file with the data for the AWS instance used while developing this application, it can be found at `./app/frontend/.env.prod`.
-
+We have provided a sample file with the data for the AWS instance used while developing this application, it can be found [here](app/frontend/.env.prod)
 ### Starting
 
 Execute the `docker compose up -d --build` command in the terminal.
