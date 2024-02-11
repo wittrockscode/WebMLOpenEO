@@ -64,7 +64,7 @@ export const useMap = () => {
     addFeatures(features);
   };
 
-  const setBaseTiff = (tiff: Blob) => {
+  const setBaseTiff = (tiff: Blob | null) => {
     BASE_TIFF.value = tiff;
     _on_base_tiff_set_callbacks.forEach(callback => callback());
   };
