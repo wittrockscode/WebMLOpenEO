@@ -41,17 +41,24 @@ Please refer to the individual application segments to start them locally withou
 
 ### Requirements
 
-Docker and docker compose has to be installed on the machine.
+Docker and docker compose have to be installed on the machine.
 
 ### Configuration
 
 The frontend depends on some environment variables which hold relevant urls of the application.
+
 Navigate to `./app/frontend`.
+
 Open the file `.env` with a text editor (for example `nano`).
+
 Replace the `VITE_NODE_BACKEND_URI` value with `http://your_server_url.com/api` (note the `/api`).
+
 Replace the `VITE_BASE_URL` value with `http://your_server_url.com`.
+
 Replace the `VITE_ENV` value with `production`.
+
 Finally, save the file.
+
 
 We have provided a sample file with the data for the AWS instance used while developing this application, it can be found at `./app/frontend/.env.prod`.
 
