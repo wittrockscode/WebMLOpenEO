@@ -28,9 +28,13 @@ docker compose up -d --build
 ## Local deploy without docker
 
 Please refer to the individual application segments to start them locally without docker:
+
 [Frontend](app/frontend/README.md)
+
 [Node-Backend](app/node-backend/README.md)
+
 [R-Backend](app/r_backend/README.md)
+
 
 
 ## Remote deployment
