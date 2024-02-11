@@ -6,7 +6,7 @@ This respository uses a submodule, so some extra steps may be necessary.
 
 It can be cloned with `git clone --recurse-submodules https://github.com/wittrockscode/WebMLOpenEO.git`.
 
-If this was cloned without the `recurse-submodules` flag, use `git submodule update --init --recursive`.
+If this repository was cloned without the `recurse-submodules` flag, use `git submodule update --init --recursive`.
 
 
 ## Local deploy with docker
@@ -14,14 +14,14 @@ If this was cloned without the `recurse-submodules` flag, use `git submodule upd
 ### Requirements
 
 Docker and docker compose have to be installed on your system.
-The application operates on the ports 80, 3000 and 8000 locally, which have to be free while using it.
+The application operates on the ports `80`, `3000` and `8000` locally, which have to be free while using it.
 
 ### Starting
 
 To start the whole application use:
 
 ```bash
-docker compose -d --build
+docker compose up -d --build
 ```
 
 
