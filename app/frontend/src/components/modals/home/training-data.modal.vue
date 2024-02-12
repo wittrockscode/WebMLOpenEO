@@ -25,15 +25,15 @@ Modal(:handler="handler" title="Training Data" :id="id")
         .wrap(v-tippy="{ content: tot === null ? 'Please select the date of training' : 'Select the area of training on the map.' }")
           CardButton.mb-5(
             id="aot-button"
-            :value="'Select area of training'"
+            :value="'Select area for satellite image'"
             @click="selectAreaOftraining"
             full-w
             :disabled="tot === null"
           )
-        .wrap(v-tippy="{ content: tot === null || aot === null ? 'Please select the date of training and area of training.' : 'Fetch the fitting satellite image for the selected area of training and date range.' }")
+        .wrap(v-if="!(tot === null || aot === null)" v-tippy="{ content: tot === null || aot === null ? 'Please select the date of training and area of training.' : 'Fetch the fitting satellite image for the selected area of training and date range.' }")
           CardButton(
             id="sentinel-img-td-button"
-            :value="'Fetch fitting satellite image'"
+            :value="'Fetch satellite image'"
             @click="fetchSentinelImage"
             full-w
             :disabled="tot === null || aot === null"
@@ -89,6 +89,14 @@ Modal(:handler="handler" title="Training Data" :id="id")
         alignText="left"
         v-tippy="{ content: 'View all classes for the training data.' }"
       )
+      CardButton(
+        id="download-td-button"
+        value="Download Training Data"
+        @click="downloadData"
+        :disabled="trainingDataPolygons.length === 0"
+        alignText="left"
+        v-tippy="{ content: 'Download your created training data.' }"
+      )
       button.btn-secondary(
         id="td-back-button"
         type="button"
@@ -112,7 +120,7 @@ import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
 import type { Feature, FeatureCollection, Polygon } from "@/types/geojson";
-import { geoJsonFileToFeatureCollection, validateGeoJsonFeatureCollection } from "@/helper/geojson";
+import { OLFeatureToFeature, convertToEPSG4326, featureToOLFeature, geoJsonFileToFeatureCollection, validateGeoJsonFeatureCollection } from "@/helper/geojson";
 import NewClassModal from "../training_data/new-class.modal.vue";
 import EditClassesModal from "../training_data/edit-classes.modal.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
@@ -209,6 +217,10 @@ export default defineComponent({
       return trainingData.classes.value;
     });
 
+    const trainingDataPolygons = computed(() => {
+      return trainingData.polygons.value;
+    });
+
     const select_on_map = () => {
       if (withFile.value) {
         mapHandler.reset();
@@ -265,6 +277,35 @@ export default defineComponent({
     const selectAreaOftraining = () => {
       mapHandler.deleteRectFeatures();
       mapHandler.changeMode(MapModes.DRAW_RECTANGLE);
+    };
+
+    const downloadData = () => {
+      const data = trainingData.getTrainingData();
+      const collection = data.collection;
+      const converted = collection.features.map((feature) => {
+        const props = feature.properties;
+        const conv = featureToOLFeature(feature);
+        const epsg3857 = convertToEPSG4326(conv);
+        const finalFeature = OLFeatureToFeature(epsg3857);
+        finalFeature.properties = props;
+        return finalFeature;
+      });
+
+      collection.features = converted;
+      const blob = new Blob([JSON.stringify(data.collection)], { type: "text/json" });
+      const link = document.createElement("a");
+
+      link.download = "training_data.json";
+      link.href = window.URL.createObjectURL(blob);
+      link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+      const evt = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      });
+
+      link.dispatchEvent(evt);
     };
 
     const fetchSentinelImage = async () => {
@@ -375,6 +416,8 @@ export default defineComponent({
       showWarningModal,
       test,
       showInfoText,
+      downloadData,
+      trainingDataPolygons,
     };
   },
 });

@@ -50,6 +50,10 @@ export const convertToEPSG3857 = (feature: OLFeature) => {
   return new OLFeature(feature.getGeometry()?.clone().transform("EPSG:4326", "EPSG:3857"));
 };
 
+export const convertToEPSG4326 = (feature: OLFeature) => {
+  return new OLFeature(feature.getGeometry()?.clone().transform("EPSG:3857", "EPSG:4326"));
+};
+
 export const featureToOLFeature = (feature: Feature) => {
   const abc = new OLGeoJSON().readFeature(feature);
   return abc;
