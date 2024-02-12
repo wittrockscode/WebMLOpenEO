@@ -63,6 +63,13 @@ export const OLFeatureToFeature = (feature: OLFeature) => {
   return new OLGeoJSON().writeFeatureObject(feature) as Feature;
 };
 
+export const featuresToFeatureCollection = (features: Feature[]): FeatureCollection => {
+  return {
+    type: "FeatureCollection",
+    features,
+  };
+};
+
 export const validateGeoJsonFeaturePolygon = (feature: Feature<Polygon>) => {
     return {
       isFeatureType: assertEqual(feature.type, "Feature"),

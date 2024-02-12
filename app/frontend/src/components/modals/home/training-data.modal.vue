@@ -62,8 +62,8 @@ Modal(:handler="handler" title="Training Data" :id="id")
         )
         FileUpload(
           id="td-upload"
-          value="Upload GeoJSON"
-          :types="['json', 'geojson']"
+          value="Upload File"
+          :types="['json', 'geojson', 'gpkg']"
           input-class="file-upload-label-full"
           :disabled="tot === null"
           @uploaded="(file) => fileUploaded(file)"
@@ -125,7 +125,7 @@ import { useMap } from "@/composables/use-map";
 import { Feature as OLFeature } from "ol";
 import OLGeoJSON from 'ol/format/GeoJSON';
 import type { Feature, FeatureCollection, Polygon } from "@/types/geojson";
-import { OLFeatureToFeature, convertToEPSG4326, featureToOLFeature, geoJsonFileToFeatureCollection, validateGeoJsonFeatureCollection } from "@/helper/geojson";
+import { OLFeatureToFeature, convertToEPSG4326, featureToOLFeature, featuresToFeatureCollection, geoJsonFileToFeatureCollection, validateGeoJsonFeatureCollection } from "@/helper/geojson";
 import NewClassModal from "../training_data/new-class.modal.vue";
 import EditClassesModal from "../training_data/edit-classes.modal.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
@@ -135,6 +135,7 @@ import { useModal } from "@/composables/use-modal";
 import { useTrainingData } from "@/composables/use-training-data";
 import { useApi } from "@/composables/use-api";
 import { fromBlob } from "geotiff";
+import { convertGPKGToGeoJSON } from "@/helper/gpkg";
 
 export default defineComponent({
   components: {
@@ -243,8 +244,35 @@ export default defineComponent({
       errors.value.td_feature_collection = false;
       errors.value.td_feature_collection_error_text = "";
       mapHandler.reset();
-      const featureCollection = await geoJsonFileToFeatureCollection(file);
-      if(featureCollection === null) {
+      let featureCollection: FeatureCollection | null = null;
+      const fileName2 = file.name.split(".").slice(-1)[0];
+
+      if (fileName2 === "gpkg") {
+        const fileBuffer = await file.arrayBuffer();
+        const feats = await convertGPKGToGeoJSON(new Uint8Array(fileBuffer));
+
+        if (feats === undefined || feats === null) {
+          errors.value.td_feature_collection = true;
+          errors.value.td_feature_collection_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+          return;
+        } else {
+          featureCollection = featuresToFeatureCollection(feats);
+        }
+      } else if (fileName2 === "json" || fileName2 === "geojson") {
+        const featureCollection = await geoJsonFileToFeatureCollection(file);
+
+        if (featureCollection === null) {
+          errors.value.td_feature_collection = true;
+          errors.value.td_feature_collection_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+          return;
+        }
+      } else {
+        errors.value.td_feature_collection = true;
+        errors.value.td_feature_collection_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+        return;
+      }
+
+      if(featureCollection === undefined || featureCollection === null || featureCollection.features === undefined) {
         errors.value.td_feature_collection = true;
         errors.value.td_feature_collection_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
         return;
