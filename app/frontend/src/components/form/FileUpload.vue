@@ -8,7 +8,7 @@
   input.hidden(
     :id="id"
     type="file"
-    accept=".json, .geojson"
+    accept=".json, .geojson, .gpkg"
     capture
     :disabled="disabled"
     @change="onFileChanged($event)"

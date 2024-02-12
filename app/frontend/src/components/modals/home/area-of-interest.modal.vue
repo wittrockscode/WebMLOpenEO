@@ -39,8 +39,8 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
         )
         FileUpload(
           id="aoi-upload"
-          value="Upload GeoJSON"
-          :types="['json', 'geojson']"
+          value="Upload File"
+          :types="['json', 'geojson', 'gpkg']"
           input-class="file-upload-label-full"
           @uploaded="(file) => fileUploaded(file)"
           :disabled="toi === null"
@@ -67,6 +67,7 @@ import DatePicker from "@/components/form/DatePicker.vue";
 import type { useModal } from "@/composables/use-modal";
 import { useApi } from "@/composables/use-api";
 import { fromBlob } from "geotiff";
+import { convertGPKGToGeoJSON } from "@/helper/gpkg";
 
 export default defineComponent({
   components: {
@@ -177,8 +178,35 @@ export default defineComponent({
       mapHandler.reset();
       errors.value.aoi_feature = false;
       errors.value.aoi_feature_error_text = "";
-      const features = await geoJsonFileToFeatures(file) as Feature<Polygon>[] | null;
-      if(features !== null && features.length === 1) {
+
+      const fileName2 = file.name.split(".");
+      const fileExtension = fileName2[fileName2.length - 1];
+
+      let features = null;
+      if (fileExtension === "gpkg") {
+        const fileBuffer = await file.arrayBuffer();
+        features = await convertGPKGToGeoJSON(new Uint8Array(fileBuffer));
+        if (features === null) {
+          errors.value.aoi_feature = true;
+          errors.value.aoi_feature_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+          return;
+        }
+      } else if (fileExtension === "json" || fileExtension === "geojson") {
+        features = await geoJsonFileToFeatures(file) as Feature<Polygon>[] | null;
+        if (features === null) {
+          errors.value.aoi_feature = true;
+          errors.value.aoi_feature_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+          return;
+        }
+      } else {
+        errors.value.aoi_feature = true;
+        errors.value.aoi_feature_error_text = "The uploaded file is not a valid GeoJSON or GPKG file.";
+        return;
+      }
+
+      console.log(features);
+
+      if (features !== undefined && features !== null && features.length === 1) {
         const valid = validateGeoJsonFeaturePolygon(features[0]!);
         if (Object.values(valid).includes(false)) {
           errors.value.aoi_feature = true;
