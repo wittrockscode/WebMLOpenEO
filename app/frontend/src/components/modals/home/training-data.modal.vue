@@ -6,7 +6,13 @@ EditClassesModal(
   :trainingDataClasses="trainingDataClasses"
   @delete-class="name => trainingData.removeClass(name)"
 )
-FinishPolygonModal(:handler="finishPolygonHandler" :id="ModalIds.TRAINING_DATA__FINISH_POLYGON_MODAL" :trainingDataClasses="trainingDataClasses")
+FinishPolygonModal(
+  :handler="finishPolygonHandler"
+  :id="ModalIds.TRAINING_DATA__FINISH_POLYGON_MODAL"
+  :trainingDataClasses="trainingDataClasses"
+  :trainingData="trainingData"
+)
+DeleteWarningModal(:handler="deleteWarningHandler" title="Change Mode" :id="ModalIds.TRAINING_DATA__DELETE_WARNING_MODAL")
 Modal(:handler="handler" title="Training Data" :id="id")
   .flex.items-stretch.content
     .control-group.flex.flex-col.justify-between.mt-4.content-group(v-if="!drawMode")
@@ -45,6 +51,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
             p.text-base.text-ml-dark.inline-block Black pixels indicate missing data. Values for these pixels will be determined by interpolation. Training results will be worse the more data is missing inside the satellite image (e.g. black pixels).
       .options-group.w-full
         label.text-sm.ml-1.text-ml-red.font-semibold(for="td-upload" v-if="errors.td_feature_collection") {{errors.td_feature_collection_error_text}}
+        p.text-lg.font-semibold(for="draw-button-td") Training features
         CardButton.mb-5.mt-2(
           id="draw-button-td"
           :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
@@ -178,6 +185,7 @@ export default defineComponent({
       ModalIds.TRAINING_DATA__NEW_CLASS_MODAL,
       (payload: Nullable<string>) => {
         if (payload === null || trainingData.classes.value.includes(payload)) return;
+        if (trainingData.currentClass.value === "") trainingData.setCurrentClass(payload);
         trainingData.addClass(payload);
       },
       () => {},

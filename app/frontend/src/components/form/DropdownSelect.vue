@@ -5,7 +5,12 @@
     class="p-0.5"
     @change="event => $emit('change', event.target.value)"
   )
-    option.cursor-pointer(v-for="(value, index) in values" :value="value.value" v-text="value.label" :selected="index === selected")
+    option.cursor-pointer(
+      v-for="(value, index) in values"
+      :value="value.value"
+      v-text="value.label"
+      :selected="index === selected"
+    )
 </template>
 
 <script lang="ts">
