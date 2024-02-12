@@ -15,43 +15,45 @@ ol-map(
     :zoom="zoom"
     :projection="projection"
   )
-  ol-tile-layer
-    ol-source-osm
-  ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor")
-    ol-source-geo-tiff(
-      :normalize="false"
-      :sources="[{ url: blob_result }]"
-      ref="geoTiffSourceRef"
-    )
-  ol-vector-layer
-    ol-source-vector(:projection="projection" ref="drawRectRef")
-      ol-interaction-draw(
-        type="Circle"
-        :geometry-function="createBox()"
-        @drawend="(event: DrawEvent) => $emit('drawRect', event.feature)"
-        v-if="MODE === MapModes.DRAW_RECTANGLE"
+  ol-layer-group(:z-index="0")
+    ol-tile-layer
+      ol-source-osm
+    ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor" :z-index="0")
+      ol-source-geo-tiff(
+        :normalize="false"
+        :sources="[{ url: blob_result }]"
+        ref="geoTiffSourceRef"
       )
-        ol-style
-          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-          ol-style-fill(color="rgba(255, 255, 255, 0)")
-    ol-style
-      ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-      ol-style-fill(color="rgba(255, 231, 155, 0.1)")
-  ol-vector-layer
-    ol-source-vector(:projection="projection" ref="drawSourceRef")
-      ol-interaction-draw(
-        type="Polygon"
-        @drawend="(event: DrawEvent) => $emit('drawPolygon', event.feature)"
-        v-if="MODE === MapModes.DRAW_POLYGON"
-      )
-        ol-style
-          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-          ol-style-fill(color="rgba(255, 231, 155, 0.4)")
-  ol-vector-layer
-    ol-source-vector(:features="FEATURES" :projection="projection" ref="featureSourceRef")
+  ol-layer-group(:z-index="100")
+    ol-vector-layer
+      ol-source-vector(:projection="projection" ref="drawRectRef")
+        ol-interaction-draw(
+          type="Circle"
+          :geometry-function="createBox()"
+          @drawend="(event: DrawEvent) => $emit('drawRect', event.feature)"
+          v-if="MODE === MapModes.DRAW_RECTANGLE"
+        )
+          ol-style
+            ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+            ol-style-fill(color="rgba(255, 255, 255, 0)")
       ol-style
         ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-        ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+        ol-style-fill(color="rgba(255, 231, 155, 0.1)")
+    ol-vector-layer
+      ol-source-vector(:projection="projection" ref="drawSourceRef")
+        ol-interaction-draw(
+          type="Polygon"
+          @drawend="(event: DrawEvent) => $emit('drawPolygon', event.feature)"
+          v-if="MODE === MapModes.DRAW_POLYGON"
+        )
+          ol-style
+            ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+            ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+    ol-vector-layer(:z-index="110" ref="featureLayerRef")
+      ol-source-vector(:features="FEATURES" :projection="projection" ref="featureSourceRef")
+        ol-style(:z-index="700")
+          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+          ol-style-fill(color="rgba(255, 231, 155, 0.4)")
 </template>
 
 <script lang="ts">
@@ -96,7 +98,7 @@ export default defineComponent({
 
     const trueColor = ref({
       color: ["array", red, green, blue, 1],
-      gamma: 1.1,
+      gamma: 1,
     });
 
     props.handler.onDeleteDrawFeatures(() => {

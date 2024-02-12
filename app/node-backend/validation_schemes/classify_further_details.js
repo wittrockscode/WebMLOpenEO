@@ -98,7 +98,7 @@ function validate_area(polygon)
     // check aspect ratio
     const aspectRatio = width / height;
 
-    return (area > 1000000000 || aspectRatio < 0.05 || aspectRatio > 20); // TODO: werte anpassen!
+    return (area > 999999999999999999n || aspectRatio < 0.05 || aspectRatio > 20); // TODO: werte anpassen!
 }
 
 function validate_CRS(feature_collection)

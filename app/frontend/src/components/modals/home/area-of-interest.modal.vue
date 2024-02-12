@@ -47,7 +47,7 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
           v-tippy="{ content: 'Upload the Area of Interest as a GeoJSON or GPKG file.' }"
         )
     #aoi-map
-      OlMap(@draw-polygon="map_drawend" :handler="mapHandler")
+      OlMap(@draw-rect="map_drawend" :handler="mapHandler")
 </template>
 
 <script lang="ts">
@@ -161,8 +161,8 @@ export default defineComponent({
       errors.value.aoi_feature = false;
       errors.value.aoi_feature_error_text = "";
       mapHandler.reset();
-      mapHandler.deleteDrawFeatures();
-      mapHandler.changeMode(MapModes.DRAW_POLYGON);
+      mapHandler.deleteRectFeatures();
+      mapHandler.changeMode(MapModes.DRAW_RECTANGLE);
     };
 
     const map_drawend = (feature: OLFeature) => {
