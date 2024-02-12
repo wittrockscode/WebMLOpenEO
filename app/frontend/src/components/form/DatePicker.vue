@@ -9,6 +9,7 @@ VueDatePicker.form-item(
   @update:model-value="handleDateSelect"
   :class="error ? 'form-error' : completed ? 'form-completed' : ''"
   :range="range"
+  :min-date="new Date(2015, 6, 23)"
   :max-date="new Date()"
 )
 </template>

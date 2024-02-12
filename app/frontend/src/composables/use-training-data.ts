@@ -5,6 +5,7 @@ export const useTrainingData = () => {
   const polygons: Ref<Feature[]> = ref([]);
   const aot: Ref<Polygon |null> = ref(null);
   const tot: Ref<Date[] | null> = ref(null);
+  const currentClass = ref("");
 
   const addClass = (name: string) => {
     classes.value.push(name);
@@ -48,5 +49,9 @@ export const useTrainingData = () => {
     };
   };
 
-  return { classes, polygons, aot, tot, setTot, setAot, addClass, removeClass, addPolygon, removePolygon, setPolygonClass, getTrainingData };
+  const setCurrentClass = (name: string) => {
+    currentClass.value = name;
+  };
+
+  return { classes, polygons, aot, tot, currentClass, setCurrentClass, setTot, setAot, addClass, removeClass, addPolygon, removePolygon, setPolygonClass, getTrainingData };
 };
