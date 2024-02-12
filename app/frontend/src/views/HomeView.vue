@@ -57,9 +57,11 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
           DropdownSelect.row-item(
             id="rs-button"
             :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
+            :completed="resolution !== null"
             :selected="1"
             @change="value => resolution = value"
             v-tippy="{ content: 'This button is used to select the resolution for your classification.' }"
+            withChoose
           )
         .row-2.items-center.row-2-b
           .pr-5.row-item
@@ -129,7 +131,7 @@ export default defineComponent({
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
     const hyperparams: Ref<{ name: string; value: number }[]> = ref([]);
-    const resolution: Ref<10 | 30 | 60> = ref(30);
+    const resolution: Ref<10 | 30 | 60 | null> = ref(null);
 
     const demo_data_payload = ref(null);
 
@@ -249,7 +251,7 @@ export default defineComponent({
     };
 
     const start_request = async () => {
-      if (aoi.value && toi.value?.length === 2 && tot.value?.length === 2 && td.value) {
+      if (aoi.value && toi.value?.length === 2 && tot.value?.length === 2 && td.value && resolution.value) {
         loading_result.value = true;
 
         const facts_response = await facts_api_request();
