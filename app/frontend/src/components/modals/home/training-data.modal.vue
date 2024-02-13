@@ -57,25 +57,14 @@ Modal(:handler="handler" title="Training Data" :id="id")
             p.text-base.text-ml-dark.inline-block Black pixels indicate missing data. Values for these pixels will be determined by interpolation. Training results will be worse the more data is missing inside the satellite image (e.g. black pixels).
       .options-group.w-full
         label.text-sm.ml-1.text-ml-red.font-semibold(for="td-upload" v-if="errors.td_feature_collection") {{errors.td_feature_collection_error_text}}
-        p.text-lg.font-semibold(for="draw-button-td") Training features
+        p.text-lg.font-semibold(for="draw-button-td") Training polygons
         CardButton.mb-5.mt-2(
           id="draw-button-td"
-          :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
+          :value="featueCollectionExists ? 'Edit Training Polygons' : 'Create Training Polygons'"
           @click="toggleDrawMode"
           full-w
           :disabled="tot === null"
           v-tippy="{ content: 'Create new training polygons on the map.' }"
-        )
-        FileUpload(
-          id="td-upload"
-          :value="isClickButton ? 'Reset Data' : 'Import Polygons'"
-          :types="['json', 'geojson', 'gpkg']"
-          input-class="file-upload-label-full"
-          :disabled="tot === null"
-          @uploaded="(file) => fileUploaded(file)"
-          v-tippy="{ content: 'Upload the training data as a GeoJSON or GPKG file.' }"
-          @click="showWarningModal('upload')"
-          :isClickButton="isClickButton"
         )
     .control-group.flex.flex-col.justify-around.w-full.mt-4(v-else)
       CardButton(
@@ -85,25 +74,35 @@ Modal(:handler="handler" title="Training Data" :id="id")
         v-tippy="{ content: 'Create a new class for the training data.' }"
       )
       CardButton(
+        id="view-classes-button"
+        value="View all classes"
+        @click="viewClasses"
+        v-tippy="{ content: 'View all classes for the training data.' }"
+      )
+      .h-divider.w-full
+      CardButton(
         id="new-polygon-button"
         value="Create a new Polygon"
         @click="newPolygon"
         :disabled="trainingDataClasses.length === 0"
         v-tippy="{ content: 'Create a new polygon.' }"
       )
-      CardButton(
-        id="view-classes-button"
-        value="View all classes"
-        @click="viewClasses"
-        alignText="left"
-        v-tippy="{ content: 'View all classes for the training data.' }"
-      )
+      FileUpload(
+          id="td-upload"
+          :value="isClickButton ? 'Reset Training Polygons' : 'Import Training Polygons'"
+          :types="['json', 'geojson', 'gpkg']"
+          input-class="file-upload-label-full"
+          :disabled="tot === null"
+          @uploaded="(file) => fileUploaded(file)"
+          v-tippy="{ content: 'Upload the training data as a GeoJSON or GPKG file.' }"
+          @click="showWarningModal('upload')"
+          :isClickButton="isClickButton"
+        )
       CardButton(
         id="download-td-button"
-        value="Download Training Data"
+        value="Download Training Polygons"
         @click="downloadData"
         :disabled="trainingDataPolygons.length === 0"
-        alignText="left"
         v-tippy="{ content: 'Download your created training data.' }"
       )
       button.btn-secondary(
@@ -566,5 +565,9 @@ export default defineComponent({
 
 #tot-select {
   background-color: theme("colors.ml-dark") !important;
+}
+
+.h-divider {
+  border-top: 1px solid theme("colors.ml-dark");
 }
 </style>

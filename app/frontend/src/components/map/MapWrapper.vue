@@ -1,4 +1,5 @@
 <template lang="pug">
+DownloadModal(:handler="downloadHandler" :id="ModalIds.RESULT__DOWNLOAD_MODAL")
 .map-wrapper.flex
   template(v-if="isReady")
     MapLegend(
@@ -9,7 +10,7 @@
       @toggleMap="showTif = !showTif"
       @toggleConfidences="showConfidences = !showConfidences"
       @download-model="downloadModel"
-      @download-tif="downloadTif"
+      @download-tif="downloadHandler.open()"
       @download-demo-payload="downloadDemoPayload"
     )
     OlMapTif(:args-list="argsList" :colors-array="colorsArray" :showTif="showTif" :showConfidences="showConfidences")
@@ -23,11 +24,15 @@ import OlMapTif from "./OlMapTif.vue";
 import MapLegend from "./MapLegend.vue";
 import { useBlobResult } from "@/composables/use-blob-result";
 import { useApi } from "@/composables/use-api";
+import { useModal } from "@/composables/use-modal";
+import { ModalIds } from "@/enums";
+import DownloadModal from "@/components/modals/result/download.modal.vue";
 
 export default defineComponent({
   components: {
     OlMapTif,
     MapLegend,
+    DownloadModal,
   },
   setup() {
     const { result, class_map, model_id, is_demo } = useBlobResult();
@@ -86,6 +91,15 @@ export default defineComponent({
       return colorArray;
     };
 
+    const downloadHandler = useModal<Boolean>(
+      ModalIds.RESULT__DOWNLOAD_MODAL,
+      () => {
+        downloadTif();
+      },
+      () => {},
+      110,
+    );
+
     onMounted(async () => {
       if (result.value === null) return;
 
@@ -129,6 +143,21 @@ export default defineComponent({
       link.setAttribute('download', 'result.tif');
       document.body.appendChild(link);
       link.click();
+
+      var fileToSave = new Blob([JSON.stringify(class_map.value)], {
+          type: 'application/json'
+      });
+
+      const url2 = window.URL.createObjectURL(fileToSave);
+
+      const link2 = document.createElement('a');
+      link2.href = url2;
+      link2.setAttribute('download', 'class_map.json');
+      document.body.appendChild(link2);
+      link2.click();
+
+
+
     };
 
     const downloadModel = async () => {
@@ -166,7 +195,7 @@ export default defineComponent({
       link.remove();
     };
 
-    return { isReady, colorsArray, argsList, argsListLegend, showTif, showConfidences, is_demo, downloadModel, downloadTif, downloadDemoPayload };
+    return { isReady, colorsArray, argsList, argsListLegend, showTif, showConfidences, is_demo, downloadHandler, ModalIds, downloadModel, downloadTif, downloadDemoPayload };
   },
 });
 </script>
