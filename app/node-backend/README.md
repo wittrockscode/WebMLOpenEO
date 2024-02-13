@@ -47,7 +47,7 @@
 3. Run the following command to install all dependencies:
    ```bash
    npm install
-4. Run the following command to execute a single test "xyz":
+4. Run the following command to execute a single test "xyz.test.js":
 
    ```bash
    npm test <xyz>
