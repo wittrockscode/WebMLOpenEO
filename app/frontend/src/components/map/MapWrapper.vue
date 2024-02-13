@@ -155,9 +155,6 @@ export default defineComponent({
       link2.setAttribute('download', 'class_map.json');
       document.body.appendChild(link2);
       link2.click();
-
-
-
     };
 
     const downloadModel = async () => {

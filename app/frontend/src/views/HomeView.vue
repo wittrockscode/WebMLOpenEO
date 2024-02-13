@@ -157,6 +157,8 @@ export default defineComponent({
 
     const loading_result: Ref<boolean> = ref(false);
 
+    const instance = ref();
+
     const aoi_submit = async (payload: Nullable<AoiModalPayload>) => {
       if (payload === null) {
         errors.value.aoi = true;
@@ -225,6 +227,26 @@ export default defineComponent({
       td.value = null;
       tot.value = null;
       errors.value.td = false;
+    };
+
+    const resetData = () => {
+      aoi_modal_handler.reset();
+      td_modal_handler.reset();
+      hyperparameter_modal_handler.reset();
+      resolution.value = null;
+      deleteAoiFile();
+      deleteTdFile();
+      reset_td();
+      hyperparams.value = [];
+      errors.value = {
+        toi: false,
+        aoi: false,
+        td: false,
+        hyperparams: false,
+        resolution: false,
+        request: false,
+        request_text: "",
+      };
     };
 
     const start_demo_request = async () => {
@@ -334,30 +356,9 @@ export default defineComponent({
 
     const b64toBlob = (base64: string, type = 'application/octet-stream'): Promise<Blob> => fetch(`data:${type};base64,${base64}`).then(res => res.blob());
 
-    const instance = ref();
     onMounted(() => {
       instance.value = getCurrentInstance();
     });
-
-    const resetData = () => {
-      aoi_modal_handler.reset();
-      td_modal_handler.reset();
-      hyperparameter_modal_handler.reset();
-      resolution.value = null;
-      deleteAoiFile();
-      deleteTdFile();
-      reset_td();
-      hyperparams.value = [];
-      errors.value = {
-        toi: false,
-        aoi: false,
-        td: false,
-        hyperparams: false,
-        resolution: false,
-        request: false,
-        request_text: "",
-      };
-    };
 
     props.demo.onStart(async () => {
       const response = await get_demo_data_request();
@@ -437,21 +438,21 @@ export default defineComponent({
       ModalIds,
       aoi_file,
       td_file,
-      deleteAoiFile,
-      reset_td,
       aoi,
       td,
       hyperparams,
       errors,
       resolution,
-      start_request,
       loading_result,
       hyperparameter_modal_handler,
       td_modal_handler,
-      start_demo,
-      deleteTdFile,
       facts,
       current_fact,
+      deleteAoiFile,
+      reset_td,
+      start_request,
+      start_demo,
+      deleteTdFile,
     };
   },
 });
