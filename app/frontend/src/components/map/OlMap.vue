@@ -64,6 +64,7 @@ import VectorSource from 'ol/source/Vector';
 import { Map as OLMap } from 'ol';
 import { createBox } from 'ol/interaction/Draw.js';
 import type { useMap } from "@/composables/use-map";
+import type VectorLayer from "ol/layer/Vector";
 
 export default defineComponent({
   props: {
@@ -74,7 +75,7 @@ export default defineComponent({
     featureSelect: {
       type: Boolean,
       required: false,
-    }
+    },
   },
   emits: ["drawRect", "drawPolygon", "featureSelected"],
   setup(props, { emit}) {
@@ -152,6 +153,13 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      const rectLayer: VectorLayer<VectorSource> = drawRectRef.value.layer;
+      const drawLayer: VectorLayer<VectorSource> = drawSourceRef.value.layer;
+      const featureLayer: VectorLayer<VectorSource> = featureSourceRef.value.layer;
+      rectLayer.set("name", "rectSource");
+      drawLayer.set("name", "drawSource");
+      featureLayer.set("name", "featureSource");
+
       if (props.featureSelect) {
         const map: OLMap = mapRef.value!.map!;
         map.on("click", (event) => {
@@ -159,7 +167,11 @@ export default defineComponent({
 
           if (props.handler.MAP_MODE.value !== MapModes.DISPLAY_OSM) return;
 
-          const features = map.getFeaturesAtPixel(event.pixel);
+          const features = map.getFeaturesAtPixel(event.pixel, {
+            layerFilter: (layer) => {
+              return layer.get("name") === "drawSource" || layer.get("name") === "featureSource";
+            },
+          });
           if (features && features.length > 0) {
             emit("featureSelected", features[0]);
           }
@@ -168,7 +180,9 @@ export default defineComponent({
         map.on("pointermove", (event) => {
           if (props.handler.MAP_MODE.value !== MapModes.DISPLAY_OSM) return;
 
-          const hit = map.hasFeatureAtPixel(event.pixel);
+          const hit = map.hasFeatureAtPixel(event.pixel, {
+            layerFilter: (layer) => layer.get("name") === "drawSource" || layer.get("name") === "featureSource",
+          });
           map.getTargetElement().style.cursor = hit ? "pointer" : mapCursor.value;
         });
       }

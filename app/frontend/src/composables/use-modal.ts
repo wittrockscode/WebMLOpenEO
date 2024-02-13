@@ -13,6 +13,7 @@ export const useModal = <T,>(modalId: ModalIds, submit_callback: (payload: Nulla
   const _open_callback_arr: ((value?: any) => void)[] = [];
   const __before_submit_callback_arr: (() => boolean)[] = [];
   const _close_callback_arr: (() => void)[] = [];
+  const _reset_callback_arr: (() => void)[] = [];
 
   const cancelFn = () => {
     cancel_callback();
@@ -88,5 +89,15 @@ export const useModal = <T,>(modalId: ModalIds, submit_callback: (payload: Nulla
     _close_callback_arr.push(callback);
   };
 
-  return { modal_id, zIndex, onClose, cancelFn, submitFn, outerClickFn, open, close, setPayload, onCancel, onSubmit, onOpen, setZIndex, onBeforeSubmit, beforeSubmit };
+  const reset = () => {
+    submit_payload.value = null;
+    _reset_callback_arr.forEach(callback => callback());
+    close();
+  };
+
+  const onReset = (callback: () => void) => {
+    _reset_callback_arr.push(callback);
+  };
+
+  return { modal_id, zIndex, reset, onReset, onClose, cancelFn, submitFn, outerClickFn, open, close, setPayload, onCancel, onSubmit, onOpen, setZIndex, onBeforeSubmit, beforeSubmit };
 };

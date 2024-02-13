@@ -33,7 +33,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               id="td-button"
               full-w
               :value="td !== null ? 'Modify' : 'Choose'"
-              :completed="td !== null"
+              :completed="td !== null && td.features.length > 0"
               :error="errors.td"
               @click="td_modal_handler.open()"
               v-tippy="{ content: 'This button is used to select the training data for your classification.' }"
@@ -62,7 +62,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
             :completed="resolution !== null"
             :selected="1"
-            @change="(value) => { resolution = value; errors.resolution = false }"
+            @change="(value) => { resolution = value; errors.resolution = false}"
             v-tippy="{ content: 'This button is used to select the resolution for your classification.' }"
             withChoose
             :error="errors.resolution"
@@ -183,7 +183,7 @@ export default defineComponent({
       };
       errors.value.td = false;
       deleteTdFile();
-      if (payload.td === null || payload.tot === null) {
+      if (payload.td === null || payload.tot === null || payload.td.features.length === 0) {
         td.value = null;
         tot.value = null;
         errors.value.td = true;
@@ -224,6 +224,7 @@ export default defineComponent({
 
     const reset_td = () =>{
       td.value = null;
+      tot.value = null;
       errors.value.td = false;
     };
 
@@ -240,8 +241,10 @@ export default defineComponent({
       const start_time = Date.now();
       const response = await demo_classify_request(demo_data_payload.value!);
       if ("error" in response) {
-        errors.value.request = true;
-        errors.value.request_text = (response.error as unknown as any).message;
+        errors.value.request =
+          ((response.error as unknown as any).response.data.errors
+            || (response.error as unknown as any).response.data.message)
+            || (response.error as unknown as any).message;
         loading_result.value = false;
         clearInterval(intervalID);
         return;
@@ -301,7 +304,12 @@ export default defineComponent({
         const response = await classify_request(payload);
         if ("error" in response) {
           errors.value.request = true;
-          errors.value.request_text = (response.error as unknown as any).response.data.errors;
+          errors.value.request_text =
+          Array.isArray((response.error as unknown as any).response.data.errors)
+          ? (response.error as unknown as any).response.data.errors[0].message
+          : (((response.error as unknown as any).response.data.errors
+          || (response.error as unknown as any).response.data.message)
+          || (response.error as unknown as any).message);
           loading_result.value = false;
           clearInterval(intervalID);
           return;
@@ -332,9 +340,30 @@ export default defineComponent({
       instance.value = getCurrentInstance();
     });
 
+    const resetData = () => {
+      aoi_modal_handler.reset();
+      td_modal_handler.reset();
+      hyperparameter_modal_handler.reset();
+      resolution.value = null;
+      deleteAoiFile();
+      deleteTdFile();
+      reset_td();
+      hyperparams.value = [];
+      errors.value = {
+        toi: false,
+        aoi: false,
+        td: false,
+        hyperparams: false,
+        resolution: false,
+        request: false,
+        request_text: "",
+      };
+    };
+
     props.demo.onStart(async () => {
       const response = await get_demo_data_request();
       demo_data_payload.value = response;
+      resetData();
     });
 
     props.demo.onClosedAoiModal(() => {
@@ -364,14 +393,7 @@ export default defineComponent({
     });
 
     props.demo.onReset(() => {
-      aoi_modal_handler.close();
-      td_modal_handler.close();
-      deleteAoiFile();
-      deleteTdFile();
-      reset_td();
-      hyperparams.value = [];
-      resolution.value = 30;
-      toi.value = null;
+      resetData();
     });
 
     props.demo.onFinish(() => {

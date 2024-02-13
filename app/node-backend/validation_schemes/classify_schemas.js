@@ -168,7 +168,7 @@ const CLASSIFY_SCHEMA = JOI.object(
     }),
     Resolution: RESOLUTION_SCHEMA.required()
   }
-).required().options({abortEarly: false}); // makes sure, each error is returned
+).required().options({abortEarly: true}); // makes sure only the first error is returned
 
 /**
  * Validates the input using "joi"s ".validate()"-method and provides custom return values for server side responses
