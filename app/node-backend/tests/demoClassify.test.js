@@ -1,13 +1,13 @@
 const request = require('supertest');
 const app = require('../app');
 
-const classify_payload = require("../demodata.json");
+const demoClassify_payload = require("../demodata.json");
 
-describe('API /api/classify endpoint test', () => {
-  test('POST /api/classify should accept correct data and send the model id', async () => {
+describe('API /api/demoClassify endpoint test', () => {
+  test('POST /api/demoClassify should accept correct data and send the model id and classification results', async () => {
     const response = await request(app)
-      .post('/api/classify')
-      .send(classify_payload)
+      .post('/api/demoClassify')
+      .send(demoClassify_payload)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -19,13 +19,13 @@ describe('API /api/classify endpoint test', () => {
     expect(response.body).toHaveProperty('class_map');
   }, 1000000);
 
-  test('POST /api/classify should decline incorrect data with big mistakes', async () => {
-    const false_classify_payload = {
+  test('POST /api/demoClassify should decline incorrect datastructure', async () => {
+    const false_demoClassify_payload = {
       "model": "RandomForest"
     };
     const response = await request(app)
-      .post('/api/classify')
-      .send(false_classify_payload)
+      .post('/api/demoClassify')
+      .send(false_demoClassify_payload)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -33,8 +33,8 @@ describe('API /api/classify endpoint test', () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test('POST /api/classify should decline incorrect data with small mistakes', async () => {
-    const false_classify_payload = {
+  test('POST /api/demoClassify should decline data which isnt the same as demodata.json', async () => {
+    const false_demoClassify_payload = {
       "model": "RandomForest",
       "TOI": {
         "start_date": "2022-06-01",
@@ -74,15 +74,15 @@ describe('API /api/classify endpoint test', () => {
         { "name": "mtry", "value": "5"},
         { "name": "ntree", "value": "2"}
       ],
-      "Resolution": 29
+      "Resolution": 10
     };
     const response = await request(app)
-      .post('/api/classify')
-      .send(false_classify_payload)
+      .post('/api/demoClassify')
+      .send(false_demoClassify_payload)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    // JOI catches also small mistakes and returns 422
+    // if the request-Body isnt the same as demodata.json 422 should be returned
     expect(response.statusCode).toBe(422);
     expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
     expect(response.body).toBeInstanceOf(Object);

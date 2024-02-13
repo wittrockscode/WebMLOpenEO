@@ -1,46 +1,42 @@
-# frontend
+# Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+## Usage
 
-## Recommended IDE Setup
+### Recommended IDE Setup for Development
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-## Type Support for `.vue` Imports in TS
+### Running with Docker
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+The Dockerfile excpects some environment variables provided by the docker-compose.yml in the root of the project, so the frontend can not be started with docker as a standalone.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+### Running without Docker
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+1. Make sure node.js is installed on your system.
+2. Navigate to ``/WebMLOpenEO/app/frontend`` in your terminal.
+3. Run the following command to install all dependencies:
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
 ```
+4. Compile and Hot-Reload for Development
 
-### Compile and Hot-Reload for Development
-
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+5. Type-Check, Compile and Minify for Production
 
-```sh
+```bash
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+5. Lint with [ESLint](https://eslint.org/)
 
-```sh
+```bash
 npm run lint
 ```
+
+## Testing
+
+We have decided to not implement any tests for the frontend, because a big part of it is just displaying provided data. Full-blown end-to-end tests would have been possible, but are not worth the effort in our eyes.

@@ -22,7 +22,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter); // activate only for testing
+app.use('/', swaggerRouter);
 app.use('/api', apiRouter);
 app.use('/swagger', swaggerRouter);
 
