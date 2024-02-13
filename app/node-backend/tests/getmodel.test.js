@@ -43,7 +43,7 @@ describe('API /api/getModel endpoint test', () => {
   test('GET /api/getModel should decline incorrect requests', async () => {
     const response = await request(app).get("/api/getModel");
 
-    // OpenAPI-Validator should catches that and returns 400
-    expect(response.statusCode).toBe(400);
+    // OpenAPI-Validator should catches that and returns 400, but OpenAPI-Validator is turned off because of uniform error-messages, so a 404 error occurs, because there is no getModel-page
+    expect(response.statusCode).toBe(404);
   });
 });
