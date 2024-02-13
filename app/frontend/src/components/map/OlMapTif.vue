@@ -34,6 +34,7 @@ import { defineComponent } from "vue";
 import { useBlobResult } from "@/composables/use-blob-result";
 import { Map as OLMap } from 'ol';
 import { fromUrl } from "geotiff";
+import { onBeforeRouteLeave } from "vue-router";
 
 export default defineComponent({
   props: {
@@ -112,9 +113,9 @@ export default defineComponent({
       fitToTif(extend);
     });
 
-    window.onunload = function() {
-        alert("Your result will not be saved. Do you want to leave?");
-    };
+    onBeforeRouteLeave(() => {
+      window.alert("Your result will not be saved. Do you want to leave?");
+    });
 
     return { center, projection, zoom, rotation, tifColors, blob, greyscaleColors, mapRef, tifSourceRef };
   },

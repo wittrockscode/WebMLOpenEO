@@ -378,9 +378,7 @@ export default defineComponent({
       const converted = collection.features.map((feature) => {
         const props = feature.properties;
         const conv = featureToOLFeature(feature);
-        console.log(feature.geometry.coordinates[0][0][0])
-        if (feature.geometry.coordinates[0][0][0] > 190) {
-          console.log("test")
+        if ((feature.geometry as unknown as any).coordinates[0][0][0] > 190) {
           const epsg3857 = convertToEPSG4326(conv);
           const finalFeature = OLFeatureToFeature(epsg3857);
           finalFeature.properties = props;
