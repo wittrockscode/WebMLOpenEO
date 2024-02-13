@@ -1,7 +1,7 @@
 <template lang="pug">
 .file-upload(:id="`${id}_div`" v-if="isClickButton")
   CardButton(
-    id="td-upload-button"
+    :id="id"
     :value="value"
     @click="$emit('click')"
     full-w
@@ -105,7 +105,7 @@ export default defineComponent({
       props.asSubmitFor.submitFn();
     };
 
-    const classes_to_add = computed(() => `${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? props.inputClass + '-disabled' : props.inputClass}`);
+    const classes_to_add = computed(() => `${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? props.inputClass + '-disabled' : props.inputClass} sm:text-lg md:text-xl lg:text-3xl`);
 
     return { onFileChanged, deleteFile, file, classes_to_add };
   },

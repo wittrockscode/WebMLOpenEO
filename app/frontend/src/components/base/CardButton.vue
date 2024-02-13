@@ -60,12 +60,16 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    responsive: {
+      type: Boolean,
+      default: true,
+    },
   },
   emits: ["click"],
   setup(props) {
 
     const classString = computed(() =>
-      `${props.fullW ? 'w-full' : ''} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? 'form-disabled' : 'hover:bg-ml-blue hover:text-ml-black'} ${props.icon ? 'justify-between' : 'justify-' + props.alignText}`
+      `${props.fullW ? 'w-full' : ''} ${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? 'form-disabled' : 'hover:bg-ml-blue hover:text-ml-black'} ${props.icon ? 'justify-between' : 'justify-' + props.alignText} ${props.responsive ? 'sm:text-lg md:text-xl lg:text-3xl' : ''}`
     );
 
     return { classString };

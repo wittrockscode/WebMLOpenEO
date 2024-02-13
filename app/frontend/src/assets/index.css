@@ -128,7 +128,7 @@ main {
 }
 
 .btn-primary {
-  padding: 0.25rem;
+  padding: 0.5rem;
   border-radius: 0.25rem;
   border-width: 2px;
   background-color: theme("colors.ml-dark");
@@ -144,7 +144,7 @@ main {
 }
 
 .btn-secondary {
-  padding: 0.25rem;
+  padding: 0.5rem;
   border-radius: 0.25rem;
   border-width: 2px;
   background-color: theme("colors.ml-text");
