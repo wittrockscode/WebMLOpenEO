@@ -472,6 +472,16 @@ export default defineComponent({
       drawMode.value = false;
     };
 
+    const featureSelected = (feature: OLFeature) => {
+      editPolygonHandler.open(feature);
+    };
+
+    const showWarningModal = (type: string) => {
+      if (type === "upload") {
+        if (trainingDataPolygons.value.length > 0) deleteWarningHandler.open("upload");
+      }
+    };
+
     props.handler.onBeforeSubmit(() => {
       const data = trainingData.getTrainingData();
       props.handler.setPayload({ td: data.collection, tot: data.tot!, withFile: withFile.value, fileName: fileName.value });
@@ -487,49 +497,39 @@ export default defineComponent({
       if (state === 1) drawMode.value = true;
     });
 
-    const featureSelected = (feature: OLFeature) => {
-      editPolygonHandler.open(feature);
-    };
-
-    const showWarningModal = (type: string) => {
-      if (type === "upload") {
-        if (trainingDataPolygons.value.length > 0) deleteWarningHandler.open("upload");
-      }
-    };
-
     return {
-      select_on_map,
-      map_drawend,
-      mapHandler,
-      fileUploaded,
-      drawMode,
-      newPolygon,
-      newClass,
-      toggleDrawMode,
-      ModalIds,
-      trainingData,
-      newClassHandler,
-      viewClasses,
       editClassesHandler,
       trainingDataClasses,
       tot: trainingData.tot,
       aot: trainingData.aot,
+      mapHandler,
+      drawMode,
+      ModalIds,
+      trainingData,
+      newClassHandler,
+      finishPolygonHandler,
+      loadingImg,
+      errors,
+      deleteWarningHandler,
+      showInfoText,
+      trainingDataPolygons,
+      editPolygonHandler,
+      isClickButton,
+      select_on_map,
+      map_drawend,
+      fileUploaded,
+      newPolygon,
+      newClass,
+      toggleDrawMode,
+      viewClasses,
       totSelected,
       go_back,
       selectAreaOftraining,
       fetchSentinelImage,
       map_drawrect,
-      finishPolygonHandler,
-      loadingImg,
-      errors,
-      deleteWarningHandler,
       showWarningModal,
-      showInfoText,
       downloadData,
-      trainingDataPolygons,
-      isClickButton,
       featureSelected,
-      editPolygonHandler,
     };
   },
 });

@@ -65,10 +65,6 @@ export default defineComponent({
       props.handler.submitFn();
     };
 
-    props.handler.onClose(() => {
-      reset();
-    });
-
     const reset = () => {
       props.handler.setPayload(null);
       show.value = false;
@@ -76,6 +72,10 @@ export default defineComponent({
       value.value = null;
       polygon.value = null;
     };
+
+    props.handler.onClose(() => {
+      reset();
+    });
 
     props.handler.onOpen((val: Feature) => {
       reset();

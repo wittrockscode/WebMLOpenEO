@@ -121,14 +121,6 @@ export default defineComponent({
       gamma: 1,
     });
 
-    props.handler.onDeleteDrawFeatures(() => {
-      removeDrawFeatures();
-    });
-
-    props.handler.onDeleteRectFeatures(() => {
-      removeRectFeatures();
-    });
-
     const isMouseDown = ref(false);
     const mapCursor = computed(() => {
       switch (props.handler.MAP_MODE.value) {
@@ -229,6 +221,14 @@ export default defineComponent({
       map.updateSize();
 
       await nextTick();
+    });
+
+    props.handler.onDeleteDrawFeatures(() => {
+      removeDrawFeatures();
+    });
+
+    props.handler.onDeleteRectFeatures(() => {
+      removeRectFeatures();
     });
 
     return {

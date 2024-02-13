@@ -82,6 +82,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const file = ref<File | null>();
 
+    const classes_to_add = computed(() => `${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? props.inputClass + '-disabled' : props.inputClass} sm:text-lg md:text-xl lg:text-3xl`);
+
     const onFileChanged = ($event: Event) => {
       const target = $event.target as HTMLInputElement;
       if (target && target.files) {
@@ -104,8 +106,6 @@ export default defineComponent({
       props.asSubmitFor.setPayload(file);
       props.asSubmitFor.submitFn();
     };
-
-    const classes_to_add = computed(() => `${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? props.inputClass + '-disabled' : props.inputClass} sm:text-lg md:text-xl lg:text-3xl`);
 
     return { onFileChanged, deleteFile, file, classes_to_add };
   },
