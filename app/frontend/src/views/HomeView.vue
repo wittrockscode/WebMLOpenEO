@@ -40,7 +40,6 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               :responsive="false"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="td_file")
-              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="td_file")
               button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteTdFile")
                 mdicon(name="window-close")
         .row-2.items-center

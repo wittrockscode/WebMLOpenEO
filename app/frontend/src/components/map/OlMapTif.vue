@@ -111,10 +111,20 @@ export default defineComponent({
       blob.value = result.value;
       await nextTick();
       fitToTif(extend);
+
+      window.addEventListener("beforeunload", (e) => {
+        e.preventDefault();
+        window.alert("Your result will not be saved. Do you want to leave?");
+      });
     });
 
-    onBeforeRouteLeave(() => {
-      window.alert("Your result will not be saved. Do you want to leave?");
+    onBeforeRouteLeave((to, from , next) => {
+      const answer = window.confirm('Your result will not be saved. Do you want to leave?');
+      if (answer) {
+        next();
+      } else {
+        next(false);
+      }
     });
 
     return { center, projection, zoom, rotation, tifColors, blob, greyscaleColors, mapRef, tifSourceRef };
