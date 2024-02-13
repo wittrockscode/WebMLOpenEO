@@ -39,4 +39,4 @@ npm run lint
 
 ## Testing
 
-We have decided to not implement any tests for the frontend, because a big part of it is just displaying provided data. Full-blown E2E tests would have been possible, but not worth the effort in our eyes.
+We have decided to not implement any tests for the frontend, because a big part of it is just displaying provided data. Full-blown end-to-end tests would have been possible, but are not worth the effort in our eyes.
