@@ -37,15 +37,39 @@ export default defineComponent({
         demo.reset();
         demoOverlay.value = false;
       },
+      onPreviousStep: (step: number) => {
+        handlePreviousStep(step);
+      },
     };
 
     const demoOptions = {
       labels: {
-        buttonSkip: 'Skip tour',
+        buttonSkip: 'Exit tour',
         buttonPrevious: 'Previous',
         buttonNext: 'Next',
         buttonStop: 'Start a demo classification',
+        highlight: true,
       },
+    };
+
+    const handlePreviousStep = (step: number) => {
+      switch (step) {
+        case 2:
+          demo.closeAoiModal();
+          break;
+        case 7:
+          document.getElementById("aoi-button")!.click();
+          break;
+        case 8:
+          demo.closeTdModal();
+          break;
+        case 11:
+          demo.resetTdState();
+          break;
+        case 16:
+          document.getElementById("td-button")!.click();
+          break;
+      };
     };
 
     const steps = [
@@ -61,16 +85,6 @@ export default defineComponent({
         }),
       },
       {
-        target: "#doi-select",
-        header: {
-          title: "Date of Interest",
-        },
-        content: "You can select a range of dates to be used in the classification process here.",
-        before: () => new Promise((resolve) => {
-          resolve(true);
-        }),
-      },
-      {
         target: "#aoi-button",
         header: {
           title: "Area of Interest",
@@ -82,13 +96,23 @@ export default defineComponent({
         }),
       },
       {
+        target: "#toi-select",
+        header: {
+          title: "Date of Interest",
+        },
+        content: "You can select a range of dates to be used in the classification process here.",
+        before: () => new Promise((resolve) => {
+          document.getElementById("aoi-button")!.click();
+          resolve(true);
+        }),
+      },
+      {
         target: "#draw-button",
         header: {
           title: "Area of Interest",
         },
         content: "You can either draw a polygon ...",
         before: () => new Promise((resolve) => {
-          document.getElementById("aoi-button")!.click();
           resolve(true);
         }),
         params: {
@@ -104,6 +128,26 @@ export default defineComponent({
         params: {
           placement: "top",
         },
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
+      },
+      {
+        target: "#sentinel-img-aoi-button",
+        header: {
+          title: "Area of Interest",
+        },
+        content: "You can optionally fetch a satellite image for the date intervall picked above. You can use it, to determine wether the satellite image has your desired qualtiy. The image you will see will be used for classification.",
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
+      },
+      {
+        target: "#home--area-of-interest-modal-submit-button",
+        header: {
+          title: "Submit",
+        },
+        content: "Submit the Area of Interest.",
         before: () => new Promise((resolve) => {
           resolve(true);
         }),
@@ -131,16 +175,56 @@ export default defineComponent({
         }),
       },
       {
+        target: "#aot-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "You can select an area to fetch a satellite image.",
+        before: () => new Promise((resolve) => {
+          document.getElementById("td-button")!.click();
+          resolve(true);
+        }),
+      },
+      {
         target: "#draw-button-td",
         header: {
           title: "Training Data",
         },
-        content: "Now create Training Data via the map ...",
+        content: "Now create the Training Polygons.",
         params: {
           placement: "top",
         },
         before: () => new Promise((resolve) => {
+          demo.resetTdState();
           demo.selectTot();
+          resolve(true);
+        }),
+      },
+      {
+        target: "#new-class-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "First, create some new classes.",
+        params: {
+          placement: "bottom",
+        },
+        before: () => new Promise((resolve) => {
+          demo.createTd();
+          resolve(true);
+        }),
+      },
+      {
+        target: "#new-polygon-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "Now you can create a new polygon by selecting it on the map.",
+        params: {
+          placement: "bottom",
+        },
+        before: () => new Promise((resolve) => {
+          demo.createTd();
           resolve(true);
         }),
       },
@@ -149,10 +233,34 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "... or upload a GeoJSON/GPKG file.",
+        content: "Additionally, you can upload a GeoJSON/GPKG file containing polygons with classes. It will be added to your current polygons.",
         params: {
           placement: "top",
         },
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
+      },
+      {
+        target: "#download-td-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "You can download your polygons as a GeoJSON file if you want.",
+        params: {
+          placement: "top",
+        },
+        before: () => new Promise((resolve) => {
+          demo.createTd();
+          resolve(true);
+        }),
+      },
+      {
+        target: "#home--training-data-modal-submit-button",
+        header: {
+          title: "Submit",
+        },
+        content: "Submit the training data.",
         before: () => new Promise((resolve) => {
           resolve(true);
         }),
@@ -199,8 +307,18 @@ export default defineComponent({
           resolve(true);
         }),
       },
+      {
+        target: "body",
+        header: {
+          title: "",
+        },
+        content: "",
+        before: () => new Promise((resolve) => {
+          demo.finish();
+          resolve(true);
+        }),
+      },
     ];
-
     return { steps, demo, demoCallbacks, demoOverlay, demoOptions };
   },
 });

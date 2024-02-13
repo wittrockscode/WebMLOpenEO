@@ -1,5 +1,13 @@
 <template lang="pug">
-.file-upload(:id="`${id}_div`")
+.file-upload(:id="`${id}_div`" v-if="isClickButton")
+  CardButton(
+    :id="id"
+    :value="value"
+    @click="$emit('click')"
+    full-w
+    :disabled="disabled"
+  )
+.file-upload(:id="`${id}_div`" v-else)
   label.transition-2.form-item(
     :for="id"
     v-text="value"
@@ -8,7 +16,7 @@
   input.hidden(
     :id="id"
     type="file"
-    accept=".json, .geojson"
+    accept=".json, .geojson, .gpkg"
     capture
     :disabled="disabled"
     @change="onFileChanged($event)"
@@ -20,10 +28,14 @@
 </template>
 
 <script lang="ts">
-import type { ModalHandler } from "@/types/AppTypes";
+import type { useModal } from "@/composables/use-modal";
 import { defineComponent, ref, type PropType, computed } from "vue";
+import CardButton from "@/components/base/CardButton.vue";
 
 export default defineComponent({
+  components: {
+    CardButton,
+  },
   props: {
     value: {
       type: String,
@@ -46,7 +58,7 @@ export default defineComponent({
       default: false,
     },
     asSubmitFor: {
-      type: Object as PropType<ModalHandler>,
+      type: Object as PropType<ReturnType<typeof useModal>>,
       default: null,
     },
     completed: {
@@ -61,10 +73,16 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    isClickButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["click", "uploaded", "deleted"],
   setup(props, { emit }) {
     const file = ref<File | null>();
+
+    const classes_to_add = computed(() => `${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? props.inputClass + '-disabled' : props.inputClass} sm:text-lg md:text-xl lg:text-3xl`);
 
     const onFileChanged = ($event: Event) => {
       const target = $event.target as HTMLInputElement;
@@ -88,8 +106,6 @@ export default defineComponent({
       props.asSubmitFor.setPayload(file);
       props.asSubmitFor.submitFn();
     };
-
-    const classes_to_add = computed(() => `${props.error ? 'form-error' : props.completed ? 'form-completed' : ''} ${props.disabled ? props.inputClass + '-disabled' : props.inputClass}`);
 
     return { onFileChanged, deleteFile, file, classes_to_add };
   },

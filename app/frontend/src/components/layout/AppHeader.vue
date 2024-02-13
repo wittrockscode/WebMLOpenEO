@@ -3,10 +3,11 @@ header#header
   .header-content.bg-ml-black.text-ml-text.flex
     .header-image
       RouterLink(to="/")
-        img.p-4.max-w-xs.w-52(:src="LogoTransparent")
+        img.p-4.w-52(:src="LogoTransparent" :class="'sm:w-32 md:w-48'")
     .header-links.flex.flex-row.justify-start.gap-20.ml-16.items-center.text-lg
       HeaderLink(value="Home" route="/")
       HeaderLink(value="About" route="/about")
+      a.header-link.text-ml-text(:href="swaggerLink") API-Documentation
 </template>
 
 <script lang="ts">
@@ -19,7 +20,10 @@ export default defineComponent({
     HeaderLink,
   },
   setup() {
-    return { LogoTransparent };
+    const swaggerLink = import.meta.env.VITE_ENV === "production" ?
+      "http://ec2-54-70-150-226.us-west-2.compute.amazonaws.com/swagger" :
+      "http://localhost:3000/swagger";
+    return { LogoTransparent, swaggerLink };
   },
 });
 </script>

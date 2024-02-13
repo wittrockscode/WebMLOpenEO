@@ -33,18 +33,20 @@ Teleport(to="body")
                   type="button"
                   @click="cancel"
                   v-text="cancelText"
+                  :id="`${id}-cancel-button`"
                 )
                 button.btn-primary(
                   type="button"
                   @click="submit"
                   v-text="submitText"
+                  :id="`${id}-submit-button`"
                 )
 </template>
 
 <script lang="ts">
+import type { useModal } from "@/composables/use-modal";
 import { defineComponent, ref } from "vue";
 import type { PropType } from "vue";
-import type { ModalHandler } from "@/types/AppTypes";
 
 export default defineComponent({
   props: {
@@ -92,14 +94,14 @@ export default defineComponent({
       default: null,
     },
     handler: {
-      type: Object as PropType<ModalHandler>,
+      type: Object as PropType<ReturnType<typeof useModal>>,
       required: true,
     },
   },
   emits: ["close", "submit", "outerClick"],
   setup(props, { emit }) {
     const cancel = props.handler ? props.handler.cancelFn : (props.cancelFn ?? emit("close"));
-    const submit = props.handler ? props.handler.submitFn : (props.submitFn ?? emit("submit"));
+    const submit = props.handler ? props.handler.beforeSubmit : (props.submitFn ?? emit("submit"));
     const outerClick = props.handler ? props.handler.outerClickFn : (props.outerClickFn ?? emit("outerClick"));
 
     const zIndexCalc =  ref(props.handler ? props.handler.zIndex.value : props.zIndex);

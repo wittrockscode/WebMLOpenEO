@@ -3,26 +3,14 @@ AreaOfInterestModal(:handler="aoi_modal_handler" :id="ModalIds.HOME__AREA_OF_INT
 HyperparameterModal(:handler="hyperparameter_modal_handler" :id="ModalIds.HOME__HYPERPARAMETER_MODAL")
 TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_MODAL")
 .wrapper
-  #home(v-if="!loading_result")
+  #home.w-full(v-if="!loading_result")
     CardDark
       .card-content.text-3xl.py-3.items-center.flex.flex-col
-        .row-2
-          CardText.row-item.text-right.px-5(value="Algorithm")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Algorithm")
           CardText#model-name.row-item.text-ml-blue.text-center(value="RandomForest")
-        .row-2
-          CardText.row-item.text-right.px-5(value="Date of Interest")
-          DatePicker.row-item(
-            id="doi-select"
-            placeholder="Select"
-            @selected="selectDoi"
-            :completed="doi !== null"
-            range
-            :value="doi"
-            :error="errors.doi"
-            v-tippy="{ content: 'You can select a range of dates to be used in the classification process here.' }"
-          )
-        .row-2
-          CardText.row-item.text-right.px-5(value="Area of Interest")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Area of Interest")
           .row-item
             CardButton(
               id="aoi-button"
@@ -32,49 +20,52 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               :error="errors.aoi"
               @click="aoi_modal_handler.open()"
               v-tippy="{ content: 'This button is used to select the area of interest for your classification.' }"
+              :responsive="false"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="aoi_file")
-              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file.name")
+              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file")
               button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteAoiFile")
                 mdicon(name="window-close")
-        .row-2
-          CardText.row-item.text-right.px-5(value="Training Data")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Training Data")
           .row-item
             CardButton(
               id="td-button"
               full-w
               :value="td !== null ? 'Modify' : 'Choose'"
-              :completed="td !== null"
+              :completed="td !== null && td.features.length > 0"
               :error="errors.td"
               @click="td_modal_handler.open()"
               v-tippy="{ content: 'This button is used to select the training data for your classification.' }"
+              :responsive="false"
             )
-            .uploaded-file.mt-1.flex.justify-center(v-if="td_file")
-              small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="td_file.name")
-              button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteTdFile")
-                mdicon(name="window-close")
-        .row-2
-          CardText.row-item.text-right.px-5(value="Hyperparameter")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Hyperparameter")
           CardButton.row-item(
             id="hp-button"
             full-w
-            :value="hyperparams.length > 0 ? 'Modify' : 'Tune'"
+            :value="hyperparams.length > 0 ? 'Modify' : 'Choose'"
             :completed="hyperparams.length > 0"
             :error="errors.hyperparams"
             @click="hyperparameter_modal_handler.open()"
             v-tippy="{ content: 'Tune hyperparameters for your clasification.' }"
+            :responsive="false"
           )
-        .row-2
-          CardText.row-item.text-right.px-5(value="Resolution")
+        .row-2.items-center
+          CardText.row-item.text-right.pr-5(value="Resolution")
           DropdownSelect.row-item(
             id="rs-button"
             :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
+            :completed="resolution !== null"
             :selected="1"
-            @change="value => resolution = value"
+            @change="(value) => { resolution = value; errors.resolution = false}"
             v-tippy="{ content: 'This button is used to select the resolution for your classification.' }"
+            withChoose
+            :error="errors.resolution"
           )
-        .row-2.row-2-b
-          .px-5.row-item
+        label.text-xl.ml-1.text-ml-red.font-semibold.mb-2( v-if="errors.request") {{`Error: ${errors.request_text}`}}
+        .row-2.items-center.row-2-b
+          .pr-5.row-item
             button.demo-button.transition-2(id="demo-button" v-text="'Demo'" @click="start_demo")
           button.row-item.calculate-button.font-semibold.transition-2(id="calc-button" v-text="'Calculate'" @click="start_request")
   template(v-else)
@@ -104,10 +95,9 @@ import DropdownSelect from "@/components/form/DropdownSelect.vue";
 import AreaOfInterestModal from "@/components/modals/home/area-of-interest.modal.vue";
 import HyperparameterModal from "@/components/modals/home/hyperparameter.modal.vue";
 import TrainingDataModal from "@/components/modals/home/training-data.modal.vue";
-import type { SubmitPayload } from "@/types/AppTypes";
-import { fileToFeatureCollection, payloadToPolygonFeature, payloadToFeatureCollection } from "../helper/geojson";
 import type { Polygon, FeatureCollection, Feature } from "@/types/geojson";
 import type { Req } from "@/types/api";
+import type { AoiModalPayload, TdModalPayload, HyperParameterModalPayload, Nullable } from "@/types/AppTypes";
 import router from "@/router";
 
 import { useApi } from "@/composables/use-api";
@@ -135,67 +125,92 @@ export default defineComponent({
   },
   setup(props) {
     const { classify_request, get_demo_data_request, demo_classify_request, facts_api_request } = useApi();
-    const { setResult, setClassMap } = useBlobResult();
+    const { setResult, setClassMap, setModelId, setIsDemo } = useBlobResult();
 
-    const doi: Ref<Date[] | null> = ref(null);
+    const toi: Ref<Date[] | null> = ref(null);
     const tot: Ref<Date[] | null> = ref(null);
     const aoi: Ref<Feature<Polygon> | null> = ref(null);
     const td: Ref<FeatureCollection | null> = ref(null);
     const hyperparams: Ref<{ name: string; value: number }[]> = ref([]);
-    const resolution: Ref<10 | 30 | 60> = ref(30);
+    const resolution: Ref<10 | 30 | 60 | null> = ref(null);
 
     const demo_data_payload = ref(null);
 
     const errors = ref({
-      doi: false,
+      toi: false,
       aoi: false,
       td: false,
       hyperparams: false,
+      resolution: false,
+      request: false,
+      request_text: "",
     });
 
     const facts = ref([]);
     const current_fact = ref(0);
 
-    const aoi_file = ref<File | null>();
-    const td_file = ref<File | null>();
+    const aoi_file = ref<string | null>();
+    const td_file = ref<string | null>();
 
     const loading_result: Ref<boolean> = ref(false);
 
-    const aoi_submit = async (payload: SubmitPayload) => {
+    const instance = ref();
+
+    const aoi_submit = async (payload: Nullable<AoiModalPayload>) => {
+      if (payload === null) {
+        errors.value.aoi = true;
+        return;
+      };
       errors.value.aoi = false;
       deleteAoiFile();
-      aoi.value = await payloadToPolygonFeature(payload);
-      (document.getElementById("aoi-upload") as HTMLInputElement).value = "";
-      if (payload instanceof File) aoi_file.value = payload;
-      if (!aoi.value)  errors.value.aoi = true;
+      if (payload.aoi === null || payload.toi === null) {
+        aoi.value = null;
+        errors.value.aoi = true;
+        return;
+      }
+      aoi.value = payload.aoi;
+      toi.value = payload.toi;
+      if (payload.withFile)
+        aoi_file.value = payload.fileName;
     };
 
-    const td_submit = async (payload: any) => {
-      if (payload.tot) tot.value = payload.tot;
+    const td_submit = async (payload: Nullable<TdModalPayload>) => {
+      if (payload === null) {
+        errors.value.td = true;
+        return;
+      };
       errors.value.td = false;
       deleteTdFile();
-      if (payload.file instanceof File) {
-        td.value = await payloadToFeatureCollection(payload.file);
-        td_file.value = payload.file;
-      } else {
-        td.value = await payloadToFeatureCollection(payload.collection);
+      if (payload.td === null || payload.tot === null || payload.td.features.length === 0) {
+        td.value = null;
+        tot.value = null;
+        errors.value.td = true;
+        return;
       }
-      if (!td.value)  errors.value.td = true;
+      tot.value = payload.tot;
+      td.value = payload.td;
+      if (payload.withFile)
+        td_file.value = payload.fileName;
     };
 
-    const hyperparameter_submit = (payload: SubmitPayload) => {
+    const hyperparameter_submit = (payload: Nullable<HyperParameterModalPayload>) => {
+      if (payload === null) {
+        errors.value.hyperparams = true;
+        return;
+      };
       errors.value.hyperparams = false;
-      hyperparams.value = payload as { name: string; value: number }[];
+      hyperparams.value = payload;
       if (!hyperparams.value) errors.value.hyperparams = true;
     };
 
-    const aoi_modal_handler = useModal(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
-    const hyperparameter_modal_handler = useModal(ModalIds.HOME__HYPERPARAMETER_MODAL, hyperparameter_submit);
-    const td_modal_handler = useModal(ModalIds.HOME__TRAINING_DATA_MODAL, td_submit);
+    const aoi_modal_handler = useModal<AoiModalPayload>(ModalIds.HOME__AREA_OF_INTEREST_MODAL, aoi_submit);
+    const hyperparameter_modal_handler = useModal<HyperParameterModalPayload>(ModalIds.HOME__HYPERPARAMETER_MODAL, hyperparameter_submit);
+    const td_modal_handler = useModal<TdModalPayload>(ModalIds.HOME__TRAINING_DATA_MODAL, td_submit);
 
     const deleteAoiFile = () => {
       aoi.value = null;
       aoi_file.value = null;
+      (document.getElementById("aoi-upload") as HTMLInputElement).value = "";
       errors.value.aoi = false;
     };
 
@@ -205,37 +220,59 @@ export default defineComponent({
       errors.value.td = false;
     };
 
-    const selectDoi = (dates: Date[]) => {
-      doi.value = dates;
-    };
-
-    const uploadedTD = async (file: File) => {
-      errors.value.td = false;
-      td.value = await fileToFeatureCollection(file);
-      (document.getElementById("td-upload") as HTMLInputElement).value = "";
-      if (!td.value) errors.value.td = true;
-    };
-
     const reset_td = () =>{
       td.value = null;
+      tot.value = null;
       errors.value.td = false;
+    };
+
+    const resetData = () => {
+      aoi_modal_handler.reset();
+      td_modal_handler.reset();
+      hyperparameter_modal_handler.reset();
+      resolution.value = null;
+      deleteAoiFile();
+      deleteTdFile();
+      reset_td();
+      hyperparams.value = [];
+      errors.value = {
+        toi: false,
+        aoi: false,
+        td: false,
+        hyperparams: false,
+        resolution: false,
+        request: false,
+        request_text: "",
+      };
     };
 
     const start_demo_request = async () => {
+      errors.value.request = false;
+      errors.value.request_text = "";
+      loading_result.value = true;
       const facts_response = await facts_api_request();
       facts.value = facts_response;
-      console.log(facts.value);
       const intervalID = setInterval(() => {
         current_fact.value = current_fact.value + 1;
         if (current_fact.value >= facts.value.length) current_fact.value = 0;
-        console.log(facts.value[current_fact.value]);
       }, 5000);
       const start_time = Date.now();
-      loading_result.value = true;
       const response = await demo_classify_request(demo_data_payload.value!);
+      if ("error" in response) {
+        errors.value.request =
+          ((response.error as unknown as any).response.data.errors
+            || (response.error as unknown as any).response.data.message)
+            || (response.error as unknown as any).message;
+        loading_result.value = false;
+        clearInterval(intervalID);
+        return;
+      }
+
       const base64_string = response.classification;
+      setIsDemo(true);
+      setModelId(response.model_id);
       setClassMap(response.class_map);
-      const blob = b64toBlob(base64_string, "image/tiff");
+      const blob = await b64toBlob(base64_string, "image/tiff");
 
       setResult(blob);
 
@@ -247,13 +284,27 @@ export default defineComponent({
     };
 
     const start_request = async () => {
-      if (aoi.value && doi.value?.length === 2 && tot.value?.length === 2 && td.value) {
+      if (aoi.value && toi.value?.length === 2 && tot.value?.length === 2 && td.value && resolution.value) {
         loading_result.value = true;
+        errors.value.request = false;
+        errors.value.request_text = "";
+        const facts_response = await facts_api_request();
+        facts.value = facts_response;
+        const intervalID = setInterval(() => {
+          current_fact.value = current_fact.value + 1;
+          if (current_fact.value >= facts.value.length) current_fact.value = 0;
+        }, 7500);
+
+        td.value.features = td.value.features.map((feature) => {
+          delete feature.properties!["id"];
+          return feature;
+        });
+
         const payload: Req.Classify.Payload = {
           model: "RandomForest",
           TOI: {
-            start_date: doi.value[0]!.toISOString().split("T")[0]!,
-            end_date: doi.value[1]!.toISOString().split("T")[0]!,
+            start_date: toi.value[0]!.toISOString().split("T")[0]!,
+            end_date: toi.value[1]!.toISOString().split("T")[0]!,
           },
           AOI: {
             geometry: aoi.value.geometry,
@@ -267,48 +318,40 @@ export default defineComponent({
           Resolution: Number(resolution.value) as 10 | 30 | 60,
         };
 
-        console.log(payload);
-        console.log(JSON.stringify(payload));
         const response = await classify_request(payload);
+        if ("error" in response) {
+          errors.value.request = true;
+          errors.value.request_text =
+          Array.isArray((response.error as unknown as any).response.data.errors)
+          ? (response.error as unknown as any).response.data.errors[0].message
+          : (((response.error as unknown as any).response.data.errors
+          || (response.error as unknown as any).response.data.message)
+          || (response.error as unknown as any).message);
+          loading_result.value = false;
+          clearInterval(intervalID);
+          return;
+        }
+
         const base64_string = response.classification;
+        setIsDemo(false);
         setClassMap(response.class_map);
-        const blob = b64toBlob(base64_string, "image/tiff");
+        setModelId(response.model_id);
+        const blob = await b64toBlob(base64_string, "image/tiff");
 
-        const blobUrl = URL.createObjectURL(blob);
-
-        document.location = blobUrl;
+        clearInterval(intervalID);
         setResult(blob);
-
         router.push("/result");
       }else{
         if (!aoi.value) errors.value.aoi = true;
-        if (!doi.value || doi.value.length !== 2) errors.value.doi = true;
+        if (!toi.value || toi.value.length !== 2) errors.value.toi = true;
         if (!tot.value || tot.value.length !== 2) errors.value.td = true;
         if (!td.value) errors.value.td = true;
+        if (!resolution.value) errors.value.resolution = true;
       }
     };
 
-    const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
-      const byteCharacters = atob(b64Data);
-      const byteArrays = [];
+    const b64toBlob = (base64: string, type = 'application/octet-stream'): Promise<Blob> => fetch(`data:${type};base64,${base64}`).then(res => res.blob());
 
-      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
-      }
-
-      const blob = new Blob(byteArrays, {type: contentType});
-      return blob;
-    };
-
-    const instance = ref();
     onMounted(() => {
       instance.value = getCurrentInstance();
     });
@@ -316,19 +359,20 @@ export default defineComponent({
     props.demo.onStart(async () => {
       const response = await get_demo_data_request();
       demo_data_payload.value = response;
+      resetData();
     });
 
-    props.demo.onSelectDoi(() => {
-      selectDoi([new Date("2023-06-15"), new Date("2024-06-25")]);
+    props.demo.onClosedAoiModal(() => {
+      aoi_modal_handler.close();
+    });
+
+    props.demo.onClosedTdModal(() => {
+      td_modal_handler.close();
     });
 
     props.demo.onSelectAoi(() => {
       aoi_modal_handler.close();
       aoi_submit(demo_aoi);
-    });
-
-    props.demo.onSelectTot(() => {
-      tot.value = [new Date("2023-06-15"), new Date("2024-06-25")];
     });
 
     props.demo.onSelectTd(() => {
@@ -345,14 +389,7 @@ export default defineComponent({
     });
 
     props.demo.onReset(() => {
-      aoi_modal_handler.close();
-      td_modal_handler.close();
-      deleteAoiFile();
-      deleteTdFile();
-      reset_td();
-      hyperparams.value = [];
-      resolution.value = 30;
-      doi.value = null;
+      resetData();
     });
 
     props.demo.onFinish(() => {
@@ -360,7 +397,20 @@ export default defineComponent({
       stop_demo();
     });
 
+    props.demo.onClosedDemoModal(() => {
+      stop_demo();
+    });
+
+    props.demo.onCreateTd(() => {
+      td_modal_handler.setState(1);
+    });
+
+    props.demo.onResetTdState(() => {
+      td_modal_handler.setState(0);
+    });
+
     const start_demo = () => {
+      document.getElementsByClassName("v-tour")[0]?.setAttribute('style', 'display:block');
       const $tours = instance!.value.appContext.config.globalProperties.$tours;
       if ($tours) {
           if ($tours['demoProcess']) {
@@ -376,6 +426,7 @@ export default defineComponent({
               $tours['demoProcess'].stop();
           }
       }
+      document.getElementsByClassName("v-tour")[0]?.setAttribute('style', 'display:none');
     };
 
     return {
@@ -383,24 +434,21 @@ export default defineComponent({
       ModalIds,
       aoi_file,
       td_file,
-      deleteAoiFile,
-      selectDoi,
-      uploadedTD,
-      reset_td,
-      doi,
       aoi,
       td,
       hyperparams,
       errors,
       resolution,
-      start_request,
       loading_result,
       hyperparameter_modal_handler,
       td_modal_handler,
-      start_demo,
-      deleteTdFile,
       facts,
       current_fact,
+      deleteAoiFile,
+      reset_td,
+      start_request,
+      start_demo,
+      deleteTdFile,
     };
   },
 });

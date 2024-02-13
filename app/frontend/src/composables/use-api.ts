@@ -7,19 +7,26 @@ export const useApi = () => {
   if(import.meta.env.VITE_ENV === "production") {
     NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI ?? "http://http://ec2-54-70-150-226.us-west-2.compute.amazonaws.com/api";
   } else {
-    NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER ?? "http://localhost:3000/api";
+    NODE_URL = import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER ? `${import.meta.env.VITE_NODE_BACKEND_URI_CONTAINER}/api` : "http://localhost:3000/api";
   }
 
   const classify_request = async (payload: Req.Classify.Payload) => {
-    const response = await axios.post(`${NODE_URL}/classify`, payload);
-
-    return response.data;
+    try {
+      const response = await axios.post<Req.Classify.Response>(`${NODE_URL}/classify`, payload);
+      return response.data;
+    } catch (error) {
+      return {error: error};
+    }
   };
 
   const sentinel_img_request = async (payload: Req.Sentinel.Payload) => {
-    const response = await axios.post<Req.Sentinel.Response>(`${NODE_URL}/getSentinelImg`, payload, { responseType: "blob" });
+    try {
+      const response = await axios.post<Req.Sentinel.Response>(`${NODE_URL}/getSentinelImg`, payload, { responseType: "blob" });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      return {error: error};
+    }
   };
 
   const get_demo_data_request = async () => {
@@ -28,8 +35,21 @@ export const useApi = () => {
   };
 
   const demo_classify_request = async (payload: Req.Classify.Payload) => {
-    const response = await axios.post(`${NODE_URL}/demoClassify`, payload);
-    return response.data;
+    try {
+      const response = await axios.post(`${NODE_URL}/demoClassify`, payload);
+      return response.data;
+    } catch (error) {
+      return {error: error};
+    }
+  };
+
+  const get_model_request = async (id: string) => {
+    try {
+      const response = await axios.get<Req.Model.Response>(`${NODE_URL}/getModel?id=${id}`, { responseType: "arraybuffer", headers: { "Content-Type": "application/rds", "Accept": "application/rds" }});
+      return response.data;
+    } catch (error) {
+      return {error: error};
+    }
   };
 
   const facts_api_request = async () => {
@@ -37,5 +57,5 @@ export const useApi = () => {
     return response.data;
   };
 
-  return { NODE_URL, classify_request, sentinel_img_request, get_demo_data_request, demo_classify_request, facts_api_request };
+  return { NODE_URL, classify_request, sentinel_img_request, get_demo_data_request, demo_classify_request, facts_api_request, get_model_request };
 };

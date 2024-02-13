@@ -2,6 +2,7 @@
 
 const EXPRESS = require('express');
 const ROUTER = EXPRESS.Router();
+const { mkdirp } = require("mkdirp");
 
 const  demodata = require('./../demodata.json');
 
@@ -190,6 +191,7 @@ ROUTER.post('/getSentinelImg', async function(req, res)
     }
     else
     {
+
       let BoundingCoords = findBoundingCoords(req.body.AOI.geometry.coordinates[0]);
       // build connection
       let client = new Connection(process.env.OPENEOCUBES_URI ?? "http://localhost:8000");
@@ -563,10 +565,13 @@ async function saveModelFile(rds_file)
   // Give model uuid and name
   let id = uuid.v4();
   let modelName = "model_" + id + ".rds"; 
-  const modelPath = path.join(__dirname, path.join(modelFolder, modelName));
-
+  const modelPath = path.join(__dirname, modelFolder);
+  console.log(__dirname)
+  console.log('Saving result to:', modelPath);
+  await mkdirp(modelPath);
+  const modelPathWithName = path.join(modelPath, modelName);
   // Save model in modelPath
-  const writeStream = fs.createWriteStream(modelPath);
+  const writeStream = fs.createWriteStream(modelPathWithName);
   rds_file.pipe(writeStream);
 
   // Wait for the writeStream to finish writing the data
@@ -575,10 +580,10 @@ async function saveModelFile(rds_file)
     writeStream.on('error', reject);
   });
 
-  console.log('Result saved successfully on the server:', modelPath);
+  console.log('Result saved successfully on the server:', modelPathWithName);
 
   // Save model-uuid and -path in dict
-  modelPathDict[id] = modelPath;
+  modelPathDict[id] = modelPathWithName;
 
   return id;
 }

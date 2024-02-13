@@ -15,62 +15,80 @@ ol-map(
     :zoom="zoom"
     :projection="projection"
   )
-  ol-tile-layer
-    ol-source-osm
-  ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor")
-    ol-source-geo-tiff(
-      :normalize="false"
-      :sources="[{ blob_result }]"
-    )
-  ol-vector-layer
-    ol-source-vector(:projection="projection" ref="drawRectRef")
-      ol-interaction-draw(
-        type="Circle"
-        :geometry-function="createBox()"
-        @drawend="(event: DrawEvent) => $emit('drawRect', event.feature)"
-        v-if="MODE === MapModes.DRAW_RECTANGLE"
+  ol-layer-group(:z-index="0" ref="layerGroupRef")
+    ol-tile-layer(ref="osmLayerRef")
+      ol-source-osm
+    ol-tile-layer(ref="arcgisLayerRef")
+      ol-source-xyz(:url="'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'")
+    ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor" :z-index="0")
+      ol-source-geo-tiff(
+        :normalize="false"
+        :sources="[{ url: blob_result }]"
+        ref="geoTiffSourceRef"
       )
-        ol-style
-          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-          ol-style-fill(color="rgba(255, 255, 255, 0)")
-    ol-style
-      ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-      ol-style-fill(color="rgba(255, 231, 155, 0.1)")
-  ol-vector-layer
-    ol-source-vector(:projection="projection" ref="drawSourceRef")
-      ol-interaction-draw(
-        type="Polygon"
-        @drawend="(event: DrawEvent) => $emit('drawPolygon', event.feature)"
-        v-if="MODE === MapModes.DRAW_POLYGON"
-      )
-        ol-style
-          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-          ol-style-fill(color="rgba(255, 231, 155, 0.4)")
-  ol-vector-layer
-    ol-source-vector(:features="FEATURES" :projection="projection" ref="featureSourceRef")
+  ol-layer-group(:z-index="100")
+    ol-vector-layer
+      ol-source-vector(:projection="projection" ref="drawRectRef")
+        ol-interaction-draw(
+          type="Circle"
+          :geometry-function="createBox()"
+          @drawend="(event: DrawEvent) => $emit('drawRect', event.feature)"
+          v-if="MODE === MapModes.DRAW_RECTANGLE"
+        )
+          ol-style
+            ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+            ol-style-fill(color="rgba(255, 255, 255, 0)")
       ol-style
         ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-        ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+        ol-style-fill(color="rgba(255, 231, 155, 0)")
+    ol-vector-layer
+      ol-source-vector(:projection="projection" ref="drawSourceRef")
+        ol-interaction-draw(
+          type="Polygon"
+          @drawend="(event: DrawEvent) => $emit('drawPolygon', event.feature)"
+          v-if="MODE === MapModes.DRAW_POLYGON"
+        )
+          ol-style
+            ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+            ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+      ol-style(v-if="featureFillHidden")
+        ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+        ol-style-fill(color="rgba(255, 231, 155, 0)")
+    ol-vector-layer(:z-index="110" ref="featureLayerRef")
+      ol-source-vector(:features="FEATURES" :projection="projection" ref="featureSourceRef")
+        ol-style(:z-index="700")
+          ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+          ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+  ol-layerswitcherimage-control(v-if="layerList.length > 0" :layer-group="layerGroupRef.layerGroup")
 </template>
 
 <script lang="ts">
-import { computed, ref, type PropType, nextTick, type Ref } from "vue";
+import { computed, ref, type PropType, nextTick, type Ref, onMounted } from "vue";
 import { defineComponent } from "vue";
 import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
 import { Map as OLMap } from 'ol';
-import type { MapHandler } from "@/types/AppTypes";
 import { createBox } from 'ol/interaction/Draw.js';
+import type { useMap } from "@/composables/use-map";
+import type VectorLayer from "ol/layer/Vector";
 
 export default defineComponent({
   props: {
     handler: {
-      type: Object as PropType<MapHandler>,
+      type: Object as PropType<ReturnType<typeof useMap>>,
       required: true,
     },
+    featureSelect: {
+      type: Boolean,
+      required: false,
+    },
+    featureFillHidden: {
+      type: Boolean,
+      required: false,
+    },
   },
-  emits: ["drawRect", "drawPolygon"],
-  setup(props) {
+  emits: ["drawRect", "drawPolygon", "featureSelected"],
+  setup(props, { emit}) {
     const center = ref([848933.5687385835, 6793022.627243362]);
     const projection = ref("EPSG:3857");
     const zoom = ref(15);
@@ -80,29 +98,27 @@ export default defineComponent({
     const drawRectRef = ref<any>(null);
     const featureSourceRef = ref<any>(null);
     const mapRef = ref<any>(null);
+    const geoTiffSourceRef = ref<any>(null);
+
+    const layerList = ref([]);
+    const osmLayerRef = ref<any>(null);
+    const arcgisLayerRef = ref<any>(null);
+    const layerGroupRef = ref<any>(null);
 
     const max = 3000;
     function normalize(value: any) {
       return ["/", value, max];
     }
 
-    const blob_result: Ref<Blob | null> = ref(null);
+    const blob_result: Ref<string | null> = ref(null);
 
-    const red = normalize(["band", 1]);
+    const red = normalize(["band", 3]);
     const green = normalize(["band", 2]);
-    const blue = normalize(["band", 3]);
+    const blue = normalize(["band", 1]);
 
     const trueColor = ref({
       color: ["array", red, green, blue, 1],
-      gamma: 1.1,
-    });
-
-    props.handler.onDeleteDrawFeatures(() => {
-      removeDrawFeatures();
-    });
-
-    props.handler.onDeleteRectFeatures(() => {
-      removeRectFeatures();
+      gamma: 1,
     });
 
     const isMouseDown = ref(false);
@@ -143,15 +159,76 @@ export default defineComponent({
       }
     };
 
+    onMounted(() => {
+      const rectLayer: VectorLayer<VectorSource> = drawRectRef.value.layer;
+      const drawLayer: VectorLayer<VectorSource> = drawSourceRef.value.layer;
+      const featureLayer: VectorLayer<VectorSource> = featureSourceRef.value.layer;
+      rectLayer.set("name", "rectSource");
+      drawLayer.set("name", "drawSource");
+      featureLayer.set("name", "featureSource");
+
+      // @ts-ignore
+      layerList.value.push(arcgisLayerRef.value.tileLayer);
+      // @ts-ignore
+      layerList.value.push(osmLayerRef.value.tileLayer);
+
+      if (props.featureSelect) {
+        const map: OLMap = mapRef.value!.map!;
+        map.on("click", (event) => {
+          if (props.handler.blocked.value) return;
+
+          if (props.handler.MAP_MODE.value !== MapModes.DISPLAY_OSM) return;
+
+          const features = map.getFeaturesAtPixel(event.pixel, {
+            layerFilter: (layer) => {
+              return layer.get("name") === "drawSource" || layer.get("name") === "featureSource";
+            },
+          });
+          if (features && features.length > 0) {
+            emit("featureSelected", features[0]);
+          }
+        });
+
+        map.on("pointermove", (event) => {
+          if (props.handler.MAP_MODE.value !== MapModes.DISPLAY_OSM) return;
+
+          const hit = map.hasFeatureAtPixel(event.pixel, {
+            layerFilter: (layer) => layer.get("name") === "drawSource" || layer.get("name") === "featureSource",
+          });
+          map.getTargetElement().style.cursor = hit ? "pointer" : mapCursor.value;
+        });
+      }
+    });
+
     props.handler.onFeaturesAdded(async () => {
       await nextTick();
       fitToFeatures();
     });
 
+    props.handler.onDeleteFeature((feature) => {
+      const featureSource: VectorSource = drawSourceRef.value.source;
+      featureSource.removeFeature(feature);
+    });
+
     props.handler.onBaseTiffSet(async () => {
-      blob_result.value = props.handler.BASE_TIFF.value;
+      if (props.handler.BASE_TIFF.value !== null) {
+        blob_result.value = URL.createObjectURL(props.handler.BASE_TIFF.value!);
+      } else {
+        blob_result.value = "";
+      }
+
+      const map: OLMap = mapRef.value!.map!;
+      map.updateSize();
 
       await nextTick();
+    });
+
+    props.handler.onDeleteDrawFeatures(() => {
+      removeDrawFeatures();
+    });
+
+    props.handler.onDeleteRectFeatures(() => {
+      removeRectFeatures();
     });
 
     return {
@@ -170,6 +247,11 @@ export default defineComponent({
       mapRef,
       trueColor,
       blob_result,
+      geoTiffSourceRef,
+      layerList,
+      osmLayerRef,
+      arcgisLayerRef,
+      layerGroupRef,
       mousedown,
       mouseup,
       createBox,

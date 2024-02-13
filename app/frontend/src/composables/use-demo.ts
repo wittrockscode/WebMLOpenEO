@@ -8,6 +8,11 @@ export const useDemo = () => {
   const _reset_callbacks: (() => void)[] = [];
   const _finish_callbacks: (() => void)[] = [];
   const _start_callbacks: (() => void)[] = [];
+  const _close_aoi_modal_callbacks: (() => void)[] = [];
+  const _close_td_modal_callbacks: (() => void)[] = [];
+  const _close_demo_modal_callbacks: (() => void)[] = [];
+  const _create_td_callbacks: (() => void)[] = [];
+  const _reset_td_state_callbacks: (() => void)[] = [];
   const start = () => {
     _start_callbacks.forEach(callback => callback());
   };
@@ -62,8 +67,42 @@ export const useDemo = () => {
   const onStart = (callback: () => void) => {
     _start_callbacks.push(callback);
   };
+  const closeAoiModal = () => {
+    _close_aoi_modal_callbacks.forEach(callback => callback());
+  };
+  const onClosedAoiModal = (callback: () => void) => {
+    _close_aoi_modal_callbacks.push(callback);
+  };
+  const closeTdModal = () => {
+    _close_td_modal_callbacks.forEach(callback => callback());
+  };
+  const onClosedTdModal = (callback: () => void) => {
+    _close_td_modal_callbacks.push(callback);
+  };
+  const closeDemo = () => {
+    _close_demo_modal_callbacks.forEach(callback => callback());
+  };
+  const onClosedDemoModal = (callback: () => void) => {
+    _close_demo_modal_callbacks.push(callback);
+  };
+  const createTd = () => {
+    _create_td_callbacks.forEach(callback => callback());
+  };
+  const onCreateTd = (callback: () => void) => {
+    _create_td_callbacks.push(callback);
+  };
+  const resetTdState = () => {
+    _reset_td_state_callbacks.forEach(callback => callback());
+  };
+  const onResetTdState = (callback: () => void) => {
+    _reset_td_state_callbacks.push(callback);
+  };
 
   return {
+    resetTdState,
+    onResetTdState,
+    createTd,
+    onCreateTd,
     selectDoi,
     selectAoi,
     selectTot,
@@ -82,5 +121,11 @@ export const useDemo = () => {
     onReset,
     onFinish,
     onStart,
+    closeAoiModal,
+    onClosedAoiModal,
+    closeTdModal,
+    onClosedTdModal,
+    closeDemo,
+    onClosedDemoModal,
   };
 };

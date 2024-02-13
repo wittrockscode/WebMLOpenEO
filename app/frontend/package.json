@@ -13,10 +13,12 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@ngageoint/geopackage": "^4.2.4",
     "@vuepic/vue-datepicker": "^7.4.0",
     "axios": "^1.6.0",
     "geotiff": "^2.1.0",
     "mdi-vue": "^3.0.13",
+    "nanoid": "^5.0.5",
     "ol": "^8.1.0",
     "ol-contextmenu": "^5.3.0",
     "ol-ext": "^4.0.11",

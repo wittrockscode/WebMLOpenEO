@@ -19,6 +19,7 @@
       ol-source-geo-tiff(
         :normalize="false"
         :sources="[{blob}]"
+        ref="tifSourceRef"
       )
     ol-webgl-tile-layer(:style="greyscaleColors" v-if="showTif && showConfidences")
       ol-source-geo-tiff(
@@ -28,9 +29,12 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import { defineComponent } from "vue";
 import { useBlobResult } from "@/composables/use-blob-result";
+import { Map as OLMap } from 'ol';
+import { fromUrl } from "geotiff";
+import { onBeforeRouteLeave } from "vue-router";
 
 export default defineComponent({
   props: {
@@ -61,15 +65,20 @@ export default defineComponent({
 
     const blob = ref<Blob | null>(null);
 
+    const tifSourceRef = ref<any>(null);
+    const mapRef = ref<any>(null);
+
+    // argument array is now mapped to the color array,
+    // resulting in a color for each class
     const tifColors = ref({
       color: [
         'palette',
         [
           'match',
-          ['band', 1], //Band 1
+          ['band', 1],
           ...props.argsList,
         ],
-        props.colorsArray, //Color array
+        props.colorsArray,
       ],
     });
 
@@ -85,12 +94,40 @@ export default defineComponent({
       ],
     });
 
-    onMounted(() => {
+    const fitToTif = (extend: number[]) => {
+      if(mapRef.value?.map !== (null || undefined)){
+        const map: OLMap = mapRef.value!.map!;
+        map.getView().fit(extend, { size: map.getSize(), padding: [50, 50, 50, 50] });
+      }
+    };
+
+    onMounted(async () => {
       if (result.value === null) return;
+
+      const urlOb = await fromUrl(URL.createObjectURL(result.value));
+      const image = await urlOb.getImage();
+      const extend = image.getBoundingBox();
+
       blob.value = result.value;
+      await nextTick();
+      fitToTif(extend);
+
+      window.addEventListener("beforeunload", (e) => {
+        e.preventDefault();
+        window.alert("Your result will not be saved. Do you want to leave?");
+      });
     });
 
-    return { center, projection, zoom, rotation, tifColors, blob, greyscaleColors };
+    onBeforeRouteLeave((to, from , next) => {
+      const answer = window.confirm('Your result will not be saved. Do you want to leave?');
+      if (answer) {
+        next();
+      } else {
+        next(false);
+      }
+    });
+
+    return { center, projection, zoom, rotation, tifColors, blob, greyscaleColors, mapRef, tifSourceRef };
   },
 });
 </script>
