@@ -39,9 +39,6 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               v-tippy="{ content: 'This button is used to select the training data for your classification.' }"
               :responsive="false"
             )
-            .uploaded-file.mt-1.flex.justify-center(v-if="td_file")
-              button.delete-file-button(type="button" :class="'hover:text-ml-red'" @click="deleteTdFile")
-                mdicon(name="window-close")
         .row-2.items-center
           CardText.row-item.text-right.pr-5(value="Hyperparameter")
           CardButton.row-item(
