@@ -48,7 +48,7 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
           v-tippy="{ content: 'Upload the Area of Interest as a GeoJSON or GPKG file.' }"
         )
     #aoi-map
-      OlMap(@draw-polygon="map_drawend" :handler="mapHandler")
+      OlMap(@draw-polygon="map_drawend" :handler="mapHandler" featureFillHidden)
 </template>
 
 <script lang="ts">

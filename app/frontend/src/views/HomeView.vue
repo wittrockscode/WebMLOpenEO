@@ -275,7 +275,7 @@ export default defineComponent({
         const intervalID = setInterval(() => {
           current_fact.value = current_fact.value + 1;
           if (current_fact.value >= facts.value.length) current_fact.value = 0;
-        }, 5000);
+        }, 7500);
 
         td.value.features = td.value.features.map((feature) => {
           delete feature.properties!["id"];
@@ -403,6 +403,14 @@ export default defineComponent({
 
     props.demo.onClosedDemoModal(() => {
       stop_demo();
+    });
+
+    props.demo.onCreateTd(() => {
+      td_modal_handler.setState(1);
+    });
+
+    props.demo.onResetTdState(() => {
+      td_modal_handler.setState(0);
     });
 
     const start_demo = () => {

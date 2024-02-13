@@ -64,6 +64,9 @@ export default defineComponent({
           demo.closeTdModal();
           break;
         case 11:
+          demo.resetTdState();
+          break;
+        case 16:
           document.getElementById("td-button")!.click();
           break;
       };
@@ -167,12 +170,41 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "Now create Training Data via the map ...",
+        content: "Now create the Training Polygons.",
         params: {
           placement: "top",
         },
         before: () => new Promise((resolve) => {
+          demo.resetTdState();
           demo.selectTot();
+          resolve(true);
+        }),
+      },
+      {
+        target: "#new-class-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "First, create some new classes.",
+        params: {
+          placement: "bottom",
+        },
+        before: () => new Promise((resolve) => {
+          demo.createTd();
+          resolve(true);
+        }),
+      },
+      {
+        target: "#new-polygon-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "Now you can create a new polygon by selecting it on the map.",
+        params: {
+          placement: "bottom",
+        },
+        before: () => new Promise((resolve) => {
+          demo.createTd();
           resolve(true);
         }),
       },
@@ -181,10 +213,34 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "... or upload a GeoJSON/GPKG file.",
+        content: "Additionally, you can upload a GeoJSON/GPKG file containing polygons with classes. It will be added to your current polygons.",
         params: {
           placement: "top",
         },
+        before: () => new Promise((resolve) => {
+          resolve(true);
+        }),
+      },
+      {
+        target: "#download-td-button",
+        header: {
+          title: "Training Data",
+        },
+        content: "You can download your polygons as a GeoJSON file if you want.",
+        params: {
+          placement: "top",
+        },
+        before: () => new Promise((resolve) => {
+          demo.createTd();
+          resolve(true);
+        }),
+      },
+      {
+        target: "#home--training-data-modal-submit-button",
+        header: {
+          title: "Submit",
+        },
+        content: "Submit the training data.",
         before: () => new Promise((resolve) => {
           resolve(true);
         }),
