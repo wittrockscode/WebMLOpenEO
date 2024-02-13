@@ -112,6 +112,10 @@ export default defineComponent({
       fitToTif(extend);
     });
 
+    window.onunload = function() {
+        alert("Your result will not be saved. Do you want to leave?");
+    };
+
     return { center, projection, zoom, rotation, tifColors, blob, greyscaleColors, mapRef, tifSourceRef };
   },
 });

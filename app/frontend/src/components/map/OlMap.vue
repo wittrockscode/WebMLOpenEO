@@ -15,9 +15,11 @@ ol-map(
     :zoom="zoom"
     :projection="projection"
   )
-  ol-layer-group(:z-index="0")
-    ol-tile-layer
+  ol-layer-group(:z-index="0" ref="layerGroupRef")
+    ol-tile-layer(ref="osmLayerRef")
       ol-source-osm
+    ol-tile-layer(ref="arcgisLayerRef")
+      ol-source-xyz(:url="'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'")
     ol-webgl-tile-layer(v-if="BASE_TIFF" :style="trueColor" :z-index="0")
       ol-source-geo-tiff(
         :normalize="false"
@@ -38,7 +40,7 @@ ol-map(
             ol-style-fill(color="rgba(255, 255, 255, 0)")
       ol-style
         ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
-        ol-style-fill(color="rgba(255, 231, 155, 0.1)")
+        ol-style-fill(color="rgba(255, 231, 155, 0)")
     ol-vector-layer
       ol-source-vector(:projection="projection" ref="drawSourceRef")
         ol-interaction-draw(
@@ -49,11 +51,15 @@ ol-map(
           ol-style
             ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
             ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+      ol-style(v-if="featureFillHidden")
+        ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
+        ol-style-fill(color="rgba(255, 231, 155, 0)")
     ol-vector-layer(:z-index="110" ref="featureLayerRef")
       ol-source-vector(:features="FEATURES" :projection="projection" ref="featureSourceRef")
         ol-style(:z-index="700")
           ol-style-stroke(color="rgb(147, 54, 180)" :width="3")
           ol-style-fill(color="rgba(255, 231, 155, 0.4)")
+  ol-layerswitcherimage-control(v-if="layerList.length > 0" :layer-group="layerGroupRef.layerGroup")
 </template>
 
 <script lang="ts">
@@ -76,6 +82,10 @@ export default defineComponent({
       type: Boolean,
       required: false,
     },
+    featureFillHidden: {
+      type: Boolean,
+      required: false,
+    },
   },
   emits: ["drawRect", "drawPolygon", "featureSelected"],
   setup(props, { emit}) {
@@ -89,6 +99,11 @@ export default defineComponent({
     const featureSourceRef = ref<any>(null);
     const mapRef = ref<any>(null);
     const geoTiffSourceRef = ref<any>(null);
+
+    const layerList = ref([]);
+    const osmLayerRef = ref<any>(null);
+    const arcgisLayerRef = ref<any>(null);
+    const layerGroupRef = ref<any>(null);
 
     const max = 3000;
     function normalize(value: any) {
@@ -160,6 +175,11 @@ export default defineComponent({
       drawLayer.set("name", "drawSource");
       featureLayer.set("name", "featureSource");
 
+      // @ts-ignore
+      layerList.value.push(arcgisLayerRef.value.tileLayer);
+      // @ts-ignore
+      layerList.value.push(osmLayerRef.value.tileLayer);
+
       if (props.featureSelect) {
         const map: OLMap = mapRef.value!.map!;
         map.on("click", (event) => {
@@ -228,6 +248,10 @@ export default defineComponent({
       trueColor,
       blob_result,
       geoTiffSourceRef,
+      layerList,
+      osmLayerRef,
+      arcgisLayerRef,
+      layerGroupRef,
       mousedown,
       mouseup,
       createBox,

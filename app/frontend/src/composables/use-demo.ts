@@ -11,6 +11,8 @@ export const useDemo = () => {
   const _close_aoi_modal_callbacks: (() => void)[] = [];
   const _close_td_modal_callbacks: (() => void)[] = [];
   const _close_demo_modal_callbacks: (() => void)[] = [];
+  const _create_td_callbacks: (() => void)[] = [];
+  const _reset_td_state_callbacks: (() => void)[] = [];
   const start = () => {
     _start_callbacks.forEach(callback => callback());
   };
@@ -83,8 +85,24 @@ export const useDemo = () => {
   const onClosedDemoModal = (callback: () => void) => {
     _close_demo_modal_callbacks.push(callback);
   };
+  const createTd = () => {
+    _create_td_callbacks.forEach(callback => callback());
+  };
+  const onCreateTd = (callback: () => void) => {
+    _create_td_callbacks.push(callback);
+  };
+  const resetTdState = () => {
+    _reset_td_state_callbacks.forEach(callback => callback());
+  };
+  const onResetTdState = (callback: () => void) => {
+    _reset_td_state_callbacks.push(callback);
+  };
 
   return {
+    resetTdState,
+    onResetTdState,
+    createTd,
+    onCreateTd,
     selectDoi,
     selectAoi,
     selectTot,

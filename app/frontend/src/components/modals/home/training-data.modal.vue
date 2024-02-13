@@ -378,12 +378,19 @@ export default defineComponent({
       const converted = collection.features.map((feature) => {
         const props = feature.properties;
         const conv = featureToOLFeature(feature);
-        const epsg3857 = convertToEPSG4326(conv);
-        const finalFeature = OLFeatureToFeature(epsg3857);
-        finalFeature.properties = props;
-        return finalFeature;
+        console.log(feature.geometry.coordinates[0][0][0])
+        if (feature.geometry.coordinates[0][0][0] > 190) {
+          console.log("test")
+          const epsg3857 = convertToEPSG4326(conv);
+          const finalFeature = OLFeatureToFeature(epsg3857);
+          finalFeature.properties = props;
+          return finalFeature;
+        } else {
+          const finalFeature = OLFeatureToFeature(conv);
+          finalFeature.properties = props;
+          return finalFeature;
+        }
       });
-
       collection.features = converted;
       const blob = new Blob([JSON.stringify(data.collection)], { type: "text/json" });
       const link = document.createElement("a");
@@ -475,6 +482,11 @@ export default defineComponent({
 
     props.handler.onReset(() => {
       resetData();
+    });
+
+    props.handler.onSetState((state: number) => {
+      if (state === 0) drawMode.value = false;
+      if (state === 1) drawMode.value = true;
     });
 
     const featureSelected = (feature: OLFeature) => {
