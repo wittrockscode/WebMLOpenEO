@@ -1,5 +1,13 @@
 <template lang="pug">
-.file-upload(:id="`${id}_div`")
+.file-upload(:id="`${id}_div`" v-if="isClickButton")
+  CardButton(
+    id="td-upload-button"
+    :value="value"
+    @click="$emit('click')"
+    full-w
+    :disabled="disabled"
+  )
+.file-upload(:id="`${id}_div`" v-else)
   label.transition-2.form-item(
     :for="id"
     v-text="value"
@@ -22,8 +30,12 @@
 <script lang="ts">
 import type { useModal } from "@/composables/use-modal";
 import { defineComponent, ref, type PropType, computed } from "vue";
+import CardButton from "@/components/base/CardButton.vue";
 
 export default defineComponent({
+  components: {
+    CardButton,
+  },
   props: {
     value: {
       type: String,
@@ -58,6 +70,10 @@ export default defineComponent({
       default: false,
     },
     disabled: {
+      type: Boolean,
+      default: false,
+    },
+    isClickButton: {
       type: Boolean,
       default: false,
     },
