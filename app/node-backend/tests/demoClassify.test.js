@@ -29,8 +29,8 @@ describe('API /api/demoClassify endpoint test', () => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    // OpenAPI-Validator catches big mistakes and returns 400
-    expect(response.statusCode).toBe(400);
+    // OpenAPI-Validator catches big mistakes and returns 400, but OpenAPI-Validator is turned off because of uniform error-messages, so Joi returns 422
+    expect(response.statusCode).toBe(422);
   });
 
   test('POST /api/demoClassify should decline data which isnt the same as demodata.json', async () => {
