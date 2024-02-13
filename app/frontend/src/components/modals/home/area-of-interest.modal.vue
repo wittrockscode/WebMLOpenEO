@@ -206,7 +206,7 @@ export default defineComponent({
       }
 
       if (features !== undefined && features !== null && features.length === 1) {
-        const valid = validateGeoJsonFeaturePolygon(features[0]!);
+        const valid = validateGeoJsonFeaturePolygon((features[0] as Feature<Polygon>)!);
         if (Object.values(valid).includes(false)) {
           errors.value.aoi_feature = true;
           errors.value.aoi_feature_error_text = "The uploaded file does not contain a valid Polygon Feature.";
