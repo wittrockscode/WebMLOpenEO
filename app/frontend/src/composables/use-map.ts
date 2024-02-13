@@ -74,7 +74,6 @@ export const useMap = () => {
     const features = featureCollection.features.map(feature => {
       return featureToOLFeature(feature);
     });
-    console.log(features);
     addFeatures(features);
   };
 
