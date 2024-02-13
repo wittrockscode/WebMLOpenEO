@@ -63,6 +63,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             v-tippy="{ content: 'This button is used to select the resolution for your classification.' }"
             withChoose
           )
+        label.text-xl.ml-1.text-ml-red.font-semibold.mb-2( v-if="errors.request") {{`Error: ${errors.request_text}`}}
         .row-2.items-center.row-2-b
           .pr-5.row-item
             button.demo-button.transition-2(id="demo-button" v-text="'Demo'" @click="start_demo")
@@ -140,6 +141,8 @@ export default defineComponent({
       aoi: false,
       td: false,
       hyperparams: false,
+      request: false,
+      request_text: "",
     });
 
     const facts = ref([]);
@@ -220,6 +223,8 @@ export default defineComponent({
     };
 
     const start_demo_request = async () => {
+      errors.value.request = false;
+      errors.value.request_text = "";
       loading_result.value = true;
       const facts_response = await facts_api_request();
       facts.value = facts_response;
@@ -229,8 +234,11 @@ export default defineComponent({
       }, 5000);
       const start_time = Date.now();
       const response = await demo_classify_request(demo_data_payload.value!);
-      if (response.error) {
-        router.push("/error");
+      if ("error" in response) {
+        errors.value.request = true;
+        errors.value.request_text = (response.error as unknown as any).message;
+        loading_result.value = false;
+        clearInterval(intervalID);
         return;
       }
 
@@ -252,13 +260,19 @@ export default defineComponent({
     const start_request = async () => {
       if (aoi.value && toi.value?.length === 2 && tot.value?.length === 2 && td.value && resolution.value) {
         loading_result.value = true;
-
+        errors.value.request = false;
+        errors.value.request_text = "";
         const facts_response = await facts_api_request();
         facts.value = facts_response;
         const intervalID = setInterval(() => {
           current_fact.value = current_fact.value + 1;
           if (current_fact.value >= facts.value.length) current_fact.value = 0;
         }, 5000);
+
+        td.value.features = td.value.features.map((feature) => {
+          delete feature.properties!["id"];
+          return feature;
+        });
 
         const payload: Req.Classify.Payload = {
           model: "RandomForest",
@@ -281,7 +295,10 @@ export default defineComponent({
 
         const response = await classify_request(payload);
         if ("error" in response) {
-          router.push("/error");
+          errors.value.request = true;
+          errors.value.request_text = (response.error as unknown as any).response.data.errors;
+          loading_result.value = false;
+          clearInterval(intervalID);
           return;
         }
 
