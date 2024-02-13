@@ -12,6 +12,7 @@ export const useModal = <T,>(modalId: ModalIds, submit_callback: (payload: Nulla
   const _submit_callback_arr: ((payload: Nullable<T>, identifyier: number) => void)[] = [];
   const _open_callback_arr: ((value?: any) => void)[] = [];
   const __before_submit_callback_arr: (() => boolean)[] = [];
+  const _close_callback_arr: (() => void)[] = [];
 
   const cancelFn = () => {
     cancel_callback();
@@ -21,10 +22,10 @@ export const useModal = <T,>(modalId: ModalIds, submit_callback: (payload: Nulla
     close();
   };
   const submitFn = (identifyier: number = 0) => {
+    submit_callback(submit_payload.value);
     _submit_callback_arr.forEach(callback => {
       callback(submit_payload.value, identifyier);
     });
-    submit_callback(submit_payload.value);
     close();
   };
   const outerClickFn = () => {
@@ -46,6 +47,7 @@ export const useModal = <T,>(modalId: ModalIds, submit_callback: (payload: Nulla
       visible.value = false;
       const elem = window.document.getElementById(modalId);
       if(elem) elem.classList.remove("visible");
+      _close_callback_arr.forEach(callback => callback());
     }
   };
 
@@ -82,5 +84,9 @@ export const useModal = <T,>(modalId: ModalIds, submit_callback: (payload: Nulla
     __before_submit_callback_arr.push(callback);
   };
 
-  return { modal_id, zIndex, cancelFn, submitFn, outerClickFn, open, close, setPayload, onCancel, onSubmit, onOpen, setZIndex, onBeforeSubmit, beforeSubmit };
+  const onClose = (callback: () => void) => {
+    _close_callback_arr.push(callback);
+  };
+
+  return { modal_id, zIndex, onClose, cancelFn, submitFn, outerClickFn, open, close, setPayload, onCancel, onSubmit, onOpen, setZIndex, onBeforeSubmit, beforeSubmit };
 };

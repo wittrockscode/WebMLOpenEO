@@ -53,9 +53,10 @@ export default defineComponent({
       return true;
     });
 
-    props.handler.onSubmit(() => {
+    props.handler.onBeforeSubmit(() => {
       props.handler.setPayload(textValue.value);
       textValue.value = "";
+      return true;
     });
     return { textValue, errors };
   },

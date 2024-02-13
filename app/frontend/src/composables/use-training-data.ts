@@ -19,12 +19,12 @@ export const useTrainingData = () => {
     polygons.value.push(polygon);
   };
 
-  const removePolygon = (polygon: Feature) => {
-    polygons.value = polygons.value.filter((p) => p.id !== polygon.id);
+  const removePolygon = (id: string | null) => {
+    polygons.value = polygons.value.filter((p) => p.properties?.id !== id);
   };
 
-  const setPolygonClass = (polygon: Feature, className: string) => {
-    const poly = polygons.value.find((p) => p?.properties?.name === polygon?.properties?.name);
+  const setPolygonClass = (id: string | null, className: string) => {
+    const poly = polygons.value.find((p) => p?.properties?.id === id);
     if (!poly) return;
 
     poly.properties!.class = className;

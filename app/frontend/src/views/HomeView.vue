@@ -183,7 +183,6 @@ export default defineComponent({
       }
       tot.value = payload.tot;
       td.value = payload.td;
-      console.log(payload);
       if (payload.withFile)
         td_file.value = payload.fileName;
     };

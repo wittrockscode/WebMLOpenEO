@@ -47,7 +47,9 @@ export const geoJsonFileToFeatureCollection = async (file: File): Promise<Featur
 };
 
 export const convertToEPSG3857 = (feature: OLFeature) => {
-  return new OLFeature(feature.getGeometry()?.clone().transform("EPSG:4326", "EPSG:3857"));
+  const newFeat = new OLFeature(feature.getGeometry()?.clone().transform("EPSG:4326", "EPSG:3857"));
+  newFeat.setId(feature.getId());
+  return newFeat;
 };
 
 export const convertToEPSG4326 = (feature: OLFeature) => {
@@ -55,8 +57,9 @@ export const convertToEPSG4326 = (feature: OLFeature) => {
 };
 
 export const featureToOLFeature = (feature: Feature) => {
-  const abc = new OLGeoJSON().readFeature(feature);
-  return abc;
+  const olFeat = new OLGeoJSON().readFeature(feature);
+  olFeat.setId(feature.properties?.id);
+  return olFeat;
 };
 
 export const OLFeatureToFeature = (feature: OLFeature) => {
