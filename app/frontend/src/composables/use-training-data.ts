@@ -57,5 +57,17 @@ export const useTrainingData = () => {
     polygons.value = [];
   };
 
-  return { classes, polygons, aot, tot, currentClass, resetPolygons, setCurrentClass, setTot, setAot, addClass, removeClass, addPolygon, removePolygon, setPolygonClass, getTrainingData };
+  const resetClasses = () => {
+    classes.value = [];
+  };
+
+  const reset = () => {
+    classes.value = [];
+    polygons.value = [];
+    aot.value = null;
+    tot.value = null;
+    currentClass.value = "";
+  };
+
+  return { classes, polygons, aot, tot, currentClass, reset, resetClasses, resetPolygons, setCurrentClass, setTot, setAot, addClass, removeClass, addPolygon, removePolygon, setPolygonClass, getTrainingData };
 };

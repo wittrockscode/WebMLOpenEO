@@ -36,9 +36,18 @@ export default defineComponent({
     const ntree: Ref<null | number> = ref(null);
     const mtry: Ref<null | number> = ref(null);
 
+    const resetData = () => {
+      ntree.value = null;
+      mtry.value = null;
+    };
+
     props.handler.onBeforeSubmit(() => {
       props.handler.setPayload([{ name: "ntree", value: ntree.value ?? 0 }, { name: "mtry", value: mtry.value ?? 0 }]);
       return true;
+    });
+
+    props.handler.onReset(() => {
+      resetData();
     });
 
     return { ntree, mtry };

@@ -104,6 +104,19 @@ export default defineComponent({
       aoi_feature: false,
       aoi_feature_error_text: "",
     });
+
+    const resetData = () => {
+      aoi.value = null;
+      toi.value = null;
+      withFile.value = false;
+      fileName.value = "";
+      errors.value.sentinel_img = false;
+      errors.value.sentinel_img_error_text = "";
+      errors.value.aoi_feature = false;
+      errors.value.aoi_feature_error_text = "";
+      mapHandler.reset();
+    };
+
     const toiSelected = (date: Date[]) => {
       toi.value = date;
     };
@@ -231,6 +244,10 @@ export default defineComponent({
     props.handler.onBeforeSubmit(() => {
       props.handler.setPayload({ aoi: aoi.value, toi: toi.value, withFile: withFile.value, fileName: fileName.value});
       return true;
+    });
+
+    props.handler.onReset(() => {
+      resetData();
     });
 
     return {

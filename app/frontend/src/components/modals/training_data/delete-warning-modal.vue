@@ -1,10 +1,8 @@
 <template lang="pug">
-Modal(:handler="handler" title="Change Mode" :id="id")
+Modal(:handler="handler" title="Reset Training Data" :id="id")
   #delete-warning.flex.flex-col
     template(v-if="type === 'upload'")
-      p Uploading data will delete the current polygons. Are you sure you want to continue?
-    template(v-else-if="type === 'draw'")
-      p Drawing Polygons will delete the current uploaded data. Are you sure you want to continue?
+      p This will delete the current polygons and classes. Are you sure you want to continue?
 </template>
 
 <script lang="ts">

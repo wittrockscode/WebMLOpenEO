@@ -18,7 +18,7 @@ EditPolygonModal(
   :trainingDataClasses="trainingDataClasses"
   :trainingData="trainingData"
 )
-DeleteWarningModal(:handler="deleteWarningHandler" title="Change Mode" :id="ModalIds.TRAINING_DATA__DELETE_WARNING_MODAL")
+DeleteWarningModal(:handler="deleteWarningHandler" :id="ModalIds.TRAINING_DATA__DELETE_WARNING_MODAL")
 Modal(:handler="handler" title="Training Data" :id="id")
   .flex.items-stretch.content
     .control-group.flex.flex-col.justify-between.mt-4.content-group(v-if="!drawMode")
@@ -61,14 +61,14 @@ Modal(:handler="handler" title="Training Data" :id="id")
         CardButton.mb-5.mt-2(
           id="draw-button-td"
           :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
-          @click="showWarningModal('draw')"
+          @click="toggleDrawMode"
           full-w
           :disabled="tot === null"
           v-tippy="{ content: 'Create new training polygons on the map.' }"
         )
         FileUpload(
           id="td-upload"
-          :value="isClickButton ? 'Delete Polygons' : 'Upload File'"
+          :value="isClickButton ? 'Reset Data' : 'Import Polygons'"
           :types="['json', 'geojson', 'gpkg']"
           input-class="file-upload-label-full"
           :disabled="tot === null"
@@ -113,7 +113,13 @@ Modal(:handler="handler" title="Training Data" :id="id")
         @click="go_back"
       )
     #td-map
-      OlMap(@draw-polygon="map_drawend" :handler="mapHandler" @draw-rect="map_drawrect" feature-select @feature-selected="featureSelected")
+      OlMap(
+        :handler="mapHandler"
+        feature-select
+        @draw-polygon="map_drawend"
+        @draw-rect="map_drawrect"
+        @feature-selected="featureSelected"
+      )
 </template>
 
 <script lang="ts">
@@ -186,12 +192,31 @@ export default defineComponent({
     const showInfoText = ref(false);
     const isClickButton = ref(false);
 
+    const drawMode = ref(false);
+
     const errors = ref({
       sentinel_img: false,
       sentinel_img_error_text: "",
       td_feature_collection: false,
       td_feature_collection_error_text: "",
     });
+
+    const resetData = () => {
+      trainingData.resetPolygons();
+      mapHandler.reset();
+      withFile.value = false;
+      fileName.value = "";
+      isClickButton.value = false;
+      loadingImg.value = false;
+      showInfoText.value = false;
+      errors.value = {
+        sentinel_img: false,
+        sentinel_img_error_text: "",
+        td_feature_collection: false,
+        td_feature_collection_error_text: "",
+      };
+      drawMode.value = false;
+    };
 
     const newClassHandler = useModal<string>(
       ModalIds.TRAINING_DATA__NEW_CLASS_MODAL,
@@ -222,13 +247,8 @@ export default defineComponent({
           withFile.value = false;
           fileName.value = "";
           trainingData.resetPolygons();
+          trainingData.resetClasses();
           isClickButton.value = false;
-        } else if (payload === "draw") {
-          mapHandler.reset();
-          withFile.value = false;
-          fileName.value = "";
-          trainingData.resetPolygons();
-          toggleDrawMode();
         }
       },
       () => {},
@@ -244,8 +264,6 @@ export default defineComponent({
       125,
     );
 
-    const drawMode = ref(false);
-
     const trainingDataClasses = computed(() => {
       return trainingData.classes.value;
     });
@@ -255,13 +273,6 @@ export default defineComponent({
     });
 
     const select_on_map = () => {
-      if (withFile.value) {
-        mapHandler.reset();
-        errors.value.td_feature_collection = false;
-        errors.value.td_feature_collection_error_text = "";
-        withFile.value = false;
-        fileName.value = "";
-      }
       mapHandler.block();
       mapHandler.changeMode(MapModes.DRAW_POLYGON);
     };
@@ -276,7 +287,6 @@ export default defineComponent({
       geoJson.properties["id"] = id;
       feature.setId(id);
       finishPolygonHandler.open(geoJson);
-      isClickButton.value = true;
 
       setTimeout(() => {
         mapHandler.unblock();
@@ -298,7 +308,6 @@ export default defineComponent({
     const fileUploaded = async (file: File) => {
       errors.value.td_feature_collection = false;
       errors.value.td_feature_collection_error_text = "";
-      mapHandler.reset();
       let featureCollection: FeatureCollection | null = null;
       const fileName2 = file.name.split(".").slice(-1)[0];
 
@@ -352,6 +361,8 @@ export default defineComponent({
 
         return feature;
       });
+
+      isClickButton.value = true;
 
       mapHandler.addFeatureCollection(featureCollection);
     };
@@ -410,7 +421,7 @@ export default defineComponent({
       const response = await sentinel_img_request(payload);
 
       if ('error' in response) {
-        const response_error = await (response.error as any).response.data.text();
+        const response_error = JSON.parse(await (response.error as any).response.data.text());
         errors.value.sentinel_img = true;
         errors.value.sentinel_img_error_text = response_error.message;
         loadingImg.value = false;
@@ -463,6 +474,10 @@ export default defineComponent({
       return true;
     });
 
+    props.handler.onReset(() => {
+      resetData();
+    });
+
     const featureSelected = (feature: OLFeature) => {
       editPolygonHandler.open(feature);
     };
@@ -470,9 +485,6 @@ export default defineComponent({
     const showWarningModal = (type: string) => {
       if (type === "upload") {
         if (trainingDataPolygons.value.length > 0) deleteWarningHandler.open("upload");
-      } else if (type === "draw") {
-        if (trainingDataPolygons.value.length > 0) deleteWarningHandler.open("draw");
-        else toggleDrawMode();
       }
     };
 

@@ -176,7 +176,7 @@ export default defineComponent({
         header: {
           title: "Training Data",
         },
-        content: "You can select an area where to fetch a satellite image here.",
+        content: "You can select an area to fetch a satellite image.",
         before: () => new Promise((resolve) => {
           document.getElementById("td-button")!.click();
           resolve(true);
