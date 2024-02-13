@@ -55,36 +55,34 @@ Modal(:handler="handler" title="Training Data" :id="id")
         CardButton.mb-5.mt-2(
           id="draw-button-td"
           :value="featueCollectionExists ? 'Edit current selection' : 'Select on map'"
-          @click="toggleDrawMode"
+          @click="showWarningModal('draw')"
           full-w
-          :disabled="tot === null || aot === null"
+          :disabled="tot === null"
           v-tippy="{ content: 'Create new training polygons on the map.' }"
         )
         FileUpload(
           id="td-upload"
-          value="Upload File"
+          :value="isClickButton ? 'Delete Polygons' : 'Upload File'"
           :types="['json', 'geojson', 'gpkg']"
           input-class="file-upload-label-full"
           :disabled="tot === null"
           @uploaded="(file) => fileUploaded(file)"
           v-tippy="{ content: 'Upload the training data as a GeoJSON or GPKG file.' }"
+          @click="showWarningModal('upload')"
+          :isClickButton="isClickButton"
         )
     .control-group.flex.flex-col.justify-around.w-full.mt-4(v-else)
       CardButton(
         id="new-class-button"
         value="Create a new Class"
         @click="newClass"
-        icon
-        iconText="pencil-outline"
         v-tippy="{ content: 'Create a new class for the training data.' }"
       )
       CardButton(
         id="new-polygon-button"
-        value="Select a new Polygon"
+        value="Create a new Polygon"
         @click="newPolygon"
         :disabled="trainingDataClasses.length === 0"
-        icon
-        iconText="vector-polyline-plus"
         v-tippy="{ content: 'Create a new polygon.' }"
       )
       CardButton(
@@ -176,6 +174,7 @@ export default defineComponent({
     const loadingImg = ref(false);
 
     const showInfoText = ref(false);
+    const isClickButton = ref(false);
 
     const errors = ref({
       sentinel_img: false,
@@ -209,8 +208,16 @@ export default defineComponent({
       ModalIds.TRAINING_DATA__DELETE_WARNING_MODAL,
       (payload) => {
         if (payload === "upload") {
-          return;
+          mapHandler.reset();
+          withFile.value = false;
+          fileName.value = "";
+          trainingData.resetPolygons();
+          isClickButton.value = false;
         } else if (payload === "draw") {
+          mapHandler.reset();
+          withFile.value = false;
+          fileName.value = "";
+          trainingData.resetPolygons();
           toggleDrawMode();
         }
       },
@@ -245,6 +252,7 @@ export default defineComponent({
       const geoJson = JSON.parse(geoJsonString) as Feature;
       mapHandler.changeMode(MapModes.DISPLAY_OSM);
       finishPolygonHandler.open(geoJson);
+      isClickButton.value = true;
     };
 
     const map_drawrect = (feature: OLFeature) => {
@@ -274,7 +282,7 @@ export default defineComponent({
           featureCollection = featuresToFeatureCollection(feats);
         }
       } else if (fileName2 === "json" || fileName2 === "geojson") {
-        const featureCollection = await geoJsonFileToFeatureCollection(file);
+        featureCollection = await geoJsonFileToFeatureCollection(file);
 
         if (featureCollection === null) {
           errors.value.td_feature_collection = true;
@@ -414,7 +422,12 @@ export default defineComponent({
     });
 
     const showWarningModal = (type: string) => {
-      deleteWarningHandler.open(type);
+      if (type === "upload") {
+        if (trainingDataPolygons.value.length > 0) deleteWarningHandler.open("upload");
+      } else if (type === "draw") {
+        if (trainingDataPolygons.value.length > 0) deleteWarningHandler.open("draw");
+        else toggleDrawMode();
+      }
     };
 
     const test = () => {
@@ -452,6 +465,7 @@ export default defineComponent({
       showInfoText,
       downloadData,
       trainingDataPolygons,
+      isClickButton,
     };
   },
 });
