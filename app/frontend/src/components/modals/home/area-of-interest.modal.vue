@@ -24,7 +24,7 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
           )
           CardButton(
             id="sentinel-img-aoi-button"
-            :value="'Fetch fitting satellite image'"
+            :value="'Fetch satellite image'"
             @click="fetchSentinelImage"
             full-w
             :disabled="toi === null || aoi === null"
@@ -48,7 +48,7 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
           v-tippy="{ content: 'Upload the Area of Interest as a GeoJSON or GPKG file.' }"
         )
     #aoi-map
-      OlMap(@draw-rect="map_drawend" :handler="mapHandler")
+      OlMap(@draw-polygon="map_drawend" :handler="mapHandler")
 </template>
 
 <script lang="ts">
@@ -164,7 +164,7 @@ export default defineComponent({
       errors.value.aoi_feature_error_text = "";
       mapHandler.reset();
       mapHandler.deleteRectFeatures();
-      mapHandler.changeMode(MapModes.DRAW_RECTANGLE);
+      mapHandler.changeMode(MapModes.DRAW_POLYGON);
     };
 
     const map_drawend = (feature: OLFeature) => {

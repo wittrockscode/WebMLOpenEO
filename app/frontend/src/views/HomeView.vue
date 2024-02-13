@@ -20,6 +20,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               :error="errors.aoi"
               @click="aoi_modal_handler.open()"
               v-tippy="{ content: 'This button is used to select the area of interest for your classification.' }"
+              :responsive="false"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="aoi_file")
               small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="aoi_file")
@@ -36,6 +37,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
               :error="errors.td"
               @click="td_modal_handler.open()"
               v-tippy="{ content: 'This button is used to select the training data for your classification.' }"
+              :responsive="false"
             )
             .uploaded-file.mt-1.flex.justify-center(v-if="td_file")
               small.text-ellipsis.whitespace-nowrap.overflow-hidden(v-text="td_file")
@@ -51,6 +53,7 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             :error="errors.hyperparams"
             @click="hyperparameter_modal_handler.open()"
             v-tippy="{ content: 'Tune hyperparameters for your clasification.' }"
+            :responsive="false"
           )
         .row-2.items-center
           CardText.row-item.text-right.pr-5(value="Resolution")
@@ -59,9 +62,10 @@ TrainingDataModal(:handler="td_modal_handler" :id="ModalIds.HOME__TRAINING_DATA_
             :values="[{ label: '10x10', value: 10 }, { label: '30x30', value: 30 }, { label: '60x60', value: 60 }]"
             :completed="resolution !== null"
             :selected="1"
-            @change="value => resolution = value"
+            @change="(value) => { resolution = value; errors.resolution = false }"
             v-tippy="{ content: 'This button is used to select the resolution for your classification.' }"
             withChoose
+            :error="errors.resolution"
           )
         label.text-xl.ml-1.text-ml-red.font-semibold.mb-2( v-if="errors.request") {{`Error: ${errors.request_text}`}}
         .row-2.items-center.row-2-b
@@ -141,6 +145,7 @@ export default defineComponent({
       aoi: false,
       td: false,
       hyperparams: false,
+      resolution: false,
       request: false,
       request_text: "",
     });
@@ -315,6 +320,7 @@ export default defineComponent({
         if (!toi.value || toi.value.length !== 2) errors.value.toi = true;
         if (!tot.value || tot.value.length !== 2) errors.value.td = true;
         if (!td.value) errors.value.td = true;
+        if (!resolution.value) errors.value.resolution = true;
       }
     };
 

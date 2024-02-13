@@ -2,7 +2,7 @@
 .dropdown-select
   select.rounded.bg-ml-dark.text-ml-text.transition-2.hover-shadow.form-item.w-full.text-center.text-3xl.cursor-pointer.pl-5(
     :id="id"
-    :class="`p-0.5 ${completed ? 'form-completed' : ''} ${clicked ? '' : 'hover:bg-ml-blue hover:text-ml-black'}`"
+    :class="`p-0.5 ${completed ? 'form-completed' : ''} ${clicked ? '' : 'hover:bg-ml-blue hover:text-ml-black'} ${error ? 'form-error' : ''}`"
     @change="event => $emit('change', event.target.value)"
     @click="clicked = !clicked"
   )
@@ -42,6 +42,10 @@ export default defineComponent({
       default: false,
     },
     completed: {
+      type: Boolean,
+      default: false,
+    },
+    error: {
       type: Boolean,
       default: false,
     },
