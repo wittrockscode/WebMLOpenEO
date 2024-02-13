@@ -44,7 +44,7 @@ export default defineComponent({
 
     const demoOptions = {
       labels: {
-        buttonSkip: 'Skip tour',
+        buttonSkip: 'Exit tour',
         buttonPrevious: 'Previous',
         buttonNext: 'Next',
         buttonStop: 'Start a demo classification',
