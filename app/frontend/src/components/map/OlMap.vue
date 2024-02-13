@@ -57,7 +57,7 @@ ol-map(
 </template>
 
 <script lang="ts">
-import { computed, ref, type PropType, nextTick, type Ref } from "vue";
+import { computed, ref, type PropType, nextTick, type Ref, onMounted } from "vue";
 import { defineComponent } from "vue";
 import { MapModes } from "@/enums";
 import VectorSource from 'ol/source/Vector';
@@ -71,9 +71,13 @@ export default defineComponent({
       type: Object as PropType<ReturnType<typeof useMap>>,
       required: true,
     },
+    featureSelect: {
+      type: Boolean,
+      required: false,
+    }
   },
-  emits: ["drawRect", "drawPolygon"],
-  setup(props) {
+  emits: ["drawRect", "drawPolygon", "featureSelected"],
+  setup(props, { emit}) {
     const center = ref([848933.5687385835, 6793022.627243362]);
     const projection = ref("EPSG:3857");
     const zoom = ref(15);
@@ -147,9 +151,37 @@ export default defineComponent({
       }
     };
 
+    onMounted(() => {
+      if (props.featureSelect) {
+        const map: OLMap = mapRef.value!.map!;
+        map.on("click", (event) => {
+          if (props.handler.blocked.value) return;
+
+          if (props.handler.MAP_MODE.value !== MapModes.DISPLAY_OSM) return;
+
+          const features = map.getFeaturesAtPixel(event.pixel);
+          if (features && features.length > 0) {
+            emit("featureSelected", features[0]);
+          }
+        });
+
+        map.on("pointermove", (event) => {
+          if (props.handler.MAP_MODE.value !== MapModes.DISPLAY_OSM) return;
+
+          const hit = map.hasFeatureAtPixel(event.pixel);
+          map.getTargetElement().style.cursor = hit ? "pointer" : mapCursor.value;
+        });
+      }
+    });
+
     props.handler.onFeaturesAdded(async () => {
       await nextTick();
       fitToFeatures();
+    });
+
+    props.handler.onDeleteFeature((feature) => {
+      const featureSource: VectorSource = drawSourceRef.value.source;
+      featureSource.removeFeature(feature);
     });
 
     props.handler.onBaseTiffSet(async () => {

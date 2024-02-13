@@ -50,8 +50,8 @@ export default defineComponent({
       val.value = props.trainingDataClasses[0] ?? "";
     });
 
-    props.handler.onSubmit(() => {
-      if (feat.value === null) return;
+    props.handler.onBeforeSubmit(() => {
+      if (feat.value === null) return true;
       if (feat.value.properties === undefined || feat.value.properties === null) {
         feat.value.properties = {};
       }
@@ -59,6 +59,8 @@ export default defineComponent({
       props.handler.setPayload(feat.value);
       feat.value = null;
       val.value = "";
+
+      return true;
     });
     return { setVal };
   },

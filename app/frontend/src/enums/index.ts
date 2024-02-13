@@ -6,6 +6,7 @@ export enum ModalIds {
   TRAINING_DATA__EDIT_CLASSES_MODAL = "training-data--edit-classes-modal",
   TRAINING_DATA__FINISH_POLYGON_MODAL = "training-data--finish-polygon-modal",
   TRAINING_DATA__DELETE_WARNING_MODAL = "training-data--delete-warning-modal",
+  TRAINING_DATA__EDIT_POLYGON_MODAL = "training-data--edit-polygon-modal",
 }
 
 export enum MapModes {

@@ -12,6 +12,12 @@ FinishPolygonModal(
   :trainingDataClasses="trainingDataClasses"
   :trainingData="trainingData"
 )
+EditPolygonModal(
+  :handler="editPolygonHandler"
+  :id="ModalIds.TRAINING_DATA__EDIT_POLYGON_MODAL"
+  :trainingDataClasses="trainingDataClasses"
+  :trainingData="trainingData"
+)
 DeleteWarningModal(:handler="deleteWarningHandler" title="Change Mode" :id="ModalIds.TRAINING_DATA__DELETE_WARNING_MODAL")
 Modal(:handler="handler" title="Training Data" :id="id")
   .flex.items-stretch.content
@@ -107,7 +113,7 @@ Modal(:handler="handler" title="Training Data" :id="id")
         @click="go_back"
       )
     #td-map
-      OlMap(@draw-polygon="map_drawend" :handler="mapHandler" @draw-rect="map_drawrect")
+      OlMap(@draw-polygon="map_drawend" :handler="mapHandler" @draw-rect="map_drawrect" feature-select @feature-selected="featureSelected")
 </template>
 
 <script lang="ts">
@@ -129,6 +135,9 @@ import EditClassesModal from "../training_data/edit-classes.modal.vue";
 import DatePicker from "@/components/form/DatePicker.vue";
 import FinishPolygonModal from "../training_data/finish-polygon.modal.vue";
 import DeleteWarningModal from "../training_data/delete-warning-modal.vue";
+import EditPolygonModal from "../training_data/edit-polygon-modal.vue";
+
+import { nanoid } from 'nanoid';
 
 import { useModal } from "@/composables/use-modal";
 import { useTrainingData } from "@/composables/use-training-data";
@@ -147,6 +156,7 @@ export default defineComponent({
     DatePicker,
     FinishPolygonModal,
     DeleteWarningModal,
+    EditPolygonModal,
   },
   props: {
     handler: {
@@ -225,6 +235,15 @@ export default defineComponent({
       120,
     );
 
+    const editPolygonHandler = useModal<OLFeature>(
+      ModalIds.TRAINING_DATA__EDIT_POLYGON_MODAL,
+      (feature: OLFeature | null) => {
+        if (feature) mapHandler.removeFeature(feature);
+      },
+      () => {},
+      125,
+    );
+
     const drawMode = ref(false);
 
     const trainingDataClasses = computed(() => {
@@ -243,24 +262,37 @@ export default defineComponent({
         withFile.value = false;
         fileName.value = "";
       }
+      mapHandler.block();
       mapHandler.changeMode(MapModes.DRAW_POLYGON);
     };
 
     const map_drawend = (feature: OLFeature) => {
+      mapHandler.changeMode(MapModes.DISPLAY_OSM);
       const format = new OLGeoJSON();
       const geoJsonString = format.writeFeature(feature);
       const geoJson = JSON.parse(geoJsonString) as Feature;
-      mapHandler.changeMode(MapModes.DISPLAY_OSM);
+      if (!geoJson.properties) geoJson.properties = {};
+      const id = nanoid();
+      geoJson.properties["id"] = id;
+      feature.setId(id);
       finishPolygonHandler.open(geoJson);
       isClickButton.value = true;
+
+      setTimeout(() => {
+        mapHandler.unblock();
+      }, 400);
     };
 
     const map_drawrect = (feature: OLFeature) => {
+      mapHandler.changeMode(MapModes.DISPLAY_OSM);
       const format = new OLGeoJSON();
       const geoJsonString = format.writeFeature(feature);
       const geoJson = JSON.parse(geoJsonString) as Feature;
-      mapHandler.changeMode(MapModes.DISPLAY_OSM);
       trainingData.aot.value = geoJson.geometry as Polygon;
+
+      setTimeout(() => {
+        mapHandler.unblock();
+      }, 400);
     };
 
     const fileUploaded = async (file: File) => {
@@ -310,13 +342,22 @@ export default defineComponent({
 
       withFile.value = true;
       fileName.value = file.name;
-      featureCollection.features.forEach((feature) => {
+      featureCollection.features = featureCollection.features.map((feature: Feature) => {
+        if (!feature.properties) feature.properties = {};
+        feature.properties["id"] = nanoid();
+
         trainingData.addPolygon(feature);
+        if (!trainingData.classes.value.includes(feature.properties?.class as string))
+          trainingData.addClass(feature.properties?.class as string);
+
+        return feature;
       });
+
       mapHandler.addFeatureCollection(featureCollection);
     };
 
     const selectAreaOftraining = () => {
+      mapHandler.block();
       mapHandler.deleteRectFeatures();
       mapHandler.changeMode(MapModes.DRAW_RECTANGLE);
     };
@@ -416,10 +457,15 @@ export default defineComponent({
       drawMode.value = false;
     };
 
-    props.handler.onSubmit(() => {
+    props.handler.onBeforeSubmit(() => {
       const data = trainingData.getTrainingData();
       props.handler.setPayload({ td: data.collection, tot: data.tot!, withFile: withFile.value, fileName: fileName.value });
+      return true;
     });
+
+    const featureSelected = (feature: OLFeature) => {
+      editPolygonHandler.open(feature);
+    };
 
     const showWarningModal = (type: string) => {
       if (type === "upload") {
@@ -428,10 +474,6 @@ export default defineComponent({
         if (trainingDataPolygons.value.length > 0) deleteWarningHandler.open("draw");
         else toggleDrawMode();
       }
-    };
-
-    const test = () => {
-      console.log("test");
     };
 
     return {
@@ -461,11 +503,12 @@ export default defineComponent({
       errors,
       deleteWarningHandler,
       showWarningModal,
-      test,
       showInfoText,
       downloadData,
       trainingDataPolygons,
       isClickButton,
+      featureSelected,
+      editPolygonHandler,
     };
   },
 });

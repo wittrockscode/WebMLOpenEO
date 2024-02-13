@@ -13,6 +13,15 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
             range
             v-tippy="{ content: 'Select the date range for the training data.' }"
           )
+          label.text-lg.font-semibold(for="draw-button") Area of Interest
+          CardButton.mb-5.mt-2(
+            id="draw-button"
+            :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'"
+            @click="select_on_map"
+            full-w
+            :disabled="toi === null"
+            v-tippy="{ content: 'Create a new Polygon on the map.' }"
+          )
           CardButton(
             id="sentinel-img-aoi-button"
             :value="'Fetch fitting satellite image'"
@@ -28,16 +37,8 @@ Modal(:handler="handler" title="Area of Interest" :id="id")
             p.text-base.text-ml-dark.inline-block Black pixels indicate missing data. Values for these pixels will be determined by interpolation. Classification results will be worse the more data is missing inside the satellite image (e.g. black pixels).
       .options-group.w-full
         p.text-sm.ml-1.text-ml-red.font-semibold(for="aoi-upload" v-if="errors.aoi_feature") {{errors.aoi_feature_error_text}}
-        label.text-lg.font-semibold(for="draw-button") Area of Interest
-        CardButton.mb-5.mt-2(
-          id="draw-button"
-          :value="isPolygonSelected ? 'Draw a new Polygon' : 'Select on map'"
-          @click="select_on_map"
-          full-w
-          :disabled="toi === null"
-          v-tippy="{ content: 'Create a new Polygon on the map.' }"
-        )
-        FileUpload(
+        label.text-lg.font-semibold(for="aoi-upload") Upload Area of Interest
+        FileUpload.mt-1(
           id="aoi-upload"
           value="Upload File"
           :types="['json', 'geojson', 'gpkg']"
@@ -204,8 +205,6 @@ export default defineComponent({
         return;
       }
 
-      console.log(features);
-
       if (features !== undefined && features !== null && features.length === 1) {
         const valid = validateGeoJsonFeaturePolygon(features[0]!);
         if (Object.values(valid).includes(false)) {
@@ -229,8 +228,9 @@ export default defineComponent({
       }
     };
 
-    props.handler.onSubmit(() => {
+    props.handler.onBeforeSubmit(() => {
       props.handler.setPayload({ aoi: aoi.value, toi: toi.value, withFile: withFile.value, fileName: fileName.value});
+      return true;
     });
 
     return {

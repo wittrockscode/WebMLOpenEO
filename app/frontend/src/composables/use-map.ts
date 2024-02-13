@@ -12,10 +12,14 @@ export const useMap = () => {
   const _add_features_callbacks: (() => void)[] = [];
   const _on_base_tiff_set_callbacks: (() => void)[] = [];
   const _on_delete_rect_features_callbacks: (() => void)[] = [];
+  const _on_blocked_callbacks: (() => void)[] = [];
+  const _on_unblocked_callbacks: (() => void)[] = [];
+  const _delete_feature_callbacks: ((feature: Feature) => void)[] = [];
 
   const FEATURES: Ref<Feature[]> = ref([]);
 
   const BASE_TIFF: Ref<Blob | null> = ref(null);
+  const blocked = ref(false);
 
   const changeMode = (mode: MapModes) => {
     MAP_MODE.value = mode;
@@ -50,6 +54,10 @@ export const useMap = () => {
     _on_delete_rect_features_callbacks.push(callback);
   };
 
+  const onDeleteFeature = (callback: (feature: Feature) => void) => {
+    _delete_feature_callbacks.push(callback);
+  };
+
   const addFeatures = (features: Feature[]) => {
     features.forEach(feature => {
       FEATURES.value.push(convertToEPSG3857(feature));
@@ -57,10 +65,16 @@ export const useMap = () => {
     _add_features_callbacks.forEach(callback => callback());
   };
 
+  const removeFeature = (feature: Feature) => {
+    FEATURES.value = FEATURES.value.filter(f => f.getId() !== feature.getId());
+    _delete_feature_callbacks.forEach(callback => callback(feature));
+  };
+
   const addFeatureCollection = (featureCollection: FeatureCollection) => {
     const features = featureCollection.features.map(feature => {
       return featureToOLFeature(feature);
     });
+    console.log(features);
     addFeatures(features);
   };
 
@@ -77,6 +91,24 @@ export const useMap = () => {
     _on_base_tiff_set_callbacks.push(callback);
   };
 
+  const block = () => {
+    blocked.value = true;
+    _on_blocked_callbacks.forEach(callback => callback());
+  };
+
+  const unblock = () => {
+    blocked.value = false;
+    _on_unblocked_callbacks.forEach(callback => callback());
+  };
+
+  const onBlocked = (callback: () => void) => {
+    _on_blocked_callbacks.push(callback);
+  };
+
+  const onUnblocked = (callback: () => void) => {
+    _on_unblocked_callbacks.push(callback);
+  };
+
   return {
     changeMode,
     reset,
@@ -90,8 +122,15 @@ export const useMap = () => {
     deleteRectFeatures,
     onDeleteRectFeatures,
     addFeatureCollection,
+    block,
+    unblock,
+    onBlocked,
+    onUnblocked,
+    removeFeature,
+    onDeleteFeature,
     MAP_MODE,
     FEATURES,
-    BASE_TIFF
+    BASE_TIFF,
+    blocked,
   };
 };

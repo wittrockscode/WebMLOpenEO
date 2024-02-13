@@ -36,8 +36,9 @@ export default defineComponent({
     const ntree: Ref<null | number> = ref(null);
     const mtry: Ref<null | number> = ref(null);
 
-    props.handler.onSubmit(() => {
+    props.handler.onBeforeSubmit(() => {
       props.handler.setPayload([{ name: "ntree", value: ntree.value ?? 0 }, { name: "mtry", value: mtry.value ?? 0 }]);
+      return true;
     });
 
     return { ntree, mtry };
